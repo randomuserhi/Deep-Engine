@@ -1,0 +1,1 @@
+gcc -I./ -o gcc-test -std=c11 -pedantic -Wall -Wextra -O3 Deep_Network_Server.c Deep_Network_Socket.c Deep_UnorderedMap.c Deep_DynArray.c Deep.c Deep_ECS.c Deep_ECS_Archetype.c Deep_Engine.c Deep_String.c EnterTheDeepServer.c -lws2_32

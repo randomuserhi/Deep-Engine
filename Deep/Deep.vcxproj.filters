@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Deep">
+      <UniqueIdentifier>{ed078eae-8a8d-499e-b772-2e366c7570f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Engine">
+      <UniqueIdentifier>{daaf5e35-6ccd-432e-aad0-e075999f5d8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Network">
+      <UniqueIdentifier>{7ee7dbe2-d66d-4441-b08b-10cffdb433c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep">
+      <UniqueIdentifier>{27c1b2b8-1207-4bde-b5e6-7ee31726c402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Engine">
+      <UniqueIdentifier>{86a230d0-5fa1-435b-9ad4-79cec4a98f4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Network">
+      <UniqueIdentifier>{3ba70f19-2392-4fac-8a07-87b3f9a4522f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Engine\Math">
+      <UniqueIdentifier>{ff7060d6-2f30-4ed0-a82c-647946c39fad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Containers">
+      <UniqueIdentifier>{2a9abb10-4f3a-4f57-9b13-9ffb87218ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Engine\Math">
+      <UniqueIdentifier>{282d09cf-27dd-4423-8eaa-d3fa8f549fd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Containers">
+      <UniqueIdentifier>{5d902b70-50b3-4dd9-8d3f-00c3f75b22f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Engine\ECS">
+      <UniqueIdentifier>{b1a76edd-2f3c-486e-8b81-aeb778108c8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Engine\ECS">
+      <UniqueIdentifier>{cbedee14-5bc7-4f85-a37d-c656cc45fbe1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Deep_Network_Server.c">
+      <Filter>Source Files\Deep\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Network_Socket.c">
+      <Filter>Source Files\Deep\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_DynArray.c">
+      <Filter>Source Files\Deep\Containers</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_UnorderedMap.c">
+      <Filter>Source Files\Deep\Containers</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep.c">
+      <Filter>Source Files\Deep</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Engine.c">
+      <Filter>Source Files\Deep\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_ECS_Archetype.c">
+      <Filter>Source Files\Deep\Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_ECS.c">
+      <Filter>Source Files\Deep\Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_String.c">
+      <Filter>Source Files\Deep</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Deep.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Engine.h">
+      <Filter>Header Files\Deep\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Network.h">
+      <Filter>Header Files\Deep\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_DynArray.h">
+      <Filter>Header Files\Deep\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_UnorderedMap.h">
+      <Filter>Header Files\Deep\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Math.h">
+      <Filter>Header Files\Deep\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Vector.h">
+      <Filter>Header Files\Deep\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_ECS.h">
+      <Filter>Header Files\Deep\Engine\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Containers.h">
+      <Filter>Header Files\Deep\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_String.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
