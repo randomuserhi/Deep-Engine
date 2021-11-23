@@ -24,8 +24,6 @@ Deep_DynArray_Decl(Deep_ECS_Handle, Deep_ECS_Handle)
 Deep_DynArray_Decl(struct Deep_DynArray(raw), Deep_DynArray_raw)
 #endif
 
-typedef struct Deep_DynArray(Deep_ECS_Handle) Deep_ECS_Type;
-
 struct Deep_ECS_Archetype_Edge
 {
 	struct Deep_ECS_Archetype* add;
@@ -52,7 +50,7 @@ typedef uint64_t Deep_ECS_ArchetypeHash;
 
 struct Deep_ECS_Archetype
 {
-	Deep_ECS_Type type;
+	struct Deep_DynArray(Deep_ECS_Handle) type;
 	size_t size;
 	struct Deep_DynArray(Deep_ECS_Handle) handles;
 	struct Deep_DynArray(Deep_DynArray_raw) components;
@@ -60,9 +58,9 @@ struct Deep_ECS_Archetype
 	struct Deep_UnorderedMap(Deep_ECS_Handle, Deep_ECS_Archetype_Edge) edges;
 };
 
-#ifndef Deep_UnorderedMap_Decl_Deep_ECS_Type_To_Deep_ECS_Archetype
-#define Deep_UnorderedMap_Decl_Deep_ECS_Type_To_Deep_ECS_Archetype
-Deep_UnorderedMap_Decl(Deep_ECS_Type, struct Deep_ECS_Archetype, Deep_ECS_Type, Deep_ECS_Archetype)
+#ifndef Deep_UnorderedMap_Decl_Deep_DynArray_Deep_ECS_Handle_To_Deep_ECS_Archetype
+#define Deep_UnorderedMap_Decl_Deep_DynArray_Deep_ECS_Handle_To_Deep_ECS_Archetype
+Deep_UnorderedMap_Decl(struct Deep_DynArray(Deep_ECS_Handle), struct Deep_ECS_Archetype, Deep_DynArray_Deep_ECS_Handle, Deep_ECS_Archetype)
 #endif
 
 
@@ -84,11 +82,11 @@ struct Deep_ECS_Id
 struct Deep_ECS
 {
 	struct Deep_UnorderedMap(Deep_ECS_Handle, Deep_ECS_Reference) hierarchy;
-	struct Deep_UnorderedMap(Deep_ECS_Type, Deep_ECS_Archetype) archetypes;
-	struct Deep_ECS_Archetype* root;
+	struct Deep_UnorderedMap(Deep_DynArray_Deep_ECS_Handle, Deep_ECS_Archetype) archetypes;
+	struct Deep_ECS_Archetype root;
 };
 
-Deep_ECS_ArchetypeHash Deep_ECS_Archetype_Hash(const struct Deep_DynArray(Deep_ECS_Handle)* archetype);
+Deep_ECS_ArchetypeHash Deep_ECS_Archetype_Hash(const Deep_ECS_Handle* archetypeType, size_t size);
 void Deep_ECS_Archetype_Create(struct Deep_ECS_Archetype* archetype);
 void Deep_ECS_Archetype_Free(struct Deep_ECS_Archetype* archetype);
 struct Deep_ECS_Reference Deep_ECS_Archetype_Push(struct Deep_ECS* ECS, struct Deep_ECS_Archetype* archetype);

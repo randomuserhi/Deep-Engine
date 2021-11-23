@@ -1,12 +1,12 @@
 #include "Deep_ECS.h"
 
 //This hash functions doesn't quite support 64 bit values => Needs changing
-Deep_ECS_ArchetypeHash Deep_ECS_Archetype_Hash(const struct Deep_DynArray(Deep_ECS_Handle)* type)
+Deep_ECS_ArchetypeHash Deep_ECS_Archetype_Hash(const Deep_ECS_Handle* type, size_t size)
 {
-	Deep_ECS_ArchetypeHash Seed = type->size;
-	for (size_t i = 0; i < type->size; i++)
+	Deep_ECS_ArchetypeHash Seed = size;
+	for (size_t i = 0; i < size; i++)
 	{
-		Seed ^= type->values[0] + 0x9e3779b9 + (Seed << 6) + (Seed >> 2);
+		Seed ^= type[0] + 0x9e3779b9 + (Seed << 6) + (Seed >> 2);
 	}
 	return Seed;
 }

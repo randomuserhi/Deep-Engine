@@ -1,1 +1,1 @@
-clang -I./ -std=c11 -pedantic -Wall -Wextra -O3 -o clang-test.exe Deep_String.c Deep_Network_Server.c Deep_Network_Socket.c Deep_UnorderedMap.c Deep_DynArray.c Deep.c Deep_ECS.c Deep_ECS_Archetype.c Deep_Engine.c EnterTheDeepServer.c -lws2_32
+clang -I./ -std=c11 -pedantic -Wall -Wextra -O3 -o clang-test.exe Deep_String.c Deep_Network_Server.c Deep_Network_Socket.c Deep_UnorderedMap.c Deep_DynArray.c Deep.c Deep_ECS.c Deep_ECS_Archetype.c Deep_Engine.c Deep_Main.c -lws2_32

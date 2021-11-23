@@ -115,21 +115,17 @@ int Deep_UnorderedMap_ByteCompare(const void* hashKey, const void* key, size_t k
 
 int Deep_UnorderedMap_DynArrayCompare(const void* hashKey, const void* key, size_t keyTypeSize)
 {
-	const struct Deep_DynArray(raw)* hashKeyArr = hashKey;
-	const struct Deep_DynArray(raw)* keyArr = key;
-
-	if (hashKeyArr->size == keyArr->size && hashKeyArr->typeSize == keyArr->typeSize)
+	if (hashKey && key)
 	{
-		for (size_t i = 0; i < hashKeyArr->size; ++i)
+		const struct Deep_DynArray(raw)* hashKeyArr = hashKey;
+		const struct Deep_DynArray(raw)* keyArr = key;
+
+		if (hashKeyArr->size == keyArr->size && hashKeyArr->typeSize == keyArr->typeSize)
 		{
-			if (memcmp(Deep_DynArray_Get(raw)(hashKeyArr, i), Deep_DynArray_Get(raw)(keyArr, i), hashKeyArr->typeSize) != 0)
-			{
-				return 0;
-			}
+			return (memcmp(hashKeyArr->values, keyArr->values, hashKeyArr->size * hashKeyArr->typeSize) == 0);
 		}
-		return 1;
 	}
-	else return 0;
+	return 0;
 }
 
 extern Deep_Inline void Deep_UnorderedMap_raw_To_raw_Create(struct Deep_UnorderedMap_raw_To_raw* unorderedMap, int (*keyCompareFunc)(const void*, const void*, size_t), size_t keyTypeSize, size_t keyTypeAlignment, size_t valueTypeSize, size_t valueTypeAlignment);

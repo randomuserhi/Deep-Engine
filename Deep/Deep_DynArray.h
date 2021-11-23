@@ -3,7 +3,6 @@
 
 #include "Deep.h"
 
-#define DEEP_DYNARRAY_SIZE 0 // Default size for dynamic arrays
 #define DEEP_DYNARRAY_GROWTHRATE 1.5f //Growthrate for dynamic arrays
 
 #define DEEP_DYNARRAY_FREE_ON_ERROR 1
@@ -26,9 +25,9 @@ struct Deep_DynArray_raw
 
 Deep_Inline void Deep_DynArray_raw_Create(struct Deep_DynArray_raw* arr, size_t typeSize)
 {
-	arr->values = DEEP_DYNARRAY_SIZE == 0 ? NULL : malloc(typeSize * DEEP_DYNARRAY_SIZE);
+	arr->values = NULL;
 	arr->size = 0;
-	arr->capacity = DEEP_DYNARRAY_SIZE;
+	arr->capacity = 0;
 	arr->typeSize = typeSize;
 	arr->options.freeOnError = DEEP_DYNARRAY_FREE_ON_ERROR;
 }
@@ -71,12 +70,12 @@ Deep_Inline void* Deep_DynArray_raw_Push(struct Deep_DynArray_raw* arr)
 	}
 	else
 	{
-		void* tmp = malloc(DEEP_DYNARRAY_SIZE == 0 ? arr->typeSize : arr->typeSize * DEEP_DYNARRAY_SIZE);
+		void* tmp = malloc(arr->typeSize);
 		if (tmp)
 		{
 			arr->values = tmp;
 			arr->size = 1;
-			arr->capacity = DEEP_DYNARRAY_SIZE == 0 ? 1 : DEEP_DYNARRAY_SIZE;
+			arr->capacity = 1;
 			return arr->values;
 		}
 		else return NULL;
