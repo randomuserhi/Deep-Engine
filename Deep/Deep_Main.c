@@ -55,6 +55,8 @@ int main()
 
 	Deep_ECS_Free(&ECS);
 
+	printf("%zu %zu", mallocCount, freeCount);
+
 	getchar();
 
 	struct Deep_Vector3 vec3 = Deep_Vector3_Create(10, 10, 0);
