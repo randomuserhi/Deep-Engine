@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include <stdint.h>
-
 #include "Deep_Network.h"
 
 #if defined(DEEP_PLATFORM_WINDOWS)
+
+#include <stdio.h>
+#include <stdint.h>
 
 const struct Deep_Network_Server Deep_Network_Server_Default = {.maxBufferSize = 256, .OnReceiveHandle = NULL};
 

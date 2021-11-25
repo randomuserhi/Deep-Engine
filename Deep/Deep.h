@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "Deep_Modules.h"
 
 /*
 * Compiler Macros
@@ -78,6 +79,8 @@
 * Deep Utilities
 */
 
+#include "Deep_Debug.h"
+
 #if defined(Deep_Compiler_Clang)
 #define Deep_Inline inline
 #define Deep_AlignOf(type) __alignof__(type)
@@ -98,31 +101,12 @@
 
 #endif
 
-#define Deep_MallocFreeTracker
-
-// https://stackoverflow.com/a/9074274/9642458
-#if defined(Deep_MallocFreeTracker)
-
-#define malloc(size) Deep_Malloc(size, __FILE__, __LINE__, __FUNCTION__)
-#define calloc(count, typeSize) Deep_Calloc(count, typeSize, __FILE__, __LINE__, __FUNCTION__)
-#define realloc(ptr, size) Deep_Realloc(ptr, size, __FILE__, __LINE__, __FUNCTION__)
-#define free(ptr) Deep_Free(ptr, __FILE__, __LINE__, __FUNCTION__)
-
-extern size_t mallocCount;
-extern size_t freeCount;
-extern size_t freeCountNoNull;
-
-void* Deep_Malloc(size_t size, const char* file, int line, const char* function);
-void* Deep_Calloc(size_t count, size_t typeSize, const char* file, int line, const char* function);
-void* Deep_Realloc(void* ptr, size_t size, const char* file, int line, const char* function);
-void Deep_Free(void* ptr, const char* file, int line, const char* function);
-void Deep_CheckAllocations();
-
-#endif
-
 /*
 * Deep Macros
 */
+
+#define DEEP_FALSE 0
+#define DEEP_TRUE (!(DEEP_FALSE))
 
 #if INTPTR_MAX == INT64_MAX
 #define Deep_SizeOf_SizeT 8

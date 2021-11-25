@@ -78,7 +78,7 @@ Deep_Inline void* Deep_DynArray_raw_Push(struct Deep_DynArray_raw* arr)
 			arr->capacity = 1;
 			return arr->values;
 		}
-		else return NULL;
+		return NULL;
 	}
 }
 void Deep_DynArray_raw_Pop(struct Deep_DynArray_raw* arr);

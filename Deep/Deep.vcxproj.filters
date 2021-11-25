@@ -49,14 +49,20 @@
     <Filter Include="Source Files\Deep\Engine\ECS">
       <UniqueIdentifier>{cbedee14-5bc7-4f85-a37d-c656cc45fbe1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Deep\Network\Deep_Network_OS">
+      <UniqueIdentifier>{cb5ee2b7-d5a6-4e63-b4d8-dc2b16aa42c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Network\Deep_Network_OS">
+      <UniqueIdentifier>{7094e367-a1ed-420e-a14d-64f4a057931b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Debug">
+      <UniqueIdentifier>{b152dd33-21bb-4b9c-a6d5-71d1e21446c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Debug">
+      <UniqueIdentifier>{851be91d-ab6a-4bae-88e0-c419967aaae1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Deep_Network_Server.c">
-      <Filter>Source Files\Deep\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Deep_Network_Socket.c">
-      <Filter>Source Files\Deep\Network</Filter>
-    </ClCompile>
     <ClCompile Include="Deep_Main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -80,6 +86,15 @@
     </ClCompile>
     <ClCompile Include="Deep_String.c">
       <Filter>Source Files\Deep</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Network_Window_Socket.c">
+      <Filter>Source Files\Deep\Network\Deep_Network_OS</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Network_Windows_Server.c">
+      <Filter>Source Files\Deep\Network\Deep_Network_OS</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Debug_Memory.c">
+      <Filter>Source Files\Deep\Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +127,21 @@
     </ClInclude>
     <ClInclude Include="Deep_String.h">
       <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Network_Windows.h">
+      <Filter>Header Files\Deep\Network\Deep_Network_OS</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Network_Posix.h">
+      <Filter>Header Files\Deep\Network\Deep_Network_OS</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Modules.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Debug.h">
+      <Filter>Header Files\Deep\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Debug_Memory.h">
+      <Filter>Header Files\Deep\Debug</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
