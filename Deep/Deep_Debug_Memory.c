@@ -376,8 +376,15 @@ void Deep_Debug_Memory_Start()
 
 void Deep_Debug_Memory_End()
 {
-	printf("(DEEP_DEBUG_MEMORY) Ended.\n");
-	Deep_Debug_Memory_AllocationDict_Free();
+	if (allocations.hashes)
+	{
+		printf("(DEEP_DEBUG_MEMORY) Ended.\n");
+		Deep_Debug_Memory_AllocationDict_Free();
+	}
+	else
+	{
+		printf("(DEEP_DEBUG_MEMORY) Debugging never started, use Deep_Debug_Memory_Start().\n");
+	}
 }
 
 #endif
