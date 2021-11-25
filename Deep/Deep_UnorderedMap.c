@@ -132,13 +132,16 @@ extern Deep_Inline void Deep_UnorderedMap_raw_To_raw_Create(struct Deep_Unordere
 
 void Deep_UnorderedMap_raw_To_raw_Free(struct Deep_UnorderedMap_raw_To_raw* unorderedMap)
 {
-	for (struct Deep_UnorderedMap_HashSlot* hashSlot = unorderedMap->start; hashSlot != NULL;)
+	if (unorderedMap)
 	{
-		struct Deep_UnorderedMap_HashSlot* Old = hashSlot;
-		hashSlot = hashSlot->next;
-		free(Old);
+		for (struct Deep_UnorderedMap_HashSlot* hashSlot = unorderedMap->start; hashSlot != NULL;)
+		{
+			struct Deep_UnorderedMap_HashSlot* Old = hashSlot;
+			hashSlot = hashSlot->next;
+			free(Old);
+		}
+		free(unorderedMap->hashes);
 	}
-	free(unorderedMap->hashes);
 }
 
 void Deep_UnorderedMap_raw_To_raw_ReHash(struct Deep_UnorderedMap_raw_To_raw* unorderedMap)

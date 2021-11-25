@@ -55,7 +55,7 @@ int main()
 
 	Deep_ECS_Free(&ECS);
 
-	printf("%zu %zu", mallocCount, freeCount);
+	Deep_CheckAllocations();
 
 	getchar();
 

@@ -98,15 +98,16 @@ void Deep_ECS_Create(struct Deep_ECS* ECS)
 
 void Deep_ECS_Free(struct Deep_ECS* ECS)
 {
-	Deep_UnorderedMap_Free(Deep_ECS_Handle, Deep_ECS_Reference)(&ECS->hierarchy);
-
-	for (struct Deep_UnorderedMap_HashSlot* hashSlot = ECS->archetypes.start; hashSlot != NULL; hashSlot = hashSlot->next)
+	if (ECS)
 	{
-		Deep_ECS_Archetype_Free(Deep_UnorderedMap_Value(Deep_DynArray_Deep_ECS_Handle, Deep_ECS_Archetype)(&ECS->archetypes, hashSlot));
+		Deep_UnorderedMap_Free(Deep_ECS_Handle, Deep_ECS_Reference)(&ECS->hierarchy);
+		for (struct Deep_UnorderedMap_HashSlot* hashSlot = ECS->archetypes.start; hashSlot != NULL; hashSlot = hashSlot->next)
+		{
+			Deep_ECS_Archetype_Free(Deep_UnorderedMap_Value(Deep_DynArray_Deep_ECS_Handle, Deep_ECS_Archetype)(&ECS->archetypes, hashSlot));
+		}
+		Deep_UnorderedMap_Free(Deep_DynArray_Deep_ECS_Handle, Deep_ECS_Archetype)(&ECS->archetypes);
+		Deep_ECS_Archetype_Free(&ECS->root);
 	}
-	Deep_UnorderedMap_Free(Deep_DynArray_Deep_ECS_Handle, Deep_ECS_Archetype)(&ECS->archetypes);
-
-	Deep_ECS_Archetype_Free(&ECS->root);
 }
 
 void Deep_ECS_CreateComponent(struct Deep_ECS* ECS, const char* name, size_t componentSize)

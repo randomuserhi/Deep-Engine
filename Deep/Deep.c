@@ -6,12 +6,21 @@
 #undef malloc
 #endif
 
+#ifdef calloc
+#undef calloc
+#endif
+
+#ifdef realloc
+#undef realloc
+#endif
+
 #ifdef free
 #undef free
 #endif
 
 size_t mallocCount = 0;
 size_t freeCount = 0;
+size_t freeCountNoNull = 0;
 
 //TODO:: implement this as a linked list
 size_t mallocListIndex = 0;
@@ -28,6 +37,39 @@ void* Deep_Malloc(size_t size, const char* file, int line, const char* function)
 	return p;
 }
 
+void* Deep_Calloc(size_t count, size_t typeSize, const char* file, int line, const char* function)
+{
+	++mallocCount;
+	void* p = calloc(count, typeSize);
+
+	mallocList[mallocListIndex++] = p;
+
+	printf("Calloc Allocated[ %s ] { %s, %i, %p[%zu] }\n", function, file, line, p, count);
+	return p;
+}
+
+void* Deep_Realloc(void* ptr, size_t size, const char* file, int line, const char* function)
+{
+	void* p = realloc(ptr, size);
+
+	for (size_t i = 0; i < mallocListIndex; i++)
+	{
+		if (mallocList[i] == ptr)
+		{
+			printf("Realloc [ %s ] { %s, %i, %p[%zu], old: %p }\n", function, file, line, p, size, ptr);
+			mallocList[i] = p;
+
+			return p;
+		}
+	}
+
+	++mallocCount;
+	mallocList[mallocListIndex++] = p;
+	printf("Realloc act as malloc [ %s ] { %s, %i, NULL PTR, old: %p }\n", function, file, line, ptr);
+
+	return p;
+}
+
 void Deep_Free(void* ptr, const char* file, int line, const char* function)
 {
 	++freeCount;
@@ -35,6 +77,7 @@ void Deep_Free(void* ptr, const char* file, int line, const char* function)
 	if (!ptr)
 	{
 		printf("Freed[ %s ] { %s, %i, NULL PTR }\n", function, file, line);
+		free(ptr);
 		return;
 	}
 
@@ -42,6 +85,7 @@ void Deep_Free(void* ptr, const char* file, int line, const char* function)
 	{
 		if (mallocList[i] == ptr)
 		{
+			++freeCountNoNull;
 			free(ptr);
 			printf("Freed[ %s ] { %s, %i, %p }\n", function, file, line, ptr);
 			mallocList[i] = NULL;
@@ -50,6 +94,23 @@ void Deep_Free(void* ptr, const char* file, int line, const char* function)
 	}
 
 	printf("Could not free[ %s ] { %s, %i, %p }\n", function, file, line, ptr);
+}
+
+void Deep_CheckAllocations()
+{
+	printf("Malloc count: %zu\nFree count (no null calls): %zu\nFree count (all calls): %zu\n", mallocCount, freeCountNoNull, freeCount);
+
+	printf("Remaining pointers: [");
+	char seperator = ' ';
+	for (size_t i = 0; i < mallocListIndex; i++)
+	{
+		if (mallocList[i])
+		{
+			printf("%c %p", seperator, mallocList[i]);
+			seperator = ',';
+		}	
+	}
+	printf("  ]\n");
 }
 
 void Deep_CheckMaxAllocationSize()
