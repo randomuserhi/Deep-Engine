@@ -26,6 +26,7 @@
 #define DEEP_DEBUG_MEMORY_ALLOCATIONDICT_BUCKETSIZE 13
 #define DEEP_DEBUG_MEMORY_ALLOCATIONDICT_LOADFACTOR 0.7
 #define DEEP_DEBUG_MEMORY_ALLOCATIONDICT_GROWTHRATE 2
+#define DEEP_DEBUG_MEMORY_LOGFILE "memory_allocations.txt"
 
 struct Deep_Debug_Memory_AllocationDictSlot
 {
@@ -46,9 +47,11 @@ struct Deep_Debug_Memory_AllocationDict
 	struct Deep_Debug_Memory_AllocationDictSlot** hashes;
 	size_t bucketSize;
 	size_t size;
+
+	FILE* file;
 };
 
-struct Deep_Debug_Memory_AllocationDict allocations = { NULL, NULL, NULL, 0, 0 };
+struct Deep_Debug_Memory_AllocationDict allocations = { NULL, NULL, NULL, 0, 0, NULL };
 
 void Deep_Debug_Memory_AllocationDict_Init()
 {
@@ -57,10 +60,15 @@ void Deep_Debug_Memory_AllocationDict_Init()
 	allocations.hashes = calloc(DEEP_DEBUG_MEMORY_ALLOCATIONDICT_BUCKETSIZE, sizeof * allocations.hashes);
 	allocations.bucketSize = DEEP_DEBUG_MEMORY_ALLOCATIONDICT_BUCKETSIZE;
 	allocations.size = 0;
+
+	//TODO:: handle file error
+	fopen_s(&allocations.file, DEEP_DEBUG_MEMORY_LOGFILE, "w");
 }
 
 void Deep_Debug_Memory_AllocationDict_Free()
 {
+	fclose(allocations.file);
+
 	if (allocations.size > 0)
 	{
 		printf("(DEEP_DEBUG_MEMORY) Warning, not all allocations were freed: \n");
@@ -284,10 +292,13 @@ void* Deep_Debug_Memory_Malloc(size_t size, const char* file, int line, const ch
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
 			printf("malloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, size);
 #endif
+			fprintf(allocations.file, "malloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, size);
+			
 		}
 		else
 		{
 			printf("(DEEP_DEBUG_MEMORY) Warning, malloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
+			fprintf(allocations.file, "(DEEP_DEBUG_MEMORY) Warning, malloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
 		}
 	}
 	return p;
@@ -308,10 +319,12 @@ void* Deep_Debug_Memory_Calloc(size_t count, size_t typeSize, const char* file, 
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
 			printf("calloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, count);
 #endif
+			fprintf(allocations.file, "calloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, count);
 		}
 		else
 		{
 			printf("(DEEP_DEBUG_MEMORY) Warning, calloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
+			fprintf(allocations.file, "(DEEP_DEBUG_MEMORY) Warning, calloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
 		}
 	}
 	return p;
@@ -331,6 +344,7 @@ void* Deep_Debug_Memory_Realloc(void* ptr, size_t size, const char* file, int li
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
 				printf("realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
 #endif
+				fprintf(allocations.file, "realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
 			}
 			else
 			{
@@ -338,11 +352,13 @@ void* Deep_Debug_Memory_Realloc(void* ptr, size_t size, const char* file, int li
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
 				printf("realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
 #endif
+				fprintf(allocations.file, "realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
 			}
 		}
 		else
 		{
 			printf("(DEEP_DEBUG_MEMORY) Warning, realloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
+			fprintf(allocations.file, "(DEEP_DEBUG_MEMORY) Warning, realloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
 			return NULL;
 		}
 	}
@@ -362,18 +378,23 @@ void Deep_Debug_Memory_Free(void* ptr, const char* file, int line, const char* f
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
 			printf("free => %s > %s : line(%i) ( %p )\n", file, function, line, ptr);
 #endif
+			fprintf(allocations.file, "free => %s > %s : line(%i) ( %p )\n", file, function, line, ptr);
 			return;
 		}
 		else if (Deep_Debug_Memory_AllocationDict_Find(ptr))
 		{
-			++freeCountNoNull; 
+			++freeCountNoNull;
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
 			printf("free => %s > %s : line(%i) ( %p )\n", file, function, line, ptr);
 #endif
+			fprintf(allocations.file, "free => %s > %s : line(%i) ( %p )\n", file, function, line, ptr);
 			Deep_Debug_Memory_AllocationDict_Erase(ptr);
 		}
 		else
+		{
 			printf("(DEEP_DEBUG_MEMORY) Warning, invalid free => %s > %s : line(%i) ( %p )\n", file, function, line, ptr);
+			fprintf(allocations.file, "(DEEP_DEBUG_MEMORY) Warning, invalid free => %s > %s : line(%i) ( %p )\n", file, function, line, ptr);
+		}
 	}
 }
 
@@ -382,19 +403,26 @@ void Deep_Debug_Memory_PrintAllocations()
 	if (allocations.hashes)
 	{
 		printf("malloc: %zu\nfree (no null calls): %zu\nfree (all calls): %zu\n", mallocCount, freeCountNoNull, freeCount);
+		fprintf(allocations.file, "malloc: %zu\nfree (no null calls): %zu\nfree (all calls): %zu\n", mallocCount, freeCountNoNull, freeCount);
 
 		printf("\nRemaining pointers: [%zu] { ", allocations.size);
+		fprintf(allocations.file, "\nRemaining pointers: [%zu] { ", allocations.size);
+
 		const char* seperator = "\n\t";
 		for (struct Deep_Debug_Memory_AllocationDictSlot* slot = allocations.start; slot != NULL; slot = slot->next)
 		{
 			printf("%s[ %s > %s : line(%i) ( %p ) ]\n", seperator, slot->file, slot->function, slot->line, slot->allocation);
+			fprintf(allocations.file, "%s[ %s > %s : line(%i) ( %p ) ]\n", seperator, slot->file, slot->function, slot->line, slot->allocation);
+			
 			seperator = "\t";
 		}
 		printf("}");
+		fprintf(allocations.file, "}");
 	}
 	else
 	{
 		printf("(DEEP_DEBUG_MEMORY) Debugging never started, use Deep_Debug_Memory_Start().\n");
+		fprintf(allocations.file, "(DEEP_DEBUG_MEMORY) Debugging never started, use Deep_Debug_Memory_Start().\n");
 	}
 }
 
