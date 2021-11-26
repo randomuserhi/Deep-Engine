@@ -384,11 +384,11 @@ void Deep_Debug_Memory_PrintAllocations()
 		printf("malloc: %zu\nfree (no null calls): %zu\nfree (all calls): %zu\n", mallocCount, freeCountNoNull, freeCount);
 
 		printf("\nRemaining pointers: [%zu] { ", allocations.size);
-		char seperator = '\n';
+		const char* seperator = "\n\t";
 		for (struct Deep_Debug_Memory_AllocationDictSlot* slot = allocations.start; slot != NULL; slot = slot->next)
 		{
-			printf("%c[ %s > %s : line(%i) ( %p ) ]\n", seperator, slot->file, slot->function, slot->line, slot->allocation);
-			seperator = '\t';
+			printf("%s[ %s > %s : line(%i) ( %p ) ]\n", seperator, slot->file, slot->function, slot->line, slot->allocation);
+			seperator = "\t";
 		}
 		printf("}");
 	}

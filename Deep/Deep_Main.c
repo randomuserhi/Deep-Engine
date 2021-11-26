@@ -59,6 +59,8 @@ int main()
 
 	Deep_ECS_Free(&ECS);
 
+	printf("\n");
+
 	struct Deep_Vector3 vec3 = Deep_Vector3_Create(10, 10, 0);
 	Deep_Vector3_Scale_InPlace(&vec3, 2);
 	printf("%f %f %f\n", vec3.x, vec3.y, vec3.z);

@@ -184,10 +184,10 @@ void* Deep_UnorderedMap_raw_To_raw_Insert(struct Deep_UnorderedMap_raw_To_raw* u
 	const size_t index = hash % unorderedMap->bucketSize;
 	if (unorderedMap->hashes[index] == NULL)
 	{
-		void* tmp = malloc(unorderedMap->valueOffset + unorderedMap->valueTypeSize);
+		unsigned char* tmp = malloc(unorderedMap->valueOffset + unorderedMap->valueTypeSize);
 		if (tmp)
 		{
-			unorderedMap->hashes[index] = tmp;
+			unorderedMap->hashes[index] = (void*)tmp;
 			unorderedMap->hashes[index]->hash = hash;
 			unorderedMap->hashes[index]->_next = NULL;
 			unorderedMap->hashes[index]->next = NULL;
@@ -202,9 +202,9 @@ void* Deep_UnorderedMap_raw_To_raw_Insert(struct Deep_UnorderedMap_raw_To_raw* u
 				unorderedMap->start = unorderedMap->hashes[index];
 			
 			//Set key
-			memcpy((unsigned char*)unorderedMap->hashes[index] + unorderedMap->keyOffset, key, unorderedMap->keyTypeSize);
+			memcpy(tmp + unorderedMap->keyOffset, key, unorderedMap->keyTypeSize);
 
-			return (unsigned char*)unorderedMap->hashes[index] + unorderedMap->valueOffset;
+			return tmp + unorderedMap->valueOffset;
 		}
 		else
 		{
@@ -239,9 +239,9 @@ void* Deep_UnorderedMap_raw_To_raw_Insert(struct Deep_UnorderedMap_raw_To_raw* u
 			unorderedMap->end = prevSlot->_next;
 
 			//Set key
-			memcpy((unsigned char*)prevSlot->_next + unorderedMap->keyOffset, key, unorderedMap->keyTypeSize);
+			memcpy(tmp + unorderedMap->keyOffset, key, unorderedMap->keyTypeSize);
 
-			return (unsigned char*)prevSlot->_next + unorderedMap->valueOffset;
+			return tmp + unorderedMap->valueOffset;
 		}
 		return NULL;
 	}
