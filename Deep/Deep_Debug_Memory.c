@@ -118,8 +118,20 @@ void Deep_Debug_Memory_AllocationDict_ReHash()
 	}
 }
 
-
+#ifdef Deep_Compiler_GCC
+/*
+* Parameter key should be "const void*", but that causes GCC to write a completely valid [-Wmaybe-uninitialized] warning.
+* This is because Deep_Debug_Memory_Malloc will perform "void* p = malloc(size)", creating a block of uninitialized memory.
+* When this function is called, as the parameter key is "const void*" GCC knows that the assigned value at "*key" won't change,
+* and thus during this functions execution, the value remains uninitialized, thus throwing the error.
+*
+* This is fine, however the implementation doesn't dereference or use the value at "*key" ever, so the warning should not
+* apply.
+*/
+void Deep_Debug_Memory_AllocationDict_Insert(void* key, const char* file, int line, const char* function)
+#else
 void Deep_Debug_Memory_AllocationDict_Insert(const void* key, const char* file, int line, const char* function)
+#endif
 {
 	if (allocations.hashes)
 	{
@@ -263,13 +275,20 @@ void* Deep_Debug_Memory_Malloc(size_t size, const char* file, int line, const ch
 
 	if (allocations.hashes)
 	{
-		++mallocCount;
+		if (p)
+		{
+			++mallocCount;
 
-		Deep_Debug_Memory_AllocationDict_Insert(p, file, line, function);
+			Deep_Debug_Memory_AllocationDict_Insert(p, file, line, function);
 
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
-		printf("malloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, size);
+			printf("malloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, size);
 #endif
+		}
+		else
+		{
+			printf("(DEEP_DEBUG_MEMORY) Warning, malloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
+		}
 	}
 	return p;
 }
@@ -280,13 +299,20 @@ void* Deep_Debug_Memory_Calloc(size_t count, size_t typeSize, const char* file, 
 
 	if (allocations.hashes)
 	{
-		++mallocCount;
+		if (p)
+		{
+			++mallocCount;
 
-		Deep_Debug_Memory_AllocationDict_Insert(p, file, line, function);
+			Deep_Debug_Memory_AllocationDict_Insert(p, file, line, function);
 
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
-		printf("calloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, count);
+			printf("calloc => %s > %s : line(%i) ( %p[%zu] )\n", file, function, line, p, count);
 #endif
+		}
+		else
+		{
+			printf("(DEEP_DEBUG_MEMORY) Warning, calloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
+		}
 	}
 	return p;
 }
@@ -297,19 +323,27 @@ void* Deep_Debug_Memory_Realloc(void* ptr, size_t size, const char* file, int li
 
 	if (allocations.hashes)
 	{
-		if (!Deep_Debug_Memory_AllocationDict_Find(ptr))
+		if (p)
 		{
-			++mallocCount;
+			if (!Deep_Debug_Memory_AllocationDict_Find(ptr))
+			{
+				++mallocCount;
 #ifdef DEEP_DEBUG_MEMORY_VERBOSE
-			printf("realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
+				printf("realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
 #endif
+			}
+			else
+			{
+				Deep_Debug_Memory_AllocationDict_Erase(ptr);
+#ifdef DEEP_DEBUG_MEMORY_VERBOSE
+				printf("realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
+#endif
+			}
 		}
 		else
 		{
-			Deep_Debug_Memory_AllocationDict_Erase(ptr);
-#ifdef DEEP_DEBUG_MEMORY_VERBOSE
-			printf("realloc => %s > %s : line(%i) ( .old = %p, .new = %p[%zu] )\n", file, function, line, ptr, p, size);
-#endif
+			printf("(DEEP_DEBUG_MEMORY) Warning, realloc returned NULL ptr => %s > %s : line(%i)", file, function, line);
+			return NULL;
 		}
 	}
 	Deep_Debug_Memory_AllocationDict_Insert(p, file, line, function);
