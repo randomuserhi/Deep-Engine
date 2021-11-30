@@ -202,7 +202,7 @@
       <SubType>
       </SubType>
     </ClCompile>
-    <ClCompile Include="Deep_Network_Window_Socket.c">
+    <ClCompile Include="Deep_Network_Windows_Socket.c">
       <SubType>
       </SubType>
     </ClCompile>

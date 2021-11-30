@@ -87,7 +87,7 @@
     <ClCompile Include="Deep_String.c">
       <Filter>Source Files\Deep</Filter>
     </ClCompile>
-    <ClCompile Include="Deep_Network_Window_Socket.c">
+    <ClCompile Include="Deep_Network_Windows_Socket.c">
       <Filter>Source Files\Deep\Network\Deep_Network_OS</Filter>
     </ClCompile>
     <ClCompile Include="Deep_Network_Windows_Server.c">

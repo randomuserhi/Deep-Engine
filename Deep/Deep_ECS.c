@@ -4,6 +4,14 @@
 //    :: Write obsidian file
 //	  :: Implement Archetype unordered map functionality
 
+//TODO:: implement better
+Deep_ECS_Handle Deep_ECS_GenerateHandle()
+{
+	static Deep_ECS_Handle index = 3;
+	Deep_ECS_Handle handle = index++ << 8;
+	return handle;
+}
+
 void* Deep_ECS_GetComponent(struct Deep_ECS* ECS, Deep_ECS_Handle handle, Deep_ECS_Handle componentHandle)
 {
 	const struct Deep_ECS_Reference* reference = Deep_UnorderedMap_Find(Deep_ECS_Handle, Deep_ECS_Reference)(&ECS->hierarchy, Deep_UnorderedMap_Hash(&handle, sizeof handle, DEEP_UNORDEREDMAP_SEED), &handle);
@@ -120,8 +128,7 @@ void Deep_ECS_CreateComponent(struct Deep_ECS* ECS, const char* name, size_t com
 	((struct Deep_ECS_Component*)componentArchetype->components.values->values)[reference.index].size = componentSize;
 	((struct Deep_ECS_Id*)(componentArchetype->components.values + 1)->values)[reference.index].name = name;
 
-	// Create method to get a new handle
-	Deep_ECS_AppendHierarchy(ECS, 10, componentArchetype, reference.index);
+	Deep_ECS_AppendHierarchy(ECS, Deep_ECS_GenerateHandle(), componentArchetype, reference.index);
 }
 
 struct Deep_ECS_Archetype* Deep_ECS_GetArchetype(struct Deep_ECS* ECS, const Deep_ECS_Handle* type, size_t typeLength)

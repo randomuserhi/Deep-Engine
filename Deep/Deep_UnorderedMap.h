@@ -3,8 +3,6 @@
 
 #include "Deep.h"
 
-//TODO:: Refactor to not use the strainge _next attribute and work with a flag similar to std::unorderedMap
-
 //TODO:: make this be random everytime program boots / something (Should not be random per hash function)
 #define DEEP_UNORDEREDMAP_SEED 0xee448401
 #define DEEP_UNORDEREDMAP_BUCKETSIZE 13
@@ -124,7 +122,7 @@ Deep_Inline void Deep_UnorderedMap_##keyTag##_To_##valueTag##_Create(struct Deep
 }
 
 /*
-* The following is used to define the "raw" version of Deep_DynArray
+* The following is used to define the "raw" version of Deep_UnorderedMap
 * which uses a custom Create function to assign sizeof(type).
 */
 

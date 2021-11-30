@@ -8,10 +8,10 @@
 #include <time.h>
 #include <signal.h>
 
-static volatile int running = TRUE;
+static volatile int running = DEEP_TRUE;
 
 void closeSignalHandler(int dummy) {
-	running = FALSE;
+	running = DEEP_FALSE;
 }
 
 void OnReceive(const char* Buffer, int BytesReceived, unsigned int FromAddress, unsigned int FromPort)
@@ -34,9 +34,12 @@ int main()
 
 	const Deep_ECS_Handle type[] = { DEEP_ECS_ID, 10, 11, 12 };
 	struct Deep_ECS_Archetype* archetype = Deep_ECS_GetArchetype(&ECS, type, 4);
+	//TODO:: Pushes a new entity of given type, but doesn't append to hierarchy => make this not exclusive to be less confusing
 	struct Deep_ECS_Reference reference = Deep_ECS_Archetype_Push(&ECS, archetype);
+	//TODO:: Implement a better way of creating and naming an archetype
 	((struct Deep_ECS_Id*)archetype->components.values->values)[reference.index].name = "Entity Test";
 
+	//TODO:: Implement adding type to hierarchy better
 	Deep_ECS_Handle handle = 11;
 	size_t hash = Deep_UnorderedMap_Hash(&handle, sizeof handle, DEEP_UNORDEREDMAP_SEED);
 	*Deep_UnorderedMap_Insert(Deep_ECS_Handle, Deep_ECS_Reference)(&ECS.hierarchy, hash, &handle)
@@ -44,6 +47,8 @@ int main()
 	
 	Deep_ECS_PrintHierarchy(&ECS);
 
+	//TODO:: Handle removing entities better, as this just removes from the hierarchy, not from the archetype
+	//    :: Maybe use tombstones or something to help with iteration, idk
 	Deep_UnorderedMap_Erase(Deep_ECS_Handle, Deep_ECS_Reference)(&ECS.hierarchy, hash, &handle);
 
 	printf("\n");
