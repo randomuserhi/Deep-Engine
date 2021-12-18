@@ -13,10 +13,66 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Deep">
+      <UniqueIdentifier>{e734a4c4-2288-48aa-879f-4c968efd4cc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep">
+      <UniqueIdentifier>{61329f92-144d-4f9f-8381-caa387101e16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Network">
+      <UniqueIdentifier>{2c0172df-d724-480c-ad07-c52e53e17fd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Network">
+      <UniqueIdentifier>{f65477e7-2caf-404f-b6d4-74dcb1f44697}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Network\OS">
+      <UniqueIdentifier>{b1fc49b0-021c-4225-9f9b-0e2beaa15b57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Network\OS">
+      <UniqueIdentifier>{4f0fffef-c68c-48b2-bbed-8b44ffefae52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Deep\Debug">
+      <UniqueIdentifier>{770dfcc1-9477-4d1e-97b6-8f348cb3d096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Debug">
+      <UniqueIdentifier>{83f2a4e7-e33d-43d0-ae6a-0abfbfd4673a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep_Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Deep_Network_Windows_Socket.cpp">
+      <Filter>Source Files\Deep\Network\OS</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Network_Windows_Server.cpp">
+      <Filter>Source Files\Deep\Network\OS</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Debug_Memory.cpp">
+      <Filter>Source Files\Deep\Debug</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Deep_Network.h">
+      <Filter>Header Files\Deep\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Network_Windows.h">
+      <Filter>Header Files\Deep\Network\OS</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Network_Posix.h">
+      <Filter>Header Files\Deep\Network\OS</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Debug.h">
+      <Filter>Header Files\Deep\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Debug_Memory.h">
+      <Filter>Header Files\Deep\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Modules.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

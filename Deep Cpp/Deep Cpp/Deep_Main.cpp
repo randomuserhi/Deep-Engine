@@ -1,20 +1,43 @@
-// Deep Cpp.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#include "Deep.h"
+#include "Deep_Network.h"
 
-#include <iostream>
+#include <signal.h>
+
+static volatile bool running = true;
+
+void closeSignalHandler(int dummy) {
+	running = false;
+}
+
+void OnReceive(const char* Buffer, int BytesReceived, unsigned int FromAddress, unsigned int FromPort)
+{
+	std::cout << "Message received: " << *reinterpret_cast<const int*>(Buffer) << '\n';
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	signal(SIGINT, closeSignalHandler);
+
+	std::cout << "IsBigEndian: " << Deep::Network::IsBigEndian() << '\n';
+
+	Deep::Network::InitializeSockets();
+
+	Deep::Network::Server server{};
+	server.OnReceiveHandle = &OnReceive;
+
+	server.Start(DEEP_NETWORK_DEFAULTPORT);
+
+	std::cout << "Server started on port: " << server.socket.GetPort() << '\n';
+
+	int data = 10;
+
+	Deep::Network::Address addr{ 127, 0, 0, 1, 56732 };
+	while (running)
+	{
+		server.Tick();
+		server.Send((char*)&data, sizeof data, addr.GetSocketAddr());
+	}
+
+	server.Close();
+	Deep::Network::ShutdownSockets();
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

@@ -153,7 +153,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Deep_Debug_Memory.cpp" />
     <ClCompile Include="Deep_Main.cpp" />
+    <ClCompile Include="Deep_Network_Windows_Server.cpp" />
+    <ClCompile Include="Deep_Network_Windows_Socket.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Deep.h" />
+    <ClInclude Include="Deep_Debug.h" />
+    <ClInclude Include="Deep_Debug_Memory.h" />
+    <ClInclude Include="Deep_Modules.h" />
+    <ClInclude Include="Deep_Network.h" />
+    <ClInclude Include="Deep_Network_Posix.h" />
+    <ClInclude Include="Deep_Network_Windows.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
