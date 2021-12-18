@@ -162,6 +162,8 @@
     <ClInclude Include="Deep.h" />
     <ClInclude Include="Deep_Debug.h" />
     <ClInclude Include="Deep_Debug_Memory.h" />
+    <ClInclude Include="Deep_Debug_Memory_Def.h" />
+    <ClInclude Include="Deep_Debug_Memory_Undef.h" />
     <ClInclude Include="Deep_Modules.h" />
     <ClInclude Include="Deep_Network.h" />
     <ClInclude Include="Deep_Network_Posix.h" />

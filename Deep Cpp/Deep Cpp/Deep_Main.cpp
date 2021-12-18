@@ -18,11 +18,19 @@ int main()
 {
 	signal(SIGINT, closeSignalHandler);
 
-	std::cout << "IsBigEndian: " << Deep::Network::IsBigEndian() << '\n';
+	Deep::StartMemoryDebug();
 
-	Deep::Network::InitializeSockets();
+	void* ptr = malloc(sizeof(float));
+	#include "Deep_Debug_Memory_Undef.h"
+	float* f = new(ptr) float(20.0f);
+	#include "Deep_Debug_Memory_Def.h"
+	free(ptr);
 
-	Deep::Network::Server server{};
+	std::cout << "IsBigEndian: " << Deep::IsBigEndian() << '\n';
+
+	Deep::InitializeSockets();
+
+	Deep::Server server{};
 	server.OnReceiveHandle = &OnReceive;
 
 	server.Start(DEEP_NETWORK_DEFAULTPORT);
@@ -31,7 +39,7 @@ int main()
 
 	int data = 10;
 
-	Deep::Network::Address addr{ 127, 0, 0, 1, 56732 };
+	Deep::Address addr{ 127, 0, 0, 1, 56732 };
 	while (running)
 	{
 		server.Tick();
@@ -39,5 +47,8 @@ int main()
 	}
 
 	server.Close();
-	Deep::Network::ShutdownSockets();
+	Deep::ShutdownSockets();
+
+	Deep::EndMemoryDebug();
+	Deep::PrintAllocationMap();
 }

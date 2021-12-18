@@ -74,5 +74,11 @@
     <ClInclude Include="Deep_Modules.h">
       <Filter>Header Files\Deep</Filter>
     </ClInclude>
+    <ClInclude Include="Deep_Debug_Memory_Def.h">
+      <Filter>Header Files\Deep\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_Debug_Memory_Undef.h">
+      <Filter>Header Files\Deep\Debug</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
