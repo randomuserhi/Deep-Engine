@@ -20,9 +20,9 @@
 //Based on https://www.embeddedsystemonline.com/programming-languages/cplusplus/program-to-track-memory-allocations-in-c-or-c
 
 void* operator new (size_t size, const char* file, int line, const char* function);
-void* operator new[](size_t size, const char* file, int line, const char* function);
+void* operator new[] (size_t size, const char* file, int line, const char* function);
 void operator delete (void* ptr) throw();
-void operator delete[](void* ptr) throw ();
+void operator delete[] (void* ptr) throw ();
 
 namespace Deep
 {

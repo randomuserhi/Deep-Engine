@@ -1,4 +1,5 @@
-malloc => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Main.cpp > main : line(23) { 0000023B1F8AF680 }
-free => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Main.cpp > main : line(27) { 0000023B1F8AF680 }
-::operator new[] => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Network_Windows_Server.cpp > Deep::Server::Start : line(10) { 0000023B1F8B9970 }
-::operator delete[] => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Network_Windows_Server.cpp > Deep::Server::Close : line(17) { 0000023B1F8B9970 }
+malloc => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Main.cpp > main : line(23) { 0000021F9290B280 }
+free => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Main.cpp > main : line(27) { 0000021F9290B280 }
+::operator new[] => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Network_Windows_Server.cpp > Deep::Server::Start : line(10) { 0000021F9291C840 }
+::operator delete[] => D:\Git\Deep\Deep Cpp\Deep Cpp\Deep_Network_Windows_Server.cpp > Deep::Server::Close : line(17) { 0000021F9291C840 }
+Remaining pointers: [0] { }

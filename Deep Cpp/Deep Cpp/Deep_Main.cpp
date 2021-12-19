@@ -1,7 +1,7 @@
+#include <signal.h>
+
 #include "Deep.h"
 #include "Deep_Network.h"
-
-#include <signal.h>
 
 static volatile bool running = true;
 
@@ -49,6 +49,6 @@ int main()
 	server.Close();
 	Deep::ShutdownSockets();
 
-	Deep::EndMemoryDebug();
 	Deep::PrintAllocationMap();
+	Deep::EndMemoryDebug();
 }

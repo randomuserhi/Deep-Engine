@@ -264,7 +264,7 @@ void operator delete (void* ptr) throw()
 {
     if (Deep::DEBUG_MEMORY)
     {
-        //If Set was not called, then delete operator was called by something not managed
+        //If DEBUG_MEMORY__SET__ is not true, then delete operator was called by something not managed
         if (Deep::DEBUG_MEMORY__SET__)
         {
             Deep::DEBUG_MEMORY__SET__ = false;
@@ -293,11 +293,11 @@ void operator delete (void* ptr) throw()
     free(ptr);
 }
 
-void operator delete[](void* ptr) throw ()
+void operator delete[] (void* ptr) throw ()
 {
     if (Deep::DEBUG_MEMORY)
     {
-        //If Set was not called, then delete operator was called by something not managed
+        //If DEBUG_MEMORY__SET__ is not true, then delete operator was called by something not managed
         if (Deep::DEBUG_MEMORY__SET__)
         {
             Deep::DEBUG_MEMORY__SET__ = false;
