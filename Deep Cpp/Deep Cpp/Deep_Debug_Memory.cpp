@@ -3,10 +3,6 @@
 
 #include "Deep_Debug_Memory.h"
 
-#if !defined(DEEP_DEBUG_MEMORY_LOGFILE)
-    #define DEEP_DEBUG_MEMORY_LOGFILE "memory_allocations.txt"
-#endif
-
 #ifdef malloc
 #undef malloc
 #endif
@@ -208,6 +204,35 @@ namespace Deep
         
         free(ptr);
     }
+}
+
+
+#if defined(Deep_Compiler_MSCV)
+_NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
+#endif
+void* __cdecl operator new (size_t size)
+{
+    void* ptr;
+    if ((ptr = (void*)malloc(size)) == nullptr)
+    {
+        printf("(DEEP_DEBUG_MEMORY) Fatal, ::operator new failed to get memory.\n");
+        exit(1);
+    }
+    return ptr;
+}
+
+#if defined(Deep_Compiler_MSCV)
+_NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
+#endif
+void* __cdecl operator new[](size_t size)
+{
+    void* ptr;
+    if ((ptr = (void*)malloc(size)) == nullptr)
+    {
+        printf("(DEEP_DEBUG_MEMORY) Fatal, ::operator new[] failed to get memory.\n");
+        exit(1);
+    }
+    return ptr;
 }
 
 void* operator new (size_t size, const char* file, int line, const char* function)

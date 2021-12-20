@@ -2,6 +2,10 @@
 
 #include "Deep.h"
 
+#if !defined(DEEP_DEBUG_MEMORY_LOGFILE)
+#define DEEP_DEBUG_MEMORY_LOGFILE "memory_allocations.txt"
+#endif
+
 /*
 * It should be noted that this debugger is very crude and fails to compile with placement new
 * operations. (In order to do so requires #undef new, such that placement new operations may work as intended).
@@ -18,6 +22,16 @@
 */
 #if defined(DEEP_DEBUG_MEMORY)
 //Based on https://www.embeddedsystemonline.com/programming-languages/cplusplus/program-to-track-memory-allocations-in-c-or-c
+
+#if defined(Deep_Compiler_MSCV)
+_NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
+#endif
+void* __cdecl operator new (size_t size);
+
+#if defined(Deep_Compiler_MSCV)
+_NODISCARD _Ret_notnull_ _Post_writable_byte_size_(size) _VCRT_ALLOCATOR
+#endif
+void* __cdecl operator new[](size_t size);
 
 void* operator new (size_t size, const char* file, int line, const char* function);
 void* operator new[] (size_t size, const char* file, int line, const char* function);
