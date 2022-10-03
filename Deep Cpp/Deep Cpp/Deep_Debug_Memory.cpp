@@ -68,8 +68,8 @@ namespace Deep
     {
         if (DEBUG_MEMORY)
         {
-            std::cout << "Remaining pointers: [" << allocationMap.size() << "] { ";
-            DMFStream << "Remaining pointers: [" << allocationMap.size() << "] { ";
+            std::cout << "\nRemaining pointers: [" << allocationMap.size() << "] { ";
+            DMFStream << "\nRemaining pointers: [" << allocationMap.size() << "] { ";
 
             const char* seperator = "\n\t";
             for (auto& it : allocationMap)
@@ -84,8 +84,8 @@ namespace Deep
         }
         else
         {
-            std::cout << "(DEEP_DEBUG_MEMORY) Debugging never started, use Deep::StartMemoryDebug().\n";
-            DMFStream << "(DEEP_DEBUG_MEMORY) Debugging never started, use Deep::StartMemoryDebug().\n";
+            std::cout << "(DEEP_DEBUG_MEMORY) Debugger is not running, use Deep::StartMemoryDebug().\n";
+            DMFStream << "(DEEP_DEBUG_MEMORY) Debugger is not running, use Deep::StartMemoryDebug().\n";
         }
     }
 

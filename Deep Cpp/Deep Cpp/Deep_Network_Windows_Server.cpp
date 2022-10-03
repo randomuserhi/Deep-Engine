@@ -4,7 +4,7 @@
 
 namespace Deep
 {
-	void Server::Start(unsigned short port)
+	/*void Server::Start(unsigned short port)
 	{
 		socket.Open();
 		buffer = new char[maxBufferSize];
@@ -30,7 +30,7 @@ namespace Deep
 				if (OnReceiveHandle) OnReceiveHandle(buffer, bytesReceived, fromAddress, fromPort);
 			}
 		}
-	}
+	}*/
 }
 
 #endif

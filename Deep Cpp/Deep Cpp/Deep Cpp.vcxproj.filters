@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Deep\Debug">
       <UniqueIdentifier>{83f2a4e7-e33d-43d0-ae6a-0abfbfd4673a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Deep\ECS">
+      <UniqueIdentifier>{e0e0ad72-1c70-4e8a-ba70-07f24def927f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\ECS">
+      <UniqueIdentifier>{f0a137de-cc6c-4b37-8112-ab9343c7da04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep_Main.cpp">
@@ -50,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="Deep_Debug_Memory.cpp">
       <Filter>Source Files\Deep\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep_Network.cpp">
+      <Filter>Source Files\Deep\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="Deep_Debug_Memory_Undef.h">
       <Filter>Header Files\Deep\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep_ECS.h">
+      <Filter>Header Files\Deep\ECS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

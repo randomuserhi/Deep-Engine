@@ -58,7 +58,7 @@
 #define Deep__Line__ __LINE__
 
 #elif defined(Deep_Compiler_MSCV)
-#define Deep_Inline inline
+#define Deep_Inline __forceinline
 #define Deep_AlignOf(type) _Alignof(type)
 
 #define Deep_Unreachable __assume(0)
