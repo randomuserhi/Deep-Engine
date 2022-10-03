@@ -16,6 +16,8 @@
 // TODO:: Implement Packet headers and acknowledgement bits etc (refer to NetworkTK C#)
 // TODO:: Implement Packet splitting for large packets
 
+// NOTE:: This socket requires polling (refer to commented out server code) => Make a proper interface to handle polling (Not sure how to make it event based like C# Async)
+
 namespace Deep
 {
 	bool IsBigEndian();
