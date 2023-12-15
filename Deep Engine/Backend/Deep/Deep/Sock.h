@@ -17,10 +17,7 @@
 
 // TODO(randomuserhi): TCPSocket -> Note not TCPServer -> thats handled elsewhere
 
-namespace Deep
-{
-    bool IsBigEndian(); // Consider moving somewhere else? => maybe into Net.h
-
+namespace Deep {
     // This namespace is used for storing OS implementation specifics
     // NOTE(randomuserhi): They can still be accessed by the user via __impl__ to allow them to write 
     //                     OS specific code.
@@ -28,18 +25,18 @@ namespace Deep
     //                     between compilation on different OS.
     //                     Only specific definitions that MUST be visible or that are useful to be exposed
     //                     for OS specific reasons will be found under __impl__ in this header
-    namespace __impl__
-    {
+    namespace __impl__ {
         struct UDPSocket; // Stores implementation specific socket information such as Handles etc...
+        struct TCPSocket; // Stores implementation specific socket information such as Handles etc...
     }
 
-    class UDPSocket
-    {
+    class UDPSocket {
     public:
-        UDPSocket() : __impl__() {}
+        UDPSocket() : __impl__() {
+        }
 
         int32 GetSockName(IPv4& address);
-        
+
         int32 GetPeerName(IPv4& address);
 
         int32 Open();
@@ -49,8 +46,17 @@ namespace Deep
         int32 Send(const uint8* data, size_t dataSize);
         int32 SendTo(const uint8* data, size_t dataSize, const IPv4 address);
         int32 Receive(uint8* buffer, const size_t maxBufferSize, size_t& bytesReceived, IPv4& fromAddress);
-        
+
     private:
         __impl__::UDPSocket __impl__;
+    };
+
+    class TCPSocket {
+    public:
+        TCPSocket() : __impl__() {
+        }
+
+    private:
+        __impl__::TCPSocket __impl__;
     };
 }

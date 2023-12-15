@@ -2,21 +2,24 @@
 
 #include <vector>
 #include "Deep.h"
+#include "../Math.h"
 
 namespace Deep {
     struct PacketReader {
-        PacketReader(const uint8* const data) : data(data) {}
+        PacketReader(const uint8* const data) : data(data) {
+        }
 
     private:
         const uint8* const data;
     };
 
     struct Packet {
-        Packet() {}
+        Packet() {
+        }
         Packet(size_t size) {
             buffer.reserve(size);
         }
-         
+
         // TODO(randomuserhi): https://stackoverflow.com/a/51615364/9642458
         Deep_Inline const uint8* data();
         Deep_Inline size_t size();
@@ -27,13 +30,13 @@ namespace Deep {
         void Write(int16 value);
         void Write(uint32 value);
         void Write(int32 value);
-        //void Write(float value);
-        //void Write(Vec3 value);
-        //void Write(Quaternion value);
+        void Write(float32 value);
+        void Write(Vec3 value);
+        void Write(Quaternion value);
 
-        //void WriteHalf(float value);
-        //void WriteHalf(Vec3 value);
-        //void WriteHalf(Quaternion value);
+        void WriteHalf(float32 value);
+        void WriteHalf(Vec3 value);
+        void WriteHalf(Quaternion value);
 
     private:
         std::vector<uint8> buffer;

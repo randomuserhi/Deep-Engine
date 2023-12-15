@@ -11,6 +11,10 @@ namespace Deep {
             SOCKET socketFD = INVALID_SOCKET;
         };
 
+        struct TCPSocket {
+            SOCKET socketFD = INVALID_SOCKET;
+        };
+
         Deep_Inline int32 GetWSAError() {
             return WSAGetLastError();
         }

@@ -27,15 +27,14 @@ namespace Deep {
         return address;
     }
     int32 FromSocketAddr(const SocketAddr sockAddr, IPv4& format) {
-        if (sockAddr.sa.sa_family == AF_INET)
-        {
+        if (sockAddr.sa.sa_family == AF_INET) {
             const uint32 bitAddress = ntohl(sockAddr.sa_in.sin_addr.s_addr);
             format.a = (bitAddress & 0xFF000000) >> 24;
             format.b = (bitAddress & 0x00FF0000) >> 16;
             format.c = (bitAddress & 0x0000FF00) >> 8;
             format.d = (bitAddress & 0x000000FF);
             format.port = ntohs(sockAddr.sa_in.sin_port);
-            
+
             return DEEP_SOCKET_NOERROR;
         }
 
@@ -44,8 +43,7 @@ namespace Deep {
 
     int32 InitializeSockets() {
         WSADATA wsaData;
-        if (WSAStartup(MAKEWORD(2, 2), &wsaData) == NO_ERROR)
-        {
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) == NO_ERROR) {
             return DEEP_SOCKET_NOERROR;
         }
         return DEEP_SOCKET_ERROR;
@@ -53,8 +51,8 @@ namespace Deep {
 
     int32 ShutdownSockets() {
         const int result = WSACleanup();
-        return result == SOCKET_ERROR ? DEEP_SOCKET_ERROR 
-                                      : DEEP_SOCKET_NOERROR;
+        return result == SOCKET_ERROR ? DEEP_SOCKET_ERROR
+            : DEEP_SOCKET_NOERROR;
     }
 
     int32 UDPSocket::GetSockName(IPv4& address) {
@@ -75,16 +73,14 @@ namespace Deep {
 
     int32 UDPSocket::Open() {
         SOCKET& socketFD = __impl__.socketFD;
-        
-        if (socketFD != INVALID_SOCKET)
-        {
+
+        if (socketFD != INVALID_SOCKET) {
             Close();
         }
 
         socketFD = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-        if (socketFD == INVALID_SOCKET)
-        {
+        if (socketFD == INVALID_SOCKET) {
             return DEEP_SOCKET_ERROR;
         }
 
@@ -99,15 +95,13 @@ namespace Deep {
 
     int32 UDPSocket::Close() {
         SOCKET& socketFD = __impl__.socketFD;
-        if (socketFD == INVALID_SOCKET)
-        {
+        if (socketFD == INVALID_SOCKET) {
             // Socket already closed / SocketFD is invalid
             return DEEP_SOCKET_NOERROR;
         }
 
         const int32 result = closesocket(socketFD);
-        if (result == SOCKET_ERROR)
-        {
+        if (result == SOCKET_ERROR) {
             return DEEP_SOCKET_ERROR;
         }
         socketFD = INVALID_SOCKET;
@@ -123,15 +117,13 @@ namespace Deep {
         assert(port < USHRT_MAX);
         address.sin_port = htons(port);
 
-        if (bind(socketFD, (struct sockaddr*)&address, sizeof address) == SOCKET_ERROR)
-        {
+        if (bind(socketFD, (struct sockaddr*)&address, sizeof address) == SOCKET_ERROR) {
             return DEEP_SOCKET_ERROR;
         }
-        
+
         //Set socket to be non-blocking
         DWORD nonBlocking = 1;
-        if (ioctlsocket(socketFD, FIONBIO, &nonBlocking) != 0)
-        {
+        if (ioctlsocket(socketFD, FIONBIO, &nonBlocking) != 0) {
             // Failed to set socket to non-blocking
             return DEEP_SOCKET_ERROR;
         }
@@ -143,8 +135,7 @@ namespace Deep {
         const SOCKET& socketFD = __impl__.socketFD;
 
         const SocketAddr sockAddr = ToSocketAddr(address);
-        if (connect(socketFD, &sockAddr.sa, sizeof sockAddr) != NO_ERROR)
-        {
+        if (connect(socketFD, &sockAddr.sa, sizeof sockAddr) != NO_ERROR) {
             // Failed to connect socket with error
             return DEEP_SOCKET_ERROR;
         }
@@ -156,8 +147,7 @@ namespace Deep {
 
         const SOCKET& socketFD = __impl__.socketFD;
         const int32 sentBytes = send(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0);
-        if (sentBytes == SOCKET_ERROR)
-        {
+        if (sentBytes == SOCKET_ERROR) {
             return DEEP_SOCKET_ERROR;
         }
         return DEEP_SOCKET_NOERROR;
@@ -167,11 +157,10 @@ namespace Deep {
         assert(dataSize < INT_MAX);
 
         const SOCKET& socketFD = __impl__.socketFD;
-        
+
         const SocketAddr sockAddr = ToSocketAddr(address);
         const int32 sentBytes = sendto(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0, &sockAddr.sa, sizeof sockAddr);
-        if (sentBytes == SOCKET_ERROR)
-        {
+        if (sentBytes == SOCKET_ERROR) {
             return DEEP_SOCKET_ERROR;
         }
         return DEEP_SOCKET_NOERROR;
@@ -187,8 +176,7 @@ namespace Deep {
 
         bytesReceived = recvfrom(socketFD, reinterpret_cast<char*>(buffer), static_cast<int>(maxBufferSize), 0, &fromSockAddr.sa, &fromLength);
 
-        if (bytesReceived < 0)
-        {
+        if (bytesReceived < 0) {
             return DEEP_SOCKET_ERROR;
         }
 
