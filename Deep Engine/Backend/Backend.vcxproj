@@ -146,7 +146,6 @@
     <ClCompile Include="Deep\Deep\Math\Quaternion.cpp" />
     <ClCompile Include="Deep\Deep\Math\Vec3.cpp" />
     <ClCompile Include="Deep\Deep\Math\Vec4.cpp" />
-    <ClCompile Include="Deep\Deep\Net\Channel.cpp" />
     <ClCompile Include="Deep\Deep\Net\Net.cpp" />
     <ClCompile Include="Deep\Deep\Net\Packet.cpp" />
     <ClCompile Include="Deep\Deep\Physics\Physics.cpp" />
@@ -169,7 +168,6 @@
     <ClInclude Include="Deep\Deep\Math\Vec4.h" />
     <ClInclude Include="Deep\Deep\Net.h" />
     <ClInclude Include="Deep\Deep\Net\BitHelper.h" />
-    <ClInclude Include="Deep\Deep\Net\Channel.h" />
     <ClInclude Include="Deep\Deep\Net\Packet.h" />
     <ClInclude Include="Deep\Deep\Physics.h" />
     <ClInclude Include="Deep\Deep\Sock.h" />

@@ -69,9 +69,6 @@
     <ClCompile Include="Deep\Deep\Sock\IPv4.cpp">
       <Filter>Source Files\Deep\Sock</Filter>
     </ClCompile>
-    <ClCompile Include="Deep\Deep\Net\Channel.cpp">
-      <Filter>Source Files\Deep\Net</Filter>
-    </ClCompile>
     <ClCompile Include="Deep\Deep\Net\Packet.cpp">
       <Filter>Source Files\Deep\Net</Filter>
     </ClCompile>
@@ -123,9 +120,6 @@
       <Filter>Header Files\Deep\Sock</Filter>
     </ClInclude>
     <ClInclude Include="Deep\Deep\Net\Packet.h">
-      <Filter>Header Files\Deep\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\Net\Channel.h">
       <Filter>Header Files\Deep\Net</Filter>
     </ClInclude>
     <ClInclude Include="Deep\Deep\Net.h">

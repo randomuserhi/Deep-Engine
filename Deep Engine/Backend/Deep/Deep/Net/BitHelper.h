@@ -1,6 +1,12 @@
 #include "../../Deep.h"
 
 namespace Deep {
+    // NOTE(randomuserhi): I technically should pack and unpack floating point types
+    //                     and encode integers to a known binary format as described by beej:
+    //                     https://beej.us/guide/bgnet/examples/ieee754.c
+    //                     https://www.beej.us/guide/bgnet/html/#:~:text=on%20for%20details!-,7.5%20Serialization%E2%80%94How%20to%20Pack%20Data,-It%E2%80%99s%20easy%20enough
+    //                     - However most systems this should be fine (just handling endianness)
+
     Deep_Inline bool IsBigEndian() {
         uint x = 1;
         uint8* c = (uint8*)&x;
