@@ -1,10 +1,135 @@
 #include <winsock2.h>
+#include <cmath>
 
 #include "./Packet.h"
 #include "./BitHelper.h"
 #include "../Math.h"
 
 namespace Deep {
+    Deep_Inline uint8 PacketReader::ReadByte() {
+        uint8 value = *head;
+        head += sizeof value;
+        return ntoh(value);
+    }
+    Deep_Inline uint16 PacketReader::ReadUInt16() {
+        uint16 value = *reinterpret_cast<const uint16*>(head);
+        head += sizeof value;
+        return ntoh(value);
+    }
+    Deep_Inline uint32 PacketReader::ReadUInt32() {
+        uint32 value = *reinterpret_cast<const uint32*>(head);
+        head += sizeof value;
+        return ntoh(value);
+    }
+    Deep_Inline uint64 PacketReader::ReadUInt64() {
+        uint64 value = *reinterpret_cast<const uint64*>(head);
+        head += sizeof value;
+        return ntoh(value);
+    }
+
+    Deep_Inline int16 PacketReader::ReadInt16() {
+        int16 value = *reinterpret_cast<const int16*>(head);
+        head += sizeof value;
+        return ntoh(value);
+    }
+    Deep_Inline int32 PacketReader::ReadInt32() {
+        int32 value = *reinterpret_cast<const int32*>(head);
+        head += sizeof value;
+        return ntoh(value);
+    }
+    Deep_Inline int64 PacketReader::ReadInt64() {
+        int64 value = *reinterpret_cast<const int64*>(head);
+        head += sizeof value;
+        return ntoh(value);
+    }
+
+    Deep_Inline float32 PacketReader::ReadHalf() {
+        uint16 value = *reinterpret_cast<const uint16*>(head);
+        head += sizeof value;
+        return HalfToFloat(ntoh(value));
+    }
+    Deep_Inline float32 PacketReader::ReadFloat() {
+        uint32 value = *reinterpret_cast<const uint32*>(head);
+        head += sizeof value;
+        return AsFloat(ntoh(value));
+    }
+
+    Deep_Inline Vec3 PacketReader::ReadVec3() {
+        return Vec3{
+            ReadFloat(),
+            ReadFloat(),
+            ReadFloat()
+        };
+    }
+    Deep_Inline Quaternion PacketReader::ReadQuaternion() {
+        uint8 i = ReadByte();
+        float x = 0, y = 0, z = 0, w = 0;
+        switch (i) {
+        case 0:
+            y = ReadFloat();
+            z = ReadFloat();
+            w = ReadFloat();
+            x = std::sqrtf(1.0f - y * y - z * z - w * w);
+            break;
+        case 1:
+            x = ReadFloat();
+            z = ReadFloat();
+            w = ReadFloat();
+            y = std::sqrtf(1.0f - x * x - z * z - w * w);
+            break;
+        case 2:
+            x = ReadFloat();
+            y = ReadFloat();
+            w = ReadFloat();
+            z = std::sqrtf(1.0f - x * x - y * y - w * w);
+            break;
+        case 3:
+            x = ReadFloat();
+            y = ReadFloat();
+            z = ReadFloat();
+            w = std::sqrtf(1.0f - x * x - y * y - z * z);
+            break;
+        }
+    }
+
+    Deep_Inline Vec3 PacketReader::ReadHalfVec3() {
+        return Vec3{
+            ReadHalf(),
+            ReadHalf(),
+            ReadHalf()
+        };
+    }
+    Deep_Inline Quaternion PacketReader::ReadHalfQuaternion() {
+        uint8 i = ReadByte();
+        float x = 0, y = 0, z = 0, w = 0;
+        switch (i) {
+        case 0:
+            y = ReadHalf();
+            z = ReadHalf();
+            w = ReadHalf();
+            x = std::sqrtf(1.0f - y * y - z * z - w * w);
+            break;
+        case 1:
+            x = ReadHalf();
+            z = ReadHalf();
+            w = ReadHalf();
+            y = std::sqrtf(1.0f - x * x - z * z - w * w);
+            break;
+        case 2:
+            x = ReadHalf();
+            y = ReadHalf();
+            w = ReadHalf();
+            z = std::sqrtf(1.0f - x * x - y * y - w * w);
+            break;
+        case 3:
+            x = ReadHalf();
+            y = ReadHalf();
+            z = ReadHalf();
+            w = std::sqrtf(1.0f - x * x - y * y - z * z);
+            break;
+        }
+    }
+
     // TODO(randomuserhi): Important read, 
     //                     https://stackoverflow.com/questions/3022552/is-there-any-standard-htonl-like-function-for-64-bits-integers-in-c
 
@@ -12,7 +137,7 @@ namespace Deep {
     //                     Therefore I need my own implementation of htons and htonl for converting big-endian hosts to 
     //                     little endian.
 
-    void Packet::Write(uint8 byte) {
+    Deep_Inline void Packet::Write(uint8 byte) {
         buffer.push_back(byte);
     }
 
@@ -20,7 +145,7 @@ namespace Deep {
     //                     for endianess. For ASCII strings or formats where data only
     //                     spans 1 byte, this works fine:
     //                     https://stackoverflow.com/questions/63974853/explaining-lack-of-endianness-as-it-applies-to-a-string
-    void Packet::Write(const uint8* bytes, size_t numBytes) {
+    Deep_Inline void Packet::Write(const uint8* bytes, size_t numBytes) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + numBytes);
         // Fairly sure this is UB to the abstract Cpp machine, since no uint8 objects
@@ -40,12 +165,12 @@ namespace Deep {
     // 
     // Reasonable compilers shouldn't care, but by the cpp standard this is UB
 
-    void Packet::Write(uint16 value) {
+    Deep_Inline void Packet::Write(uint16 value) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + sizeof value);
         *reinterpret_cast<uint16*>(buffer.data() + old) = hton(value);
     }
-    void Packet::Write(int16 value) {
+    Deep_Inline void Packet::Write(int16 value) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + sizeof value);
         *reinterpret_cast<int16*>(buffer.data() + old) = hton(value);
@@ -57,34 +182,34 @@ namespace Deep {
     // 
     // Reasonable compilers shouldn't care, but by the cpp standard this is UB
 
-    void Packet::Write(uint32 value) {
+    Deep_Inline void Packet::Write(uint32 value) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + sizeof value);
         *reinterpret_cast<uint32*>(buffer.data() + old) = hton(value);
     }
-    void Packet::Write(int32 value) {
+    Deep_Inline void Packet::Write(int32 value) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + sizeof value);
         *reinterpret_cast<int32*>(buffer.data() + old) = hton(value);
     }
 
-    void Packet::Write(float32 value) {
+    Deep_Inline void Packet::Write(float32 value) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + sizeof value);
         *reinterpret_cast<int32*>(buffer.data() + old) = hton(*reinterpret_cast<uint32*>(&value));
     }
-    void Packet::WriteHalf(float32 value) {
+    Deep_Inline void Packet::WriteHalf(float32 value) {
         float16 half = FloatToHalf(value);
         Write(half);
     }
 
-    void Packet::Write(Vec3 value) {
+    Deep_Inline void Packet::Write(Vec3 value) {
         buffer.reserve(buffer.size() + sizeof(float32) * 3);
         Write(value.x);
         Write(value.y);
         Write(value.z);
     }
-    void Packet::WriteHalf(Vec3 value) {
+    Deep_Inline void Packet::WriteHalf(Vec3 value) {
         buffer.reserve(buffer.size() + sizeof(float32) * 3);
         WriteHalf(value.x);
         WriteHalf(value.y);

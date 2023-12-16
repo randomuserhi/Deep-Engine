@@ -6,8 +6,29 @@
 
 namespace Deep {
     struct PacketReader {
-        PacketReader(const uint8* const data) : data(data) {
+        PacketReader(const uint8* data) : data(data), head(data) {
         }
+
+        uint8 ReadByte();
+
+        uint16 ReadUInt16();
+        uint32 ReadUInt32();
+        uint64 ReadUInt64();
+
+        int16 ReadInt16();
+        int32 ReadInt32();
+        int64 ReadInt64();
+
+        float32 ReadHalf();
+        float32 ReadFloat();
+
+        Vec3 ReadVec3();
+        Quaternion ReadQuaternion();
+
+        Vec3 ReadHalfVec3();
+        Quaternion ReadHalfQuaternion();
+
+        const uint8* head;
 
     private:
         const uint8* const data;
