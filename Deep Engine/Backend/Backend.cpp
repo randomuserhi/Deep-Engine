@@ -27,18 +27,18 @@ int main() {
     Deep::IPv4 address;
     socket.GetPeerName(address);
     std::cout << static_cast<uint32>(address.a)
-       << ":" << static_cast<uint32>(address.b)
-       << ":" << static_cast<uint32>(address.c)
-       << ":" << static_cast<uint32>(address.d)
-       << ":" << address.port << std::endl;
+        << ":" << static_cast<uint32>(address.b)
+        << ":" << static_cast<uint32>(address.c)
+        << ":" << static_cast<uint32>(address.d)
+        << ":" << address.port << std::endl;
 
     const uint8 data[] = "That's crazy";
 
     std::cout << sizeof data << std::endl;
 
-    Deep::Vec3 up{0, 1, 0};
-    Deep::Vec3 axis{0, 0, 1};
-    Deep::Quaternion rotateRight{axis, PI / 2.0f};
+    Deep::Vec3 up{ 0, 1, 0 };
+    Deep::Vec3 axis{ 0, 0, 1 };
+    Deep::Quaternion rotateRight{ axis, PI / 2.0f };
     Deep::Vec3 right = rotateRight * up;
     std::cout << rotateRight.w
         << "," << rotateRight.x
@@ -50,10 +50,9 @@ int main() {
         << "," << right.z
         << std::endl;
 
-    while (true)
-    {
+    while (true) {
         Deep::Packet packet;
-        packet.Write((uint16)(sizeof data));
+        packet.Write(static_cast<uint8>(sizeof data));
         packet.Write(data, sizeof data);
 
         socket.Send(packet.data(), packet.size());

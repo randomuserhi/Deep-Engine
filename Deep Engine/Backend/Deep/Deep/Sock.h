@@ -15,7 +15,11 @@
 
 #endif
 
-// TODO(randomuserhi): TCPSocket -> Note not TCPServer -> thats handled elsewhere
+// TODO(randomuserhi): Refactor to UDPServer, UDPClient, TCPServer, TCPClient
+//                     -> There is no reason to have my own wrapper around individual socket implementation
+//                     -> Instead wrap the entirety of the server/client system
+//                     -> Refactor how I approach portability in this sense
+//                     -> Possibly, remove "Sock.h" and place everything inside "Net.h"
 
 namespace Deep {
     // This namespace is used for storing OS implementation specifics
