@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Deep.h"
+
 namespace Deep {
     struct Mat3 {
         Mat3& Transpose();
@@ -18,18 +20,18 @@ namespace Deep {
          * (02, 12, 22)
          */
         union {
-            float values[9];
+            float32 values[9];
             // NOTE(randomuserhi): order of values matter for specific memory access patterns
             struct {
-                float m00;
-                float m01;
-                float m02;
-                float m10;
-                float m11;
-                float m12;
-                float m20;
-                float m21;
-                float m22;
+                float32 m00;
+                float32 m01;
+                float32 m02;
+                float32 m10;
+                float32 m11;
+                float32 m12;
+                float32 m20;
+                float32 m21;
+                float32 m22;
             };
         };
     };

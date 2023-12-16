@@ -4,7 +4,7 @@
 
 namespace Deep {
     Quaternion& Quaternion::Normalize() {
-        float length = std::sqrt(x * x + y * y + z * z + w * w);
+        float32 length = std::sqrt(x * x + y * y + z * z + w * w);
         x /= length;
         y /= length;
         z /= length;
@@ -19,7 +19,7 @@ namespace Deep {
         return *this;
     }
 
-    Quaternion::Quaternion(Vec3 axis, float angle) {
+    Quaternion::Quaternion(Vec3 axis, float32 angle) {
         axis.Normalize(); // Must be normalized for the below equation
 
         /**
@@ -27,7 +27,7 @@ namespace Deep {
          * cos(a) + sin(a)xi + sin(a)yj + sin(a)zk
          */
         angle /= 2.0f;
-        float sin = std::sin(angle);
+        float32 sin = std::sin(angle);
         x = axis.x * sin;
         y = axis.y * sin;
         z = axis.z * sin;
@@ -60,7 +60,7 @@ namespace Deep {
         return a -= b;
     }
 
-    Quaternion& Quaternion::operator*= (const float other) {
+    Quaternion& Quaternion::operator*= (const float32 other) {
         x *= other;
         y *= other;
         z *= other;
@@ -68,7 +68,7 @@ namespace Deep {
         return *this;
     }
 
-    Quaternion& Quaternion::operator/= (const float other) {
+    Quaternion& Quaternion::operator/= (const float32 other) {
         x /= other;
         y /= other;
         z /= other;
@@ -76,15 +76,15 @@ namespace Deep {
         return *this;
     }
 
-    Quaternion operator* (Quaternion a, const float other) {
+    Quaternion operator* (Quaternion a, const float32 other) {
         return a *= other;
     }
 
-    Quaternion operator* (const float other, Quaternion a) {
+    Quaternion operator* (const float32 other, Quaternion a) {
         return a *= other;
     }
 
-    Quaternion operator/ (Quaternion a, const float other) {
+    Quaternion operator/ (Quaternion a, const float32 other) {
         return a /= other;
     }
 
@@ -106,26 +106,26 @@ namespace Deep {
     }
 
     Mat3 Quaternion::toMat3() const {
-        float w2 = w * w;
-        float x2 = x * x;
-        float y2 = y * y;
-        float z2 = z * z;
+        float32 w2 = w * w;
+        float32 x2 = x * x;
+        float32 y2 = y * y;
+        float32 z2 = z * z;
 
-        float inverse = 1.0f / (w2 + x2 + y2 + z2);
+        float32 inverse = 1.0f / (w2 + x2 + y2 + z2);
 
         x2 *= inverse;
         y2 *= inverse;
         z2 *= inverse;
         w2 *= inverse;
 
-        float xy = x * y * inverse;
-        float zw = w * z * inverse;
+        float32 xy = x * y * inverse;
+        float32 zw = w * z * inverse;
 
-        float xz = x * z * inverse;
-        float yw = w * y * inverse;
+        float32 xz = x * z * inverse;
+        float32 yw = w * y * inverse;
 
-        float yz = y * z * inverse;
-        float xw = w * x * inverse;
+        float32 yz = y * z * inverse;
+        float32 xw = w * x * inverse;
 
         Mat3 m;
         m.m00 = x2 - y2 - z2 + w2;

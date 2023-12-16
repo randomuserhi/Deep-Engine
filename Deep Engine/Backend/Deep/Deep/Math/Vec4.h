@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Deep.h"
+
 namespace Deep {
     struct Vec4 {
         Vec4& Normalize();
@@ -8,25 +10,28 @@ namespace Deep {
             return v.Normalize();
         }
 
+        float32 magnitude() const;
+        float32 sqrdMagnitude() const;
+
         Vec4& operator+= (const Vec4& other);
         Vec4& operator-= (const Vec4& other);
-        Vec4& operator*= (const float other);
-        Vec4& operator/= (const float other);
+        Vec4& operator*= (const float32 other);
+        Vec4& operator/= (const float32 other);
 
         union {
-            float values[4];
+            float32 values[4];
             struct {
-                float x;
-                float y;
-                float z;
-                float w;
+                float32 x;
+                float32 y;
+                float32 z;
+                float32 w;
             };
         };
     };
 
     Vec4 operator+ (Vec4 a, const Vec4& b);
     Vec4 operator- (Vec4 a, const Vec4& b);
-    Vec4 operator* (Vec4 v, const float a);
-    Vec4 operator* (const float a, Vec4 v);
-    float operator* (const Vec4& a, const Vec4& b);
+    Vec4 operator* (Vec4 v, const float32 a);
+    Vec4 operator* (const float32 a, Vec4 v);
+    float32 operator* (const Vec4& a, const Vec4& b);
 }

@@ -2,10 +2,10 @@
 
 namespace Deep {
     Mat3& Mat3::Transpose() {
-        float temp = m10;
+        float32 temp = m10;
         m10 = m01;
         m01 = temp;
-        
+
         temp = m20;
         m20 = m02;
         m02 = temp;
