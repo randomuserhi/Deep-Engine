@@ -43,7 +43,7 @@ interface Page extends Directory  {
 }
 
 RHU.module(new Error(), "docs", { 
-}, function({}) {
+}, function() {
 
     const versions = new Map<string, Docs>();
 
@@ -53,7 +53,7 @@ RHU.module(new Error(), "docs", {
     }
 
     const split = (path: string): string[] => {
-        const paths = path.split(/[\/\\]/g);
+        const paths = path.split(/[/\\]/g);
         if (paths.length > 0 && paths[paths.length - 1].trim() === "") {
             return paths.slice(0, paths.length - 1);
         }
@@ -118,8 +118,8 @@ RHU.module(new Error(), "docs", {
     };
     Directory.prototype.sortedKeys = function() {
         return [...this.subDirectories.keys()].sort((a, b) => {
-            let dirA = this.subDirectories.get(a)!;
-            let dirB = this.subDirectories.get(b)!;
+            const dirA = this.subDirectories.get(a)!;
+            const dirB = this.subDirectories.get(b)!;
             if (dirA.index !== undefined && dirB.index !== undefined && dirA.index !== dirB.index) {
                 return dirA.index - dirB.index;
             } else if (dirA.index !== undefined) {
@@ -165,10 +165,10 @@ RHU.module(new Error(), "docs", {
                 return (+v).toString() === v;
             }
         
-            var sort = {
+            const sort = {
                 asc: function (a: { index: number, value: string[] }, b: { index: number, value: string[] }) {
-                    var i = 0,
-                        l = Math.min(a.value.length, b.value.length);
+                    let i = 0;
+                    const l = Math.min(a.value.length, b.value.length);
         
                     while (i < l && a.value[i] === b.value[i]) i++;
         
@@ -179,8 +179,8 @@ RHU.module(new Error(), "docs", {
                 desc: function (a: { index: number, value: string[] }, b: { index: number, value: string[] }) {
                     return sort.asc(b, a);
                 }
-            }
-            var mapped = data.map((el, i) => {
+            };
+            const mapped = data.map((el, i) => {
                 return {
                     index: i,
                     value: el.split('.')

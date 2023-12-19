@@ -21,9 +21,8 @@ declare namespace RHU {
 }
 
 RHU.module(new Error(), "components/molecules/filterlist/style",
-    { Style: "rhu/style", theme: "main/theme" },
-    function({ Style, theme })
-    {
+    { Style: "rhu/style" },
+    function({ Style }) {
         const style = Style(({ style }) => {
             const wrapper = style.class`
             position: relative;
@@ -42,7 +41,7 @@ RHU.module(new Error(), "components/molecules/filterlist/style",
             display: flex;
             flex-direction: column;
             gap: 8px;
-            `
+            `;
             style`
             ${content} > * {
                 flex-shrink: 0;
@@ -153,7 +152,7 @@ RHU.module(new Error(), "components/molecules/filterlist/style",
 
             const hide = style.class`
             display: none !important;
-            `
+            `;
 
             return {
                 wrapper,

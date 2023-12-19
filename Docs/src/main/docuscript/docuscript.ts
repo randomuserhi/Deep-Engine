@@ -3,7 +3,7 @@
 (function() {
     type context = Docuscript.docuscript.Context;
     type node<T extends keyof Docuscript.docuscript.NodeMap | undefined = undefined> = Docuscript.docuscript.Node<T>;
-    let defaultParser: Docuscript.docuscript.Parser = {
+    const defaultParser: Docuscript.docuscript.Parser = {
         text: {
             create: function(text) {
                 return {
@@ -22,18 +22,18 @@
                 };
             },
             parse: function(children) {
-                let dom = document.createElement("br");
+                const dom = document.createElement("br");
                 dom.append(...children);
                 return dom;
             }
         },
         p: {
             create: function(this: context, ...children) {
-                let node: node<"p"> = {
+                const node: node<"p"> = {
                     __type__: "p",
                 };
 
-                for (let child of children) {
+                for (const child of children) {
                     let childNode: node;
                     if (typeof child === "string") {
                         childNode = this.nodes.text(child);
@@ -47,19 +47,19 @@
                 return node;
             },
             parse: function(children) {
-                let dom = document.createElement("p");
+                const dom = document.createElement("p");
                 dom.append(...children);
                 return dom;
             }
         },
         h: {
             create: function(this: context, heading, ...children) {
-                let node: node<"h"> = {
+                const node: node<"h"> = {
                     __type__: "h",
                     heading: heading,
                 };
                 
-                for (let child of children) {
+                for (const child of children) {
                     let childNode: node;
                     if (typeof child === "string") {
                         childNode = this.nodes.text(child);
@@ -73,18 +73,18 @@
                 return node;
             },
             parse: function(children, node) {
-                let dom = document.createElement(`h${node.heading}`);
+                const dom = document.createElement(`h${node.heading}`);
                 dom.append(...children);
                 return dom;
             }
         },
         block: {
             create: function(this: context, ...children) {
-                let node: node<"block"> = {
+                const node: node<"block"> = {
                     __type__: "block",
                 };
                 
-                for (let child of children) {
+                for (const child of children) {
                     let childNode: node;
                     if (typeof child === "string") {
                         childNode = this.nodes.p(child);
@@ -98,21 +98,28 @@
                 return node;
             },
             parse: function(children) {
-                let dom = document.createElement("div");
+                const dom = document.createElement("div");
                 dom.append(...children);
                 return dom;
             }
         },
     };
 
-    let docuscript = window.docuscript = function<T extends string, FuncMap extends Docuscript.NodeFuncMap<T>>(generator: (nodes: Docuscript.ParserNodes<T, FuncMap>) => void, parser: Docuscript.Parser<T, FuncMap> = defaultParser as any): Docuscript.Page<T, FuncMap> {
+    const docuscript = window.docuscript = function<Language extends string, FuncMap extends Docuscript.NodeFuncMap<Language>>(
+        generator: (
+            nodes: Docuscript.ParserNodes<Language, FuncMap>, 
+            include: <T extends {
+                [k in PropertyKey]?: Language;
+            }>(imports: T) => { [k in keyof T]: Docuscript.ParserNodes<Language, FuncMap>[T[k] extends keyof Docuscript.ParserNodes<Language, FuncMap> ? T[k] : never] }
+            ) => void, 
+        parser: Docuscript.Parser<Language, FuncMap> = defaultParser as any): Docuscript.Page<Language, FuncMap> {
         return {
             parser,
             generator
         };
     } as Docuscript;
 
-    docuscript.parse = function<T extends string, FuncMap extends Docuscript.NodeFuncMap<T>>(page: Docuscript.Page<T, FuncMap>) {
+    docuscript.parse = function<Language extends string, FuncMap extends Docuscript.NodeFuncMap<Language>>(page: Docuscript.Page<Language, FuncMap>) {
         let content: Docuscript.Node<any>[] = [];
         
         const nodes: any = {};
@@ -125,9 +132,9 @@
                 const node = func.create.call(docuscriptContext, ...args); 
                 content.push(node); // auto-mount node
                 return node;
-            }
+            };
         }
-        const docuscriptContext: Docuscript.Context<T, Docuscript.NodeFuncMap<T>> = {
+        const docuscriptContext: Docuscript.Context<Language, Docuscript.NodeFuncMap<Language>> = {
             nodes,
             remount: (child, parent) => {
                 if (child.__parent__ && child.__parent__.__children__) {
@@ -142,11 +149,25 @@
                     parent.__children__ = [child];
                 }
             } 
-        }
-        page.generator(context);
+        };
+        const include = <T extends { 
+            [k in PropertyKey]?: Language; 
+        }>(imports: T): { 
+            [k in keyof T]: Docuscript.ParserNodes<Language, FuncMap>[T[k] extends keyof Docuscript.ParserNodes<Language, FuncMap> ? T[k] : never] 
+        } => {
+            type IncludeMap = { 
+                [k in keyof T]: Docuscript.ParserNodes<Language, FuncMap>[T[k] extends keyof Docuscript.ParserNodes<Language, FuncMap> ? T[k] : never] 
+            };
+            const nodes: IncludeMap = {} as IncludeMap;
+            for (const key in imports) {
+                nodes[key] = context[imports[key] as keyof FuncMap];
+            }
+            return nodes;
+        };
+        page.generator(context, include);
 
         return content;
-    }
+    };
 
     docuscript.render = function<T extends string, FuncMap extends Docuscript.NodeFuncMap<T>>(page: Docuscript.Page<T, FuncMap>, patch?: {
         pre?: (node: Docuscript.Node<T>) => void;
@@ -155,18 +176,18 @@
         const fragment = new DocumentFragment();
         const parser = page.parser as Docuscript.Parser<string, FuncMap>;
         const destructors: (()=>void)[] = [];
-        let content = docuscript.parse(page);
+        const content = docuscript.parse(page);
 
-        let stack: globalThis.Node[][] = [];
-        let walk = (node: Docuscript.Node<T>) => {
-            let wrapper: globalThis.Node[] = [];
+        const stack: globalThis.Node[][] = [];
+        const walk = (node: Docuscript.Node<T>) => {
+            const wrapper: globalThis.Node[] = [];
 
-            let parent = stack.length === 0 ? undefined : stack[stack.length - 1];
+            const parent = stack.length === 0 ? undefined : stack[stack.length - 1];
 
             stack.push(wrapper);
 
             if (node.__children__) {
-                for (let child of node.__children__) {
+                for (const child of node.__children__) {
                     walk(child);
                 }
             }
@@ -175,7 +196,7 @@
                 patch.pre(node);
             }
             if (parser[node.__type__].parse === undefined) throw new Error(`No parser exists for node of type: ${node.__type__}.`);
-            let result = parser[node.__type__].parse!(wrapper, node as any);
+            const result = parser[node.__type__].parse!(wrapper, node as any);
             let data: any = undefined;
             let dom: globalThis.Node;
             if (Array.isArray(result)) {
@@ -201,7 +222,7 @@
 
             stack.pop();
         };
-        for (let node of content) {
+        for (const node of content) {
             walk(node);
         }
 

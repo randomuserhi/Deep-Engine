@@ -1,6 +1,21 @@
 interface Docuscript {
-    (generator: (nodes: Docuscript.ParserNodes<Docuscript.docuscript.Language, Docuscript.docuscript.FuncMap>) => void): Docuscript.docuscript.Page;
-    <T extends string, FuncMap extends Docuscript.NodeFuncMap<T>>(generator: (nodes: Docuscript.ParserNodes<T, FuncMap>) => void, parser: Docuscript.Parser<T, FuncMap>): Docuscript.Page<T, FuncMap>;
+    (
+        generator: (
+            nodes: Docuscript.ParserNodes<Docuscript.docuscript.Language, Docuscript.docuscript.FuncMap>,
+            include: <T extends {
+                [k in PropertyKey]?: Docuscript.docuscript.Language;
+            }>(imports: T) => { [k in keyof T]: Docuscript.docuscript.Context["nodes"][T[k] extends keyof Docuscript.docuscript.Context["nodes"] ? T[k] : never] }
+            ) => void, 
+        ): Docuscript.docuscript.Page;
+    <Language extends string, FuncMap extends Docuscript.NodeFuncMap<Language>>(
+        generator: (
+            nodes: Docuscript.ParserNodes<Language, FuncMap>,
+            include: <T extends {
+                [k in PropertyKey]?: Language;
+            }>(imports: T) => { [k in keyof T]: Docuscript.ParserNodes<Language, FuncMap>[T[k] extends keyof Docuscript.ParserNodes<Language, FuncMap> ? T[k] : never] }
+            ) => void, 
+        parser: Docuscript.Parser<Language, FuncMap>
+        ): Docuscript.Page<Language, FuncMap>;
     parse(page: Docuscript.Page<any, any>): Docuscript.Node<any>[];
     defaultParser: Docuscript.docuscript.Parser;
     render(page: Docuscript.Page<any, any>): [DocumentFragment, () => void];
@@ -11,7 +26,7 @@ interface Docuscript {
         }): [DocumentFragment, () => void];
 }
 
-declare var docuscript: Docuscript;
+declare let docuscript: Docuscript;
 interface Window {
     docuscript: Docuscript;
 }
@@ -43,7 +58,7 @@ declare namespace Docuscript {
     type Parser<T extends string, FuncMap extends NodeFuncMap<T>> = {
         [P in T]: {
             create: ToNodeMap<FuncMap>[P]["create"];
-            parse?: (children: globalThis.Node[], node: ReturnType<ToNodeMap<FuncMap>[P]["create"]>) => globalThis.Node | [globalThis.Node, ReturnType<ToNodeMap<FuncMap>[P]["create"]>["__destructor__"]];
+            parse?: (children: globalThis.Node[], node: ReturnType<ToNodeMap<FuncMap>[P]["create"]>) => globalThis.Node | [node: globalThis.Node, data: ReturnType<ToNodeMap<FuncMap>[P]["create"]>["__destructor__"]];
             destructor?: (data: ReturnType<ToNodeMap<FuncMap>[P]["create"]>["__destructor__"]) => void;
         }
     };
@@ -51,9 +66,14 @@ declare namespace Docuscript {
         [P in T]: ToNodeMap<FuncMap>[P]["create"];
     }
 
-    interface Page<T extends string, FuncMap extends NodeFuncMap<T>> {
-        parser: Parser<T, FuncMap>;
-        generator: (nodes: Docuscript.ParserNodes<T, FuncMap>) => void;
+    interface Page<Language extends string, FuncMap extends NodeFuncMap<Language>> {
+        parser: Parser<Language, FuncMap>;
+        generator: (
+            nodes: Docuscript.ParserNodes<Language, FuncMap>, 
+            include: <T extends {
+                [k in PropertyKey]?: Language;
+            }>(imports: T) => { [k in keyof T]: Docuscript.ParserNodes<Language, FuncMap>[T[k] extends keyof Docuscript.ParserNodes<Language, FuncMap> ? T[k] : never] }
+            ) => void;
     }
 
     interface Node<T> {

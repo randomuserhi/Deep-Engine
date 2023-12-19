@@ -9,8 +9,8 @@ declare namespace RHU {
 (() => {
     let DOCUSCRIPT_ROOT = "";
     if (document.currentScript) {
-        let s = document.currentScript as HTMLScriptElement;
-        let r = s.src.match(/(.*)[/\\]/);
+        const s = document.currentScript as HTMLScriptElement;
+        const r = s.src.match(/(.*)[/\\]/);
         if (r)
             DOCUSCRIPT_ROOT = r[1] || "";
     } else {
@@ -22,7 +22,6 @@ declare namespace RHU {
     }, function({
         docs,
     }) {
-        
         ((docs: Docs) => {
             const stack: string[] = [];
             const dir = (dir: string, func: (docs: (path: string, page?: string, index?: number) => string) => void) => {
@@ -43,13 +42,8 @@ declare namespace RHU {
             };
 
             set("About", "About.js");
-            /*dir(set("Deep", "Docs/Deep.js"), (set) => {
-                dir(set("Net", "Docs/Deep/Net.js"), (set) => {
-                    set("UDPServer", "Docs/Deep/Net/UDPServer.js");
-                    set("UDPClient", "Docs/Deep/Net/UDPClient.js");
-                    set("TCPServer", "Docs/Deep/Net/TCPServer.js");
-                    set("TCPClient", "Docs/Deep/Net/TCPClient.js");
-                });
+            /*dir(set("Setup", "Setup.js"), (set) => {
+                set("Creating a Docuscript Project", "Setup/CreatingDocuscript.js");
             });*/
         })(docs.create("1.0.0", "About"));
 

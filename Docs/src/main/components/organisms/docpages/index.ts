@@ -51,12 +51,12 @@ declare namespace Atoms {
 RHU.module(new Error(), "components/organisms/docpages", { 
     Macro: "rhu/macro", style: "components/organsisms/docpages/style",
     filterlist: "components/molecules/filterlist",
-    rhuDocuscript: "docuscript", rhuDocuscriptStyle: "docuscript/style", rhuDocuscriptPages: "docuscript/pages",
+    rhuDocuscriptStyle: "docuscript/@style", rhuDocuscriptPages: "docuscript/pages",
     docs: "docs", indices: "docs/indices",
 }, function({ 
     Macro, style,
     filterlist,
-    rhuDocuscript, rhuDocuscriptStyle, rhuDocuscriptPages,
+    rhuDocuscriptStyle, rhuDocuscriptPages,
     docs, indices,
 }) {
     const DOCUSCRIPT_ROOT = indices.DOCUSCRIPT_ROOT;
@@ -135,7 +135,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
         const version = docs.get(versionStr);
         if (version) {
             version.walk((dir) => {
-                let page = dir as Page;
+                const page = dir as Page;
                 if (page.page) {
                     loadPage(versionStr, page); // TODO(randomuserhi): On fail to load, log error or something
                 }
@@ -149,7 +149,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
                 this.dispatchEvent(RHU.CustomEvent("view", { target: this.target }));
                 e.preventDefault(); // stop redirect
             });
-            this.dropdown.addEventListener("click", (e) => {
+            this.dropdown.addEventListener("click", () => {
                 this.classList.toggle(`${style.headeritem.expanded}`);
             });
             this.classList.toggle(`${style.headeritem.expanded}`, true);
@@ -176,7 +176,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
 
         return headeritem;
     })(), "atoms/headeritem", //html
-        `
+    `
             <div class="${style.headeritem.content}">
                 <div class="${style.headeritem.align}">
                     <span rhu-id="dropdown" class="${style.headeritem.nochildren} ${style.headeritem.dropdown}"></span>
@@ -186,9 +186,9 @@ RHU.module(new Error(), "components/organisms/docpages", {
             <ol rhu-id="list" class="${style.headeritem.children}">
             </ol>
         `, {
-            element: //html
+        element: //html
             `<li></li>`
-        });
+    });
 
     const docpages = Macro((() => {
         const docpages = function(this: Organisms.Docpages) {
@@ -221,7 +221,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
 
             this.view(this.currentVersion, this.currentPath, index, true);
 
-            window.addEventListener("scrollend", (e) => {
+            window.addEventListener("scrollend", () => {
                 const data = { 
                     scrollTop: document.documentElement.scrollTop 
                 };
@@ -242,7 +242,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
                     this.view(version ? version : latest, page ? page : defaultPage, index, false, false, e.state);
                     requestAnimationFrame(() => {
                         document.documentElement.scrollTop = scrollTop;
-                    })
+                    });
                 } else {
                     this.view(version ? version : latest, page ? page : defaultPage, index, false, false, { scrollTop: 0 });
                 }
@@ -259,7 +259,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
             const depths: number[] = [];
             let i = 0;
             let scrollTarget: HTMLElement | undefined;
-            let [pageDom, destructor] = docuscript.render<RHUDocuscript.Language, RHUDocuscript.FuncMap>(page, { 
+            const [pageDom, destructor] = docuscript.render<RHUDocuscript.Language, RHUDocuscript.FuncMap>(page, { 
                 pre: (node) => {
                     if (node.__type__ === "h") {
                         const h = node as RHUDocuscript.Node<"h">;
@@ -304,7 +304,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
                             //(dom as HTMLElement).scrollIntoView(true);
                             document.documentElement.scroll(0, (dom as HTMLElement).offsetTop - document.documentElement.offsetTop - 
                                 parseInt(getComputedStyle(document.documentElement).getPropertyValue('--Navbar_height')));
-                        }
+                        };
                         
                         let depth = depths.length === 0 ? Infinity : depths[depths.length - 1];
                         while (h.heading <= depth && depths.length > 0) {
@@ -397,10 +397,10 @@ RHU.module(new Error(), "components/organisms/docpages", {
                     document.documentElement.scrollTop = 0;
                 }
             });
-        }
+        };
 
         docpages.prototype.view = function(versionStr, pageStr, index, seek, updateURL = true, _data) {
-            let rerender = this.currentVersion === versionStr && this.currentPath === pageStr;
+            const rerender = this.currentVersion === versionStr && this.currentPath === pageStr;
 
             const url = new URL(window.location.origin + window.location.pathname);
             if (this.currentVersion !== versionStr || this.currentPath !== pageStr) {
@@ -458,14 +458,14 @@ RHU.module(new Error(), "components/organisms/docpages", {
             } else {
                 this.render(rhuDocuscriptPages.versionNotFound);
             }
-        }
+        };
 
         docpages.prototype.setPath = function(path) {
             if (!path) {
                 this.path.replaceChildren();
             } else {
-                let frag = new DocumentFragment();
-                let builtPath: string[] = [];
+                const frag = new DocumentFragment();
+                const builtPath: string[] = [];
                 for (const directory of docs.split(path)) {
                     const item = document.createElement("a");
                     item.href = "file:///E:/Git/Enter-the-Deep/Docs/build/main/main.html?10";
@@ -489,7 +489,7 @@ RHU.module(new Error(), "components/organisms/docpages", {
 
         return docpages;
     })(), "organisms/docpages", //html
-        `
+    `
         <div class="${style.margin}">
             ${filterlist`rhu-id="filterlist" class="${style.sidebar}"`}
             <div class="${style.page}">
@@ -540,9 +540,9 @@ RHU.module(new Error(), "components/organisms/docpages", {
             </div>
         </div>
         `, {
-            element: //html
+        element: //html
             `<div class="${style.wrapper}"></div>`
-        });
+    });
 
     return docpages;
 });

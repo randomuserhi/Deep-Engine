@@ -26,9 +26,9 @@ RHU.module(new Error(), "components/atoms/dropdown", {
             this.classList.add(`${style.wrapper}`);
         } as RHU.Macro.Constructor<Atoms.Dropdown>;
         dropdown.prototype.setOptions = function<T extends string>(options: { label: T, value: string }[], selected?: T) {
-            let fragment = new DocumentFragment();
+            const fragment = new DocumentFragment();
             for (const option of options) {
-                let el = document.createElement("option");
+                const el = document.createElement("option");
                 el.value = option.value;
                 el.label = option.label;
                 fragment.append(el);
@@ -44,10 +44,10 @@ RHU.module(new Error(), "components/atoms/dropdown", {
 
         return dropdown;
     })(), "atoms/dropdown", //html
-        ``, {
-            element: //html
+    ``, {
+        element: //html
             `<select></select>`
-        });
+    });
 
     return dropdown;
 });

@@ -27,9 +27,9 @@ RHU.module(new Error(), "components/organisms/navbar", {
             
         } as RHU.Macro.Constructor<Organisms.Navbar>;
 
-        return navbar
+        return navbar;
     })(), "organisms/navbar", //html
-        `
+    `
         <nav class="${style.margin}">
             <!-- LOGO -->
             <svg class="${style.logo}" viewBox="0 0 26 15" fill="currentColor">
@@ -63,9 +63,9 @@ RHU.module(new Error(), "components/organisms/navbar", {
             </button>
         </nav>
         `, {
-            element: //html
+        element: //html
             `<header class="${style.wrapper}"></header>`
-        });
+    });
 
     return navbar;
 });

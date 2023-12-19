@@ -26,9 +26,8 @@ declare namespace RHU {
 }
 
 RHU.module(new Error(), "components/organsisms/docpages/style",
-    { Style: "rhu/style", theme: "main/theme" },
-    function({ Style, theme })
-    {
+    { Style: "rhu/style" },
+    function({ Style }) {
         const style = Style(({ style }) => {
             const wrapper = style.class`
             padding: 0 70px;
@@ -202,7 +201,7 @@ RHU.module(new Error(), "components/organsisms/docpages/style",
             ${path.item}:hover {
                 text-decoration: underline;
             }
-            `
+            `;
 
             return {
                 wrapper,

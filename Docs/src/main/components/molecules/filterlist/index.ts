@@ -52,6 +52,7 @@ declare namespace Molecules {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface GlobalEventHandlersEventMap {
     "view": CustomEvent<{ target: unknown }>;
 }
@@ -68,12 +69,11 @@ RHU.module(new Error(), "components/molecules/filterlist", {
     const filteritem = Macro((() => {
         const filteritem = function(this: Atoms.Filteritem) {
             this.classList.toggle(`${style.filteritem.expanded}`, true);
-
             this.label.addEventListener("click", (e) => {
                 this.dispatchEvent(RHU.CustomEvent("view", { target: this.page }));
                 e.preventDefault(); // stop redirect
             });
-            this.dropdown.addEventListener("click", (e) => {
+            this.dropdown.addEventListener("click", () => {
                 this.classList.toggle(`${style.filteritem.expanded}`);
             });
         } as RHU.Macro.Constructor<Atoms.Filteritem>;
@@ -119,7 +119,7 @@ RHU.module(new Error(), "components/molecules/filterlist", {
 
         return filteritem;
     })(), "atoms/filteritem", //html
-        `
+    `
             <div rhu-id="body" class="${style.filteritem.content}">
                 <div class="${style.filteritem.align}">
                     <span rhu-id="dropdown" class="${style.filteritem.nochildren} ${style.dropdown}"></span>
@@ -129,9 +129,9 @@ RHU.module(new Error(), "components/molecules/filterlist", {
             <ol rhu-id="list" class="${style.filteritem.children}">
             </ol>
         `, {
-            element: //html
+        element: //html
             `<li></li>`
-        });
+    });
 
     const filterlist = Macro((() => {
         const filterlist = function(this: Molecules.Filterlist) {
@@ -184,7 +184,7 @@ RHU.module(new Error(), "components/molecules/filterlist", {
                             item.classList.toggle(`${style.hide}`, false);
                             recursive(item, index + 1);
                         }
-                    }
+                    };
 
                     for (const result of this.fuseallname.search(matches[0])) {
                         const item: Atoms.Filteritem = result.item;
@@ -201,7 +201,7 @@ RHU.module(new Error(), "components/molecules/filterlist", {
                         recursive(item, 1);
                     }
                 }
-            })
+            });
 
             this.lastActive = undefined;
             this.root = undefined;
@@ -269,7 +269,7 @@ RHU.module(new Error(), "components/molecules/filterlist", {
                 this.path.replaceChildren();
             } else {
                 
-                let frag = new DocumentFragment();
+                const frag = new DocumentFragment();
                 if (path) {
                     const item = document.createElement("a");
                     item.innerHTML = "~";
@@ -287,7 +287,7 @@ RHU.module(new Error(), "components/molecules/filterlist", {
                     wrapper.append(item);
                     frag.append(wrapper);
                 }
-                let builtPath: string[] = [];
+                const builtPath: string[] = [];
                 for (const directory of docs.split(path)) {
                     const item = document.createElement("a");
                     item.innerHTML = directory;
@@ -371,7 +371,7 @@ RHU.module(new Error(), "components/molecules/filterlist", {
 
         return filterlist;
     })(), "molecules/filterlist", //html
-        `
+    `
         <div rhu-id="body" class="${style.content}">
             <div style="font-weight: 800; font-size: 1.125rem;">Version</div>
             ${dropdown`rhu-id="version" style="
@@ -398,9 +398,9 @@ RHU.module(new Error(), "components/molecules/filterlist", {
             <ol rhu-id="list"></ol>
         </div>
         `, {
-            element: //html
+        element: //html
             `<div></div>`
-        });
+    });
 
     return filterlist;
 });

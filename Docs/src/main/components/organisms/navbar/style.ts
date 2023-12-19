@@ -23,8 +23,7 @@ declare namespace RHU {
 
 RHU.module(new Error(), "components/organsisms/navbar/style",
     { Style: "rhu/style", theme: "main/theme" },
-    function({ Style, theme })
-    {
+    function({ Style, theme }) {
         const style = Style(({ style }) => {
             const active = style.class``;
 

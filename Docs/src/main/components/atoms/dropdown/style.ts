@@ -7,9 +7,8 @@ declare namespace RHU {
 }
 
 RHU.module(new Error(), "components/atoms/dropdown/style",
-    { Style: "rhu/style", theme: "main/theme" },
-    function({ Style, theme })
-    {
+    { Style: "rhu/style" },
+    function({ Style }) {
         const style = Style(({ style }) => {
             const wrapper = style.class`
             

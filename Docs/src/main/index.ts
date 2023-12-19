@@ -19,12 +19,11 @@ interface App extends HTMLDivElement {
     const ref: { target?: App } = { target: undefined };
 
     RHU.module(new Error(), "App", { 
-    }, function({ 
-    }) {
+    }, function() {
         const App = () => {
             if (!ref.target) throw new Error("App does not exist!");
             return ref.target;
-        }
+        };
 
         return App;
     });
@@ -56,7 +55,7 @@ interface App extends HTMLDivElement {
                 font-family: var(--font-family);
                 font-size: var(--font-size);
             }
-            `
+            `;
 
             return {
                 spacer,
@@ -72,16 +71,16 @@ interface App extends HTMLDivElement {
                 this.body.replaceChildren(document.createMacro(docpages));
             } as RHU.Macro.Constructor<App>;
 
-            return appmount
+            return appmount;
         })(), "App", //html
-            `
+        `
             ${navbar}
             <div class="${style.spacer}"></div>
             <div rhu-id="body">
             </div>
             `, {
-                element: //html
+            element: //html
                 `<div class="${theme}"></div>`
-            });
+        });
     });
 })();

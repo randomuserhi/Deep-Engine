@@ -10,11 +10,9 @@ declare namespace RHU {
     }
 }
 
-RHU.module(new Error(), "docuscript/pages", { 
-    docs: "docs",
+RHU.module(new Error(), "docuscript/pages", {
     rhuDocuscript: "docuscript",
 }, function({
-    docs,
     rhuDocuscript,
 }) {
    
@@ -31,13 +29,13 @@ RHU.module(new Error(), "docuscript/pages", {
     }, rhuDocuscript);
     
     const pageNotFound = docuscript<RHUDocuscript.Language, RHUDocuscript.FuncMap>(({
-        h, p
+        h
     }) => {
         h(1, "Page not found.");
     }, rhuDocuscript);
     
     const versionNotFound = docuscript<RHUDocuscript.Language, RHUDocuscript.FuncMap>(({
-        h, p
+        h
     }) => {
         h(1, "Version not found.");
     }, rhuDocuscript);
@@ -54,7 +52,7 @@ RHU.module(new Error(), "docuscript/pages", {
                 br();
             }
         }, rhuDocuscript);
-    }
+    };
 
     return {
         loadingPage,
