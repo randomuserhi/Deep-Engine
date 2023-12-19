@@ -3,7 +3,7 @@ interface hljs
     highlightElement(el: HTMLElement): void;
 }
 
-declare var hljs: hljs;
+declare const hljs: hljs;
 
 interface Window
 {

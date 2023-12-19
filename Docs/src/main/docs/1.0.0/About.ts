@@ -5,7 +5,7 @@ RHU.require(new Error(), {
 }) {
     docs.jit = () => docuscript<RHUDocuscript.Language, RHUDocuscript.FuncMap>((lib, include) => {
         const { 
-            p, br, link, h1, i 
+            p, br, link, h1
         } = lib;
         const { 
             cb 
