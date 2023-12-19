@@ -31,9 +31,13 @@ declare namespace RHU {
 
                 // UNORDERED LISTS
                 style`
+                ${root.body} ul {
+                    margin-top: 0.5rem;
+                }
                 ${root.body} ul>li {
                     display: flex;
                     gap: 1rem;
+                    margin-bottom: 0.5rem;
                 }
                 ${root.body} ul>li::before {
                     content: "•";
