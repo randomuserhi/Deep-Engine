@@ -61,7 +61,7 @@ namespace Deep {
             ReadFloat()
         };
     }
-    Deep_Inline Quaternion PacketReader::ReadQuaternion() {
+    Quaternion PacketReader::ReadQuaternion() {
         uint8 i = ReadByte();
         float x = 0, y = 0, z = 0, w = 0;
         switch (i) {
@@ -99,7 +99,7 @@ namespace Deep {
             ReadHalf()
         };
     }
-    Deep_Inline Quaternion PacketReader::ReadHalfQuaternion() {
+    Quaternion PacketReader::ReadHalfQuaternion() {
         uint8 i = ReadByte();
         float x = 0, y = 0, z = 0, w = 0;
         switch (i) {

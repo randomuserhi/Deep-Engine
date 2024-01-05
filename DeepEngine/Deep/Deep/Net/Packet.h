@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Deep.h"
+#include "./Deep.h"
 #include "../Math.h"
 
 namespace Deep {
