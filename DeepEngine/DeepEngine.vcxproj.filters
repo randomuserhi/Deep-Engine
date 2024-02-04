@@ -49,6 +49,12 @@
     <Filter Include="Header Files\Deep\Physics">
       <UniqueIdentifier>{5140c74e-624c-4513-a0b0-1e79391c46a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Deep\ECS">
+      <UniqueIdentifier>{3bd8b169-21da-4877-859f-52ce42a9d022}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Physics">
+      <UniqueIdentifier>{80902f66-2bd4-4752-93cb-82bd37d6181d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -75,12 +81,6 @@
     <ClCompile Include="Deep\Deep\Math\Vec3.cpp">
       <Filter>Source Files\Deep\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Deep\Deep\Physics\Physics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Deep\Deep\ECS\ECS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Deep\Deep\Math\Vec4.cpp">
       <Filter>Source Files\Deep\Math</Filter>
     </ClCompile>
@@ -90,8 +90,14 @@
     <ClCompile Include="Deep\Deep\Math\Quaternion.cpp">
       <Filter>Source Files\Deep\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Deep\Deep\Physics\Physics.cpp">
+      <Filter>Source Files\Deep\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep\Deep\ECS\ECS.cpp">
+      <Filter>Source Files\Deep\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="Deep\Deep\Net\Net.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Deep\Net</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,15 +134,6 @@
     <ClInclude Include="Deep\Deep\Math\Vec3.h">
       <Filter>Header Files\Deep\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Deep\Deep_Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\Physics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\ECS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Deep\Deep\Math\Vec4.h">
       <Filter>Header Files\Deep\Math</Filter>
     </ClInclude>
@@ -151,6 +148,18 @@
     </ClInclude>
     <ClInclude Include="Deep\Deep\Net\BitHelper.h">
       <Filter>Header Files\Deep\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\ECS\Allocator.h">
+      <Filter>Header Files\Deep\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\ECS.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Physics.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Deep_Types.h">
+      <Filter>Header Files\Deep</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

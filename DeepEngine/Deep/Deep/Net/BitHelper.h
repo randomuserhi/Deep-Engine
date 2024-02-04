@@ -1,3 +1,7 @@
+/**
+ * BitHelper
+ */
+
 #include "../../Deep.h"
 
 namespace Deep {

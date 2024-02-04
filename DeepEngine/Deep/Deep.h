@@ -1,8 +1,12 @@
+/**
+ * Deep
+ */
+
 #pragma once
 
-/*
-* Compiler Macros
-*/
+ /*
+ * Compiler Macros
+ */
 
 #if defined(__clang__)
 #define Deep_Compiler_Clang
@@ -15,9 +19,9 @@
 
 #endif
 
-/*
-* Platform Macros
-*/
+ /*
+ * Platform Macros
+ */
 
 #if defined(_WIN32)
 #define DEEP_PLATFORM_WINDOWS
@@ -30,15 +34,18 @@
 
 #endif
 
-/*
-* Deep Utilities
-*/
+ /*
+ * Deep Utilities
+ */
 
 #include "./Deep/Deep_Types.h"
 
 #if defined(Deep_Compiler_Clang)
 #define Deep_Inline inline
 #define Deep_AlignOf(type) __alignof__(type)
+
+#define Deep_PushPack
+#define Deep_PopPack __attribute__((__packed__))
 
 #define Deep_Unreachable __builtin_unreachable()
 
@@ -50,6 +57,9 @@
 #define Deep_Inline inline __attribute__((always_inline))
 #define Deep_AlignOf(type) __alignof__(type)
 
+#define Deep_PushPack
+#define Deep_PopPack __attribute__((__packed__))
+
 #define Deep_Unreachable __builtin_unreachable()
 
 #define Deep__Function__ __func__
@@ -59,6 +69,9 @@
 #elif defined(Deep_Compiler_MSCV)
 #define Deep_Inline __forceinline
 #define Deep_AlignOf(type) _Alignof(type)
+
+#define Deep_PushPack __pragma(pack(push, 1))
+#define Deep_PopPack __pragma(pack(pop))
 
 #define Deep_Unreachable __assume(0)
 

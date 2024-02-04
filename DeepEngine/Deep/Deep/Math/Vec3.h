@@ -4,7 +4,7 @@
 #include "./Mat3.h"
 
 namespace Deep {
-    struct Vec3 {
+    Deep_PushPack struct Vec3 {
         Vec3& Normalize();
         Vec3 normalized() const {
             Vec3 v{ x, y, z };
@@ -32,7 +32,7 @@ namespace Deep {
                 float32 z;
             };
         };
-    };
+    } Deep_PopPack;
 
     Vec3 operator+ (Vec3 a, const Vec3& b);
     Vec3 operator- (Vec3 a, const Vec3& b);

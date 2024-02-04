@@ -1,3 +1,7 @@
+/**
+ * Sock
+ */
+
 #include "../Sock.h"
 
 #if defined(DEEP_PLATFORM_WINDOWS)
