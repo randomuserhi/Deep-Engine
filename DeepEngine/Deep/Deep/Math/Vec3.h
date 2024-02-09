@@ -25,7 +25,7 @@ namespace Deep {
         //                     Cpp abstract machine, but luckily compilers support it as an 
         //                     extension
         union {
-            float32 values[3];
+            float32 val[3];
             struct {
                 float32 x;
                 float32 y;

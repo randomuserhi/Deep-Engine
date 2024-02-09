@@ -1,3 +1,7 @@
+/**
+ * Quaternion
+ */
+
 #pragma once
 
 #include "../../Deep.h"
@@ -6,7 +10,7 @@
 #include "./Mat3.h"
 
 namespace Deep {
-    struct Quaternion {
+    Deep_PushPack struct Quaternion {
         Quaternion& Normalize();
         Quaternion normalized() const {
             Quaternion q{ x, y, z, w };
@@ -29,21 +33,21 @@ namespace Deep {
 
         Quaternion() = default;
         Quaternion(float32 x, float32 y, float32 z, float32 w)
-            : vector{ x, y, z, w } {
+            : vec{ x, y, z, w } {
         };
         Quaternion(Vec3 axis, float32 angle);
 
         union {
-            float32 values[4];
+            float32 val[4];
             struct {
                 float32 x;
                 float32 y;
                 float32 z;
                 float32 w;
             };
-            Vec4 vector;
+            Vec4 vec;
         };
-    };
+    } Deep_PopPack;
 
     Quaternion operator+ (Quaternion a, const Quaternion& b);
     Quaternion operator- (Quaternion a, const Quaternion& b);

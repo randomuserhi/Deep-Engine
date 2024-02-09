@@ -8,17 +8,10 @@
 #include <chrono>
 #include <thread>
 
-// NOTE(randomuserhi): Needs to be included after all standard library includes to 
-//                     prevent overwritting malloc and new in their code.
-#define DEEP_DEBUG_MEMORY
-#include "Deep/DebugUtil/Memory.h"
-
 // TODO(randomuserhi): Documentation, I need to stay on top of documentation
 //                     in code docs along side doc website
 
 int main() {
-    Deep::StartMemoryDebug();
-
     std::cout << "Hello World!" << std::endl;
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
@@ -51,7 +44,7 @@ int main() {
         << std::endl;
 
     while (true) {
-        Deep::Packet packet;
+        Deep::PacketWriter packet;
         packet.Write(static_cast<uint8>(sizeof data));
         packet.Write(data, sizeof data);
 
@@ -63,7 +56,4 @@ int main() {
 
     socket.Close();
     Deep::ShutdownSockets();
-
-    Deep::PrintAllocationMap();
-    Deep::EndMemoryDebug();
 }

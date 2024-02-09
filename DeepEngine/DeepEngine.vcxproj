@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -139,15 +139,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Deep\Deep\Net\PacketReader.cpp" />
+    <ClCompile Include="Deep\Deep\Net\PacketWriter.cpp" />
+    <ClCompile Include="Deep\Deep\Threading\ThreadPool.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Deep\Deep\DebugUtil\Memory.cpp" />
     <ClCompile Include="Deep\Deep\ECS\ECS.cpp" />
     <ClCompile Include="Deep\Deep\Math\Mat3.cpp" />
     <ClCompile Include="Deep\Deep\Math\Quaternion.cpp" />
     <ClCompile Include="Deep\Deep\Math\Vec3.cpp" />
     <ClCompile Include="Deep\Deep\Math\Vec4.cpp" />
     <ClCompile Include="Deep\Deep\Net\Net.cpp" />
-    <ClCompile Include="Deep\Deep\Net\Packet.cpp" />
     <ClCompile Include="Deep\Deep\Physics\Physics.cpp" />
     <ClCompile Include="Deep\Deep\Sock\IPv4.cpp" />
     <ClCompile Include="Deep\Deep\Sock\Sock.cpp" />
@@ -155,9 +156,6 @@
     <ClCompile Include="Deep\Deep\Sock\Sock_Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Deep\Deep\DebugUtil\Memory.h" />
-    <ClInclude Include="Deep\Deep\DebugUtil\Memory_Def.h" />
-    <ClInclude Include="Deep\Deep\DebugUtil\Memory_Undef.h" />
     <ClInclude Include="Deep\Deep.h" />
     <ClInclude Include="Deep\Deep\Deep_Types.h" />
     <ClInclude Include="Deep\Deep\ECS.h" />
@@ -170,11 +168,21 @@
     <ClInclude Include="Deep\Deep\Net.h" />
     <ClInclude Include="Deep\Deep\Net\BitHelper.h" />
     <ClInclude Include="Deep\Deep\Net\Packet.h" />
+    <ClInclude Include="Deep\Deep\Net\PacketReader.h" />
+    <ClInclude Include="Deep\Deep\Net\PacketWriter.h" />
     <ClInclude Include="Deep\Deep\Physics.h" />
     <ClInclude Include="Deep\Deep\Sock.h" />
     <ClInclude Include="Deep\Deep\Sock\AF_INET.h" />
     <ClInclude Include="Deep\Deep\Sock\IPv4.h" />
     <ClInclude Include="Deep\Deep\Sock\Sock_Windows.h" />
+    <ClInclude Include="Deep\Deep\Threading.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Threading\ThreadPool.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

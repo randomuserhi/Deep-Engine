@@ -2,6 +2,8 @@
  * BitHelper
  */
 
+#pragma once
+
 #include "../../Deep.h"
 
 namespace Deep {
@@ -72,62 +74,50 @@ namespace Deep {
     }
 
     Deep_Inline uint16 hton(const uint16 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline uint32 hton(const uint32 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline uint64 hton(const uint64 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline int16 hton(const int16 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline int32 hton(const int32 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline int64 hton(const int64 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline uint16 ntoh(const uint16 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline uint32 ntoh(const uint32 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline uint64 ntoh(const uint64 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline int16 ntoh(const int16 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline int32 ntoh(const int32 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 
     Deep_Inline int64 ntoh(const int64 value) {
-        if (!IsBigEndian()) return value;
-        else return ReverseEndianness(value);
+        return !IsBigEndian() ? value : ReverseEndianness(value);
     }
 }

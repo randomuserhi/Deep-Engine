@@ -55,13 +55,16 @@
     <Filter Include="Source Files\Deep\Physics">
       <UniqueIdentifier>{80902f66-2bd4-4752-93cb-82bd37d6181d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Deep\Threading">
+      <UniqueIdentifier>{49ba01f2-262c-4aaf-8591-912dac1bd5dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Deep\Threading">
+      <UniqueIdentifier>{804886f7-44fa-4a33-96d2-d71f78a1cf7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Deep\Deep\DebugUtil\Memory.cpp">
-      <Filter>Source Files\Deep\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Deep\Sock\Sock_Windows.cpp">
       <Filter>Source Files\Deep\Sock</Filter>
@@ -74,9 +77,6 @@
     </ClCompile>
     <ClCompile Include="Deep\Deep\Sock\IPv4.cpp">
       <Filter>Source Files\Deep\Sock</Filter>
-    </ClCompile>
-    <ClCompile Include="Deep\Deep\Net\Packet.cpp">
-      <Filter>Source Files\Deep\Net</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Deep\Math\Vec3.cpp">
       <Filter>Source Files\Deep\Math</Filter>
@@ -99,19 +99,19 @@
     <ClCompile Include="Deep\Deep\Net\Net.cpp">
       <Filter>Source Files\Deep\Net</Filter>
     </ClCompile>
+    <ClCompile Include="Deep\Deep\Threading\ThreadPool.cpp">
+      <Filter>Source Files\Deep\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep\Deep\Net\PacketReader.cpp">
+      <Filter>Source Files\Deep\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep\Deep\Net\PacketWriter.cpp">
+      <Filter>Source Files\Deep\Net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Deep\Deep.h">
       <Filter>Header Files\Deep</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\DebugUtil\Memory.h">
-      <Filter>Header Files\Deep\DebugUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\DebugUtil\Memory_Def.h">
-      <Filter>Header Files\Deep\DebugUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\DebugUtil\Memory_Undef.h">
-      <Filter>Header Files\Deep\DebugUtil</Filter>
     </ClInclude>
     <ClInclude Include="Deep\Deep\Sock.h">
       <Filter>Header Files\Deep</Filter>
@@ -160,6 +160,18 @@
     </ClInclude>
     <ClInclude Include="Deep\Deep\Deep_Types.h">
       <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Threading.h">
+      <Filter>Header Files\Deep</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Threading\ThreadPool.h">
+      <Filter>Header Files\Deep\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Net\PacketReader.h">
+      <Filter>Header Files\Deep\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Net\PacketWriter.h">
+      <Filter>Header Files\Deep\Net</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
