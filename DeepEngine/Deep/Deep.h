@@ -79,4 +79,8 @@
 #define Deep__File__ __FILE__
 #define Deep__Line__ __LINE__
 
+// NOTE(randomuserhi): Undef MSVC pre-processor macros: https://stackoverflow.com/questions/21483038/undefining-min-and-max-macros
+#undef min
+#undef max
+
 #endif
