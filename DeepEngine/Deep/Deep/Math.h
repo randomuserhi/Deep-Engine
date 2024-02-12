@@ -1,5 +1,8 @@
 /**
  * Math
+ *
+ * All Math uses float32 and no overloads / template ability is available to use float64 etc...
+ * This is because this engine is optimised with float32. Higher precision is not supported.
  */
 
 #pragma once
