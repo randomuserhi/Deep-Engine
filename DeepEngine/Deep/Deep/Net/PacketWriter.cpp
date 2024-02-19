@@ -3,7 +3,6 @@
  */
 
 #include <winsock2.h>
-#include <cmath>
 
 #include "./PacketWriter.h"
 #include "../Math.h"

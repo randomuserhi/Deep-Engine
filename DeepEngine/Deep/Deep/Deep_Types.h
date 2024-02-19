@@ -6,6 +6,13 @@
 
 #include <cstdint>
 
+ /// Rules on size_t 
+ /// - Try to avoid implicit type conversions (if a type returns size_t, use size_t indexing etc...)
+ ///   - If one is necessary, make it explicit -> for (int32 i = static_cast<int32>(size)-1; i >= 0; --i)
+ /// - Be aware of boundary conditions -> for (size_t i = size-1; i >= 0; --i) will never end due to unsigned nature of size_t
+ /// - size_t is typically used for sizes, prefer int32 for indexing unless you wish to avoid an implicity type conversion from STL containers
+ /// - optionally, prefer ptrdiff_t rather than int32 for requiring signed indexing for large values on 64 bit systems
+
  /// Explicit Width writing rules:
  /// - If performance is super tight and the alignment of memory isn't to bad you can use int_fastXX_t / uint_fastXX_t
  ///     - Very rare that this is the case though
