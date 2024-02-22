@@ -12,14 +12,6 @@ namespace Deep {
         return *this;
     }
 
-    Deep_Inline float32 Vec4::sqrdMagnitude() const {
-        return x * x + y * y + z * z + w * w;
-    }
-
-    Deep_Inline float32 Vec4::magnitude() const {
-        return std::sqrt(sqrdMagnitude());
-    }
-
     Vec4& Vec4::operator+= (const Vec4& other) {
         x += other.x;
         y += other.y;

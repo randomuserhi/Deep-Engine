@@ -30,11 +30,11 @@ namespace Deep {
         //                     extension
         union {
             float32 val[3];
-            struct {
+            Deep_PushPack struct {
                 float32 x;
                 float32 y;
                 float32 z;
-            };
+            } Deep_PopPack;
         };
     } Deep_PopPack;
 

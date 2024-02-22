@@ -5,9 +5,9 @@
 #pragma once
 
 #include "../../Deep.h"
+#include "./Mat3.h"
 #include "./Vec3.h"
 #include "./Vec4.h"
-#include "./Mat3.h"
 
 namespace Deep {
     Deep_PushPack struct Quaternion {
@@ -39,12 +39,12 @@ namespace Deep {
 
         union {
             float32 val[4];
-            struct {
+            Deep_PushPack struct {
                 float32 x;
                 float32 y;
                 float32 z;
                 float32 w;
-            };
+            } Deep_PopPack;
             Vec4 vec;
         };
     } Deep_PopPack;
