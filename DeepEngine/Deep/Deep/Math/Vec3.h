@@ -11,8 +11,12 @@ namespace Deep {
             return v.Normalize();
         }
 
-        float32 magnitude() const;
-        float32 sqrdMagnitude() const;
+        Deep_Inline float32 sqrdMagnitude() const {
+            return x * x + y * y + z * z;
+        }
+        Deep_Inline float32 magnitude() const {
+            return std::sqrt(sqrdMagnitude());
+        }
 
         Vec3& operator+= (const Vec3& other);
         Vec3& operator-= (const Vec3& other);
