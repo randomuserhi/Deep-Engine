@@ -13,6 +13,8 @@
 #define PI 3.141592653589793f
 
 namespace Deep {
+    // NOTE(randomuserhi): https://stackoverflow.com/questions/13721839/if-stdmax-returns-by-reference-as-it-must-might-that-lead-to-a-dangling-r
+
     Deep_Inline const float32& min(const float32& a, const float32& b) {
         return (b < a) ? b : a;
     }
@@ -25,7 +27,7 @@ namespace Deep {
         return min(upper, max(x, lower));
     }
 
-    Deep_Inline const float32& sqrt(const float32& x) {
+    Deep_Inline const float32 sqrt(const float32& x) {
         return std::sqrt(x);
     }
 }

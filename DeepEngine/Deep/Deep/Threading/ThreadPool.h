@@ -9,6 +9,8 @@
 #include <queue>
 #include <thread>
 
+// TODO(randomuserhi): Refactor => needs to support proper task distribution (ensure all cores are utilized fully)
+
 namespace Deep {
     class ThreadPool {
     private:
