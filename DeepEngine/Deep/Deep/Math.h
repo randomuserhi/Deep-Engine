@@ -23,8 +23,12 @@ namespace Deep {
         return (b > a) ? b : a;
     }
 
-    Deep_Inline const float32& clamp(const float32& x, const float32& upper, const float32& lower) {
+    Deep_Inline const float32& clamp(const float32& x, const float32& lower, const float32& upper) {
         return min(upper, max(x, lower));
+    }
+
+    Deep_Inline const float32& clamp01(const float32& x) {
+        return clamp(x, 0.0f, 1.0f);
     }
 
     Deep_Inline const float32 sqrt(const float32& x) {
