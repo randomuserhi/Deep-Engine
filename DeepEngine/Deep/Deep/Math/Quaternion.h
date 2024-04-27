@@ -10,7 +10,7 @@
 #include "./Vec4.h"
 
 namespace Deep {
-    Deep_PushPack struct Quaternion {
+    struct Quaternion {
         Quaternion& Normalize();
         Quaternion normalized() const {
             Quaternion q{ x, y, z, w };
@@ -39,15 +39,15 @@ namespace Deep {
 
         union {
             float32 val[4];
-            Deep_PushPack struct {
+            struct {
                 float32 x;
                 float32 y;
                 float32 z;
                 float32 w;
-            } Deep_PopPack;
+            };
             Vec4 vec;
         };
-    } Deep_PopPack;
+    };
 
     Quaternion operator+ (Quaternion a, const Quaternion& b);
     Quaternion operator- (Quaternion a, const Quaternion& b);

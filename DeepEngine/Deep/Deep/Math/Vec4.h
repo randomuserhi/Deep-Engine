@@ -3,7 +3,7 @@
 #include "../../Deep.h"
 
 namespace Deep {
-    Deep_PushPack struct Vec4 {
+    struct Vec4 {
         Vec4& Normalize();
         Vec4 normalized() const {
             Vec4 v{ x, y, z, w };
@@ -24,14 +24,14 @@ namespace Deep {
 
         union {
             float32 values[4];
-            Deep_PushPack struct {
+            struct {
                 float32 x;
                 float32 y;
                 float32 z;
                 float32 w;
-            } Deep_PopPack;
+            };
         };
-    } Deep_PopPack;
+    };
 
     Vec4 operator+ (Vec4 a, const Vec4& b);
     Vec4 operator- (Vec4 a, const Vec4& b);
