@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Deep.h"
+#include "./DeepMath.h"
 
 namespace Deep {
     struct Vec4 {
@@ -14,7 +15,7 @@ namespace Deep {
             return x * x + y * y + z * z + w * w;
         }
         Deep_Inline float32 magnitude() const {
-            return std::sqrt(sqrdMagnitude());
+            return Deep::Sqrt(sqrdMagnitude());
         }
 
         Vec4& operator+= (const Vec4& other);

@@ -31,12 +31,12 @@ int main() {
 
     Deep::Vec3 up{ 0, 1, 0 };
     Deep::Vec3 axis{ 0, 0, 1 };
-    Deep::Quaternion rotateRight{ axis, PI / 2.0f };
-    Deep::Vec3 right = rotateRight * up;
-    std::cout << rotateRight.w
-        << "," << rotateRight.x
-        << "," << rotateRight.y
-        << "," << rotateRight.z
+    Deep::Quaternion rotateLeft{ axis, PI / 2.0f };
+    Deep::Vec3 right = rotateLeft * up;
+    std::cout << rotateLeft.w
+        << "," << rotateLeft.x
+        << "," << rotateLeft.y
+        << "," << rotateLeft.z
         << std::endl;
     std::cout << right.x
         << "," << right.y

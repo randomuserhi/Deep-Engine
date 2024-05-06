@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Deep\Deep\Math\Mat4.cpp" />
     <ClCompile Include="Deep\Deep\Net\PacketReader.cpp" />
     <ClCompile Include="Deep\Deep\Net\PacketWriter.cpp" />
     <ClCompile Include="Deep\Deep\Threading\ThreadPool.cpp" />
@@ -161,7 +162,9 @@
     <ClInclude Include="Deep\Deep\ECS.h" />
     <ClInclude Include="Deep\Deep\ECS\Allocator.h" />
     <ClInclude Include="Deep\Deep\Math.h" />
+    <ClInclude Include="Deep\Deep\Math\DeepMath.h" />
     <ClInclude Include="Deep\Deep\Math\Mat3.h" />
+    <ClInclude Include="Deep\Deep\Math\Mat4.h" />
     <ClInclude Include="Deep\Deep\Math\Quaternion.h" />
     <ClInclude Include="Deep\Deep\Math\Vec3.h" />
     <ClInclude Include="Deep\Deep\Math\Vec4.h" />

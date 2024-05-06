@@ -108,6 +108,9 @@
     <ClCompile Include="Deep\Deep\Net\PacketWriter.cpp">
       <Filter>Source Files\Deep\Net</Filter>
     </ClCompile>
+    <ClCompile Include="Deep\Deep\Math\Mat4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Deep\Deep.h">
@@ -172,6 +175,12 @@
     </ClInclude>
     <ClInclude Include="Deep\Deep\Net\PacketWriter.h">
       <Filter>Header Files\Deep\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Math\Mat4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Deep\Math\DeepMath.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

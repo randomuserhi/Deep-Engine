@@ -73,7 +73,7 @@ namespace Deep {
         return *this;
     }
 
-    Vec3 operator* (const Vec3& v, const Mat3& m) {
+    Vec3 operator* (const Mat3& m, const Vec3& v) {
         Vec3 _v;
         _v.x = m.m00 * v.x + m.m01 * v.y + m.m02 * v.z;
         _v.y = m.m10 * v.x + m.m11 * v.y + m.m12 * v.z;

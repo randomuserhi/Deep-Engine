@@ -1,10 +1,8 @@
-#include <cmath>
-
 #include "./Quaternion.h"
 
 namespace Deep {
     Quaternion& Quaternion::Normalize() {
-        float32 length = std::sqrt(x * x + y * y + z * z + w * w);
+        float32 length = Deep::Sqrt(x * x + y * y + z * z + w * w);
         x /= length;
         y /= length;
         z /= length;
@@ -100,18 +98,20 @@ namespace Deep {
         return a *= b;
     }
 
+    // TODO(randomuserhi): Can be optimised to not use a `toMat3` call
     Vec3 operator* (const Quaternion& q, Vec3 v) {
-        Mat3 m = q.toMat3();
+        Mat3 m = q.ToMat3();
         return v *= m;
     }
 
-    Mat3 Quaternion::toMat3() const {
+    Mat3 Quaternion::ToMat3() const {
         float32 w2 = w * w;
         float32 x2 = x * x;
         float32 y2 = y * y;
         float32 z2 = z * z;
 
-        float32 inverse = 1.0f / (w2 + x2 + y2 + z2);
+        //float32 inverse = 1.0f / (w2 + x2 + y2 + z2);
+        const float32 inverse = 1.0f; // NOTE(randomuserhi): Assume quaternion is normalized
 
         x2 *= inverse;
         y2 *= inverse;
@@ -129,13 +129,13 @@ namespace Deep {
 
         Mat3 m;
         m.m00 = x2 - y2 - z2 + w2;
-        m.m01 = 2.0f * (xy + zw);
-        m.m02 = 2.0f * (xz - yw);
-        m.m10 = 2.0f * (xy - zw);
+        m.m01 = 2.0f * (xy - zw);
+        m.m02 = 2.0f * (xz + yw);
+        m.m10 = 2.0f * (xy + zw);
         m.m11 = -x2 + y2 - z2 + w2;
-        m.m12 = 2.0f * (yz + xw);
-        m.m20 = 2.0f * (xz + yw);
-        m.m21 = 2.0f * (yz - xw);
+        m.m12 = 2.0f * (yz - xw);
+        m.m20 = 2.0f * (xz - yw);
+        m.m21 = 2.0f * (yz + xw);
         m.m22 = -x2 - y2 + z2 + w2;
         return m;
     }

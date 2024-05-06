@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../../Deep.h"
+#include "./DeepMath.h"
 #include "./Mat3.h"
 #include "./Vec3.h"
 #include "./Vec4.h"
@@ -23,7 +24,7 @@ namespace Deep {
             return q.Inverse();
         }
 
-        Mat3 toMat3() const;
+        Mat3 ToMat3() const;
 
         Quaternion& operator+= (const Quaternion& other);
         Quaternion& operator-= (const Quaternion& other);

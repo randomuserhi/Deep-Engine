@@ -16,25 +16,25 @@ namespace Deep {
             q.y = ReadFloat();
             q.z = ReadFloat();
             q.w = ReadFloat();
-            q.x = sqrt(clamp01(1.0f - q.y * q.y - q.z * q.z - q.w * q.w));
+            q.x = Sqrt(Clamp01(1.0f - q.y * q.y - q.z * q.z - q.w * q.w));
             break;
         case 1:
             q.x = ReadFloat();
             q.z = ReadFloat();
             q.w = ReadFloat();
-            q.y = sqrt(clamp01(1.0f - q.x * q.x - q.z * q.z - q.w * q.w));
+            q.y = Sqrt(Clamp01(1.0f - q.x * q.x - q.z * q.z - q.w * q.w));
             break;
         case 2:
             q.x = ReadFloat();
             q.y = ReadFloat();
             q.w = ReadFloat();
-            q.z = sqrt(clamp01(1.0f - q.x * q.x - q.y * q.y - q.w * q.w));
+            q.z = Sqrt(Clamp01(1.0f - q.x * q.x - q.y * q.y - q.w * q.w));
             break;
         case 3:
             q.x = ReadFloat();
             q.y = ReadFloat();
             q.z = ReadFloat();
-            q.w = sqrt(clamp01(1.0f - q.x * q.x - q.y * q.y - q.z * q.z));
+            q.w = Sqrt(Clamp01(1.0f - q.x * q.x - q.y * q.y - q.z * q.z));
             break;
         }
         return q;
@@ -48,25 +48,25 @@ namespace Deep {
             q.y = ReadHalf();
             q.z = ReadHalf();
             q.w = ReadHalf();
-            q.x = sqrt(clamp01(1.0f - q.y * q.y - q.z * q.z - q.w * q.w));
+            q.x = Sqrt(Clamp01(1.0f - q.y * q.y - q.z * q.z - q.w * q.w));
             break;
         case 1:
             q.x = ReadHalf();
             q.z = ReadHalf();
             q.w = ReadHalf();
-            q.y = sqrt(clamp01(1.0f - q.x * q.x - q.z * q.z - q.w * q.w));
+            q.y = Sqrt(Clamp01(1.0f - q.x * q.x - q.z * q.z - q.w * q.w));
             break;
         case 2:
             q.x = ReadHalf();
             q.y = ReadHalf();
             q.w = ReadHalf();
-            q.z = sqrt(clamp01(1.0f - q.x * q.x - q.y * q.y - q.w * q.w));
+            q.z = Sqrt(Clamp01(1.0f - q.x * q.x - q.y * q.y - q.w * q.w));
             break;
         case 3:
             q.x = ReadHalf();
             q.y = ReadHalf();
             q.z = ReadHalf();
-            q.w = sqrt(clamp01(1.0f - q.x * q.x - q.y * q.y - q.z * q.z));
+            q.w = Sqrt(Clamp01(1.0f - q.x * q.x - q.y * q.y - q.z * q.z));
             break;
         }
         return q;
