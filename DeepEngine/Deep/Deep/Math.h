@@ -11,11 +11,44 @@
 #pragma once
 
 #include "../Deep.h"
-#include "./Math/DeepMath.h"
 
-#include "./Math/Vec3.h"
-#include "./Math/Vec4.h"
+#include <cmath>
 
-#include "./Math/Mat3.h"
+#define PI 3.141592653589793f
 
-#include "./Math/Quaternion.h"
+namespace Deep {
+    // NOTE(randomuserhi): https://stackoverflow.com/questions/13721839/if-stdmax-returns-by-reference-as-it-must-might-that-lead-to-a-dangling-r
+
+    Deep_Inline const float32& Min(const float32& a, const float32& b) {
+        return (b < a) ? b : a;
+    }
+
+    Deep_Inline const float32& Max(const float32& a, const float32& b) {
+        return (b > a) ? b : a;
+    }
+
+    Deep_Inline const float32& Clamp(const float32& x, const float32& lower, const float32& upper) {
+        return Min(upper, Max(x, lower));
+    }
+
+    Deep_Inline const float32& Clamp01(const float32& x) {
+        return Clamp(x, 0.0f, 1.0f);
+    }
+
+    Deep_Inline const float32 Sqrt(const float32& x) {
+        return std::sqrt(x);
+    }
+}
+
+// NOTE(randomuserhi): Headers beginning with "_" indicate that they are non-standalone headers and
+//                     are not meant to be included in non-library code. This is because they cannot
+//                     be used standalone and require other defined headers in order for their
+//                     implementation etc...
+
+#include "./Math/_Vec3.h"
+#include "./Math/_Vec4.h"
+
+#include "./Math/_Mat3.h"
+#include "./Math/_Mat4.h"
+
+#include "./Math/_Quaternion.h"

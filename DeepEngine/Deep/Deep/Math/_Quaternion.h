@@ -5,10 +5,6 @@
 #pragma once
 
 #include "../../Deep.h"
-#include "./DeepMath.h"
-#include "./Mat3.h"
-#include "./Vec3.h"
-#include "./Vec4.h"
 
 namespace Deep {
     struct Quaternion {
@@ -24,7 +20,14 @@ namespace Deep {
             return q.Inverse();
         }
 
-        Mat3 ToMat3() const;
+        Deep_Inline Mat3 ToMat3() const {
+            Mat3 m;
+            return m.FromQuaternion(*this);
+        }
+        Deep_Inline Mat4 ToMat4() const {
+            Mat4 m;
+            return m.FromQuaternion(*this);
+        }
 
         Quaternion& operator+= (const Quaternion& other);
         Quaternion& operator-= (const Quaternion& other);

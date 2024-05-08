@@ -1,4 +1,4 @@
-#include "./Quaternion.h"
+#include "../Math.h"
 
 namespace Deep {
     Quaternion& Quaternion::Normalize() {
@@ -102,41 +102,5 @@ namespace Deep {
     Vec3 operator* (const Quaternion& q, Vec3 v) {
         Mat3 m = q.ToMat3();
         return v *= m;
-    }
-
-    Mat3 Quaternion::ToMat3() const {
-        float32 w2 = w * w;
-        float32 x2 = x * x;
-        float32 y2 = y * y;
-        float32 z2 = z * z;
-
-        //float32 inverse = 1.0f / (w2 + x2 + y2 + z2);
-        const float32 inverse = 1.0f; // NOTE(randomuserhi): Assume quaternion is normalized
-
-        x2 *= inverse;
-        y2 *= inverse;
-        z2 *= inverse;
-        w2 *= inverse;
-
-        float32 xy = x * y * inverse;
-        float32 zw = w * z * inverse;
-
-        float32 xz = x * z * inverse;
-        float32 yw = w * y * inverse;
-
-        float32 yz = y * z * inverse;
-        float32 xw = w * x * inverse;
-
-        Mat3 m;
-        m.m00 = x2 - y2 - z2 + w2;
-        m.m01 = 2.0f * (xy - zw);
-        m.m02 = 2.0f * (xz + yw);
-        m.m10 = 2.0f * (xy + zw);
-        m.m11 = -x2 + y2 - z2 + w2;
-        m.m12 = 2.0f * (yz - xw);
-        m.m20 = 2.0f * (xz - yw);
-        m.m21 = 2.0f * (yz + xw);
-        m.m22 = -x2 - y2 + z2 + w2;
-        return m;
     }
 }

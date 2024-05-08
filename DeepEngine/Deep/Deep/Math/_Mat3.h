@@ -1,48 +1,42 @@
 #pragma once
 
 #include "../../Deep.h"
-#include "./DeepMath.h"
 
 namespace Deep {
-    struct Mat4 {
-        Mat4& Transpose();
-        Mat4 transposed() const {
-            Mat4 q{
-                m00, m01, m02, m03,
-                m10, m11, m12, m13,
-                m20, m21, m22, m23,
-                m30, m31, m32, m33
+    struct Quaternion;
+
+    struct Mat3 {
+        Mat3& Transpose();
+        Mat3 transposed() const {
+            Mat3 q{
+                m00, m01, m02,
+                m10, m11, m12,
+                m20, m21, m22
             };
             return q;
         }
 
+        Mat3& FromQuaternion(const Quaternion& quaternion);
+
         /**
-         * (00, 01, 02, 03)
-         * (10, 11, 12, 13)
-         * (20, 21, 22, 23)
-         * (30, 31, 32, 33)
+         * (00, 01, 02)
+         * (10, 11, 12)
+         * (20, 21, 22)
          */
         union {
-            float32 values[16];
+            float32 values[9];
             // NOTE(randomuserhi): order of values matter for specific memory access patterns
             //                     row-major ordering is used
             struct {
                 float32 m00;
                 float32 m01;
                 float32 m02;
-                float32 m03;
                 float32 m10;
                 float32 m11;
                 float32 m12;
-                float32 m13;
                 float32 m20;
                 float32 m21;
                 float32 m22;
-                float32 m23;
-                float32 m30;
-                float32 m31;
-                float32 m32;
-                float32 m33;
             };
         };
     };

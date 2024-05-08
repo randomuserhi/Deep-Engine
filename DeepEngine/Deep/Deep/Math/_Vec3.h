@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../../Deep.h"
-#include "./DeepMath.h"
-#include "./Mat3.h"
 
 namespace Deep {
+    struct Mat3;
+    struct Mat4;
+
     struct Vec3 {
         Vec3& Normalize();
         Vec3 normalized() const {
@@ -46,5 +47,7 @@ namespace Deep {
     Vec3 operator* (const float32 a, Vec3 v);
     float32 operator* (const Vec3& a, const Vec3& b);
 
+    // NOTE(randomuserhi): Assumes Vec4 with w = 1
     Vec3 operator* (const Mat3& m, const Vec3& v);
+    Vec3 operator* (const Mat4& m, const Vec3& v);
 }

@@ -134,16 +134,16 @@
     <ClInclude Include="Deep\Deep\Net.h">
       <Filter>Header Files\Deep</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Deep\Math\Vec3.h">
+    <ClInclude Include="Deep\Deep\Math\_Vec3.h">
       <Filter>Header Files\Deep\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Deep\Math\Vec4.h">
+    <ClInclude Include="Deep\Deep\Math\_Vec4.h">
       <Filter>Header Files\Deep\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Deep\Math\Mat3.h">
+    <ClInclude Include="Deep\Deep\Math\_Mat3.h">
       <Filter>Header Files\Deep\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Deep\Math\Quaternion.h">
+    <ClInclude Include="Deep\Deep\Math\_Quaternion.h">
       <Filter>Header Files\Deep\Math</Filter>
     </ClInclude>
     <ClInclude Include="Deep\Deep\Math.h">
@@ -176,10 +176,7 @@
     <ClInclude Include="Deep\Deep\Net\PacketWriter.h">
       <Filter>Header Files\Deep\Net</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Deep\Math\Mat4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\Math\DeepMath.h">
+    <ClInclude Include="Deep\Deep\Math\_Mat4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../Deep.h"
-#include "./DeepMath.h"
 
 namespace Deep {
     struct Vec4 {
@@ -39,4 +38,8 @@ namespace Deep {
     Vec4 operator* (Vec4 v, const float32 a);
     Vec4 operator* (const float32 a, Vec4 v);
     float32 operator* (const Vec4& a, const Vec4& b);
+
+    // NOTE(randomuserhi): Treats Vec4 as Vec3
+    Vec4 operator* (const Mat3& m, const Vec4& v);
+    Vec4 operator* (const Mat4& m, const Vec4& v);
 }
