@@ -18,6 +18,13 @@ namespace Deep {
 
         Mat3& FromQuaternion(const Quaternion& quaternion);
 
+        float32 Determinant();
+        Mat3& Inverse();
+        Mat3 inversed();
+
+        Mat3& operator= (const Mat4& other);
+        Mat3& operator*= (const Mat3& other);
+
         /**
          * (00, 01, 02)
          * (10, 11, 12)
@@ -40,4 +47,6 @@ namespace Deep {
             };
         };
     };
+
+    Mat3 operator* (const Mat3& a, const Mat3& b);
 }
