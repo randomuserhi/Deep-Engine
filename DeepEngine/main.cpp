@@ -45,22 +45,6 @@ int main() {
 
     std::cout << std::endl;
 
-    Deep::Mat3 test{
-        1, 1, 0,
-        0, 1, 0,
-        0, 0, 1
-    };
-    Deep::Mat3 inv = test.inversed() * test;
-    std::cout << inv.m00 << ", " << inv.m01 << ", " << inv.m02 << std::endl;
-    std::cout << inv.m10 << ", " << inv.m11 << ", " << inv.m12 << std::endl;
-    std::cout << inv.m20 << ", " << inv.m21 << ", " << inv.m22 << std::endl;
-
-    std::cout << std::endl;
-
-    std::cout << test.m00 << ", " << test.m01 << ", " << test.m02 << std::endl;
-    std::cout << test.m10 << ", " << test.m11 << ", " << test.m12 << std::endl;
-    std::cout << test.m20 << ", " << test.m21 << ", " << test.m22 << std::endl;
-
     while (true) {
         Deep::PacketWriter packet;
         packet.Write(static_cast<uint8>(sizeof data));

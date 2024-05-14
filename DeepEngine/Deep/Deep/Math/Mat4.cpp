@@ -54,13 +54,13 @@ namespace Deep {
         float32 xw = q.w * q.x * inverse;
 
         m00 = x2 - y2 - z2 + w2;
-        m01 = 2.0f * (xy - zw);
-        m02 = 2.0f * (xz + yw);
         m10 = 2.0f * (xy + zw);
-        m11 = -x2 + y2 - z2 + w2;
-        m12 = 2.0f * (yz - xw);
         m20 = 2.0f * (xz - yw);
+        m01 = 2.0f * (xy - zw);
+        m11 = -x2 + y2 - z2 + w2;
         m21 = 2.0f * (yz + xw);
+        m02 = 2.0f * (xz + yw);
+        m12 = 2.0f * (yz - xw);
         m22 = -x2 - y2 + z2 + w2;
         return *this;
     }
@@ -111,23 +111,23 @@ namespace Deep {
         Mat4 temp = *this;
 
         m00 = t00 * detInv;
-        m01 = t01 * detInv;
-        m02 = t02 * detInv;
-        m03 = t03 * detInv;
-
         m10 = (temp.m13 * temp.m22 * temp.m30 - temp.m12 * temp.m23 * temp.m30 - temp.m13 * temp.m20 * temp.m32 + temp.m10 * temp.m23 * temp.m32 + temp.m12 * temp.m20 * temp.m33 - temp.m10 * temp.m22 * temp.m33) * detInv;
-        m11 = (temp.m02 * temp.m23 * temp.m30 - temp.m03 * temp.m22 * temp.m30 + temp.m03 * temp.m20 * temp.m32 - temp.m00 * temp.m23 * temp.m32 - temp.m02 * temp.m20 * temp.m33 + temp.m00 * temp.m22 * temp.m33) * detInv;
-        m12 = (temp.m03 * temp.m12 * temp.m30 - temp.m02 * temp.m13 * temp.m30 - temp.m03 * temp.m10 * temp.m32 + temp.m00 * temp.m13 * temp.m32 + temp.m02 * temp.m10 * temp.m33 - temp.m00 * temp.m12 * temp.m33) * detInv;
-        m13 = (temp.m02 * temp.m13 * temp.m20 - temp.m03 * temp.m12 * temp.m20 + temp.m03 * temp.m10 * temp.m22 - temp.m00 * temp.m13 * temp.m22 - temp.m02 * temp.m10 * temp.m23 + temp.m00 * temp.m12 * temp.m23) * detInv;
-
         m20 = (temp.m11 * temp.m23 * temp.m30 - temp.m13 * temp.m21 * temp.m30 + temp.m13 * temp.m20 * temp.m31 - temp.m10 * temp.m23 * temp.m31 - temp.m11 * temp.m20 * temp.m33 + temp.m10 * temp.m21 * temp.m33) * detInv;
-        m21 = (temp.m03 * temp.m21 * temp.m30 - temp.m01 * temp.m23 * temp.m30 - temp.m03 * temp.m20 * temp.m31 + temp.m00 * temp.m23 * temp.m31 + temp.m01 * temp.m20 * temp.m33 - temp.m00 * temp.m21 * temp.m33) * detInv;
-        m22 = (temp.m01 * temp.m13 * temp.m30 - temp.m03 * temp.m11 * temp.m30 + temp.m03 * temp.m10 * temp.m31 - temp.m00 * temp.m13 * temp.m31 - temp.m01 * temp.m10 * temp.m33 + temp.m00 * temp.m11 * temp.m33) * detInv;
-        m23 = (temp.m03 * temp.m11 * temp.m20 - temp.m01 * temp.m13 * temp.m20 - temp.m03 * temp.m10 * temp.m21 + temp.m00 * temp.m13 * temp.m21 + temp.m01 * temp.m10 * temp.m23 - temp.m00 * temp.m11 * temp.m23) * detInv;
-
         m30 = (temp.m12 * temp.m21 * temp.m30 - temp.m11 * temp.m22 * temp.m30 - temp.m12 * temp.m20 * temp.m31 + temp.m10 * temp.m22 * temp.m31 + temp.m11 * temp.m20 * temp.m32 - temp.m10 * temp.m21 * temp.m32) * detInv;
+
+        m01 = t01 * detInv;
+        m11 = (temp.m02 * temp.m23 * temp.m30 - temp.m03 * temp.m22 * temp.m30 + temp.m03 * temp.m20 * temp.m32 - temp.m00 * temp.m23 * temp.m32 - temp.m02 * temp.m20 * temp.m33 + temp.m00 * temp.m22 * temp.m33) * detInv;
+        m21 = (temp.m03 * temp.m21 * temp.m30 - temp.m01 * temp.m23 * temp.m30 - temp.m03 * temp.m20 * temp.m31 + temp.m00 * temp.m23 * temp.m31 + temp.m01 * temp.m20 * temp.m33 - temp.m00 * temp.m21 * temp.m33) * detInv;
         m31 = (temp.m01 * temp.m22 * temp.m30 - temp.m02 * temp.m21 * temp.m30 + temp.m02 * temp.m20 * temp.m31 - temp.m00 * temp.m22 * temp.m31 - temp.m01 * temp.m20 * temp.m32 + temp.m00 * temp.m21 * temp.m32) * detInv;
+
+        m02 = t02 * detInv;
+        m12 = (temp.m03 * temp.m12 * temp.m30 - temp.m02 * temp.m13 * temp.m30 - temp.m03 * temp.m10 * temp.m32 + temp.m00 * temp.m13 * temp.m32 + temp.m02 * temp.m10 * temp.m33 - temp.m00 * temp.m12 * temp.m33) * detInv;
+        m22 = (temp.m01 * temp.m13 * temp.m30 - temp.m03 * temp.m11 * temp.m30 + temp.m03 * temp.m10 * temp.m31 - temp.m00 * temp.m13 * temp.m31 - temp.m01 * temp.m10 * temp.m33 + temp.m00 * temp.m11 * temp.m33) * detInv;
         m32 = (temp.m02 * temp.m11 * temp.m30 - temp.m01 * temp.m12 * temp.m30 - temp.m02 * temp.m10 * temp.m31 + temp.m00 * temp.m12 * temp.m31 + temp.m01 * temp.m10 * temp.m32 - temp.m00 * temp.m11 * temp.m32) * detInv;
+
+        m03 = t03 * detInv;
+        m13 = (temp.m02 * temp.m13 * temp.m20 - temp.m03 * temp.m12 * temp.m20 + temp.m03 * temp.m10 * temp.m22 - temp.m00 * temp.m13 * temp.m22 - temp.m02 * temp.m10 * temp.m23 + temp.m00 * temp.m12 * temp.m23) * detInv;
+        m23 = (temp.m03 * temp.m11 * temp.m20 - temp.m01 * temp.m13 * temp.m20 - temp.m03 * temp.m10 * temp.m21 + temp.m00 * temp.m13 * temp.m21 + temp.m01 * temp.m10 * temp.m23 - temp.m00 * temp.m11 * temp.m23) * detInv;
         m33 = (temp.m01 * temp.m12 * temp.m20 - temp.m02 * temp.m11 * temp.m20 + temp.m02 * temp.m10 * temp.m21 - temp.m00 * temp.m12 * temp.m21 - temp.m01 * temp.m10 * temp.m22 + temp.m00 * temp.m11 * temp.m22) * detInv;
 
         return *this;
@@ -148,23 +148,23 @@ namespace Deep {
         Mat4 mat;
 
         mat.m00 = t00 * detInv;
-        mat.m01 = t01 * detInv;
-        mat.m02 = t02 * detInv;
-        mat.m03 = t03 * detInv;
-
         mat.m10 = (m13 * m22 * m30 - m12 * m23 * m30 - m13 * m20 * m32 + m10 * m23 * m32 + m12 * m20 * m33 - m10 * m22 * m33) * detInv;
-        mat.m11 = (m02 * m23 * m30 - m03 * m22 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 + m00 * m22 * m33) * detInv;
-        mat.m12 = (m03 * m12 * m30 - m02 * m13 * m30 - m03 * m10 * m32 + m00 * m13 * m32 + m02 * m10 * m33 - m00 * m12 * m33) * detInv;
-        mat.m13 = (m02 * m13 * m20 - m03 * m12 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 + m00 * m12 * m23) * detInv;
-
         mat.m20 = (m11 * m23 * m30 - m13 * m21 * m30 + m13 * m20 * m31 - m10 * m23 * m31 - m11 * m20 * m33 + m10 * m21 * m33) * detInv;
-        mat.m21 = (m03 * m21 * m30 - m01 * m23 * m30 - m03 * m20 * m31 + m00 * m23 * m31 + m01 * m20 * m33 - m00 * m21 * m33) * detInv;
-        mat.m22 = (m01 * m13 * m30 - m03 * m11 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 + m00 * m11 * m33) * detInv;
-        mat.m23 = (m03 * m11 * m20 - m01 * m13 * m20 - m03 * m10 * m21 + m00 * m13 * m21 + m01 * m10 * m23 - m00 * m11 * m23) * detInv;
-
         mat.m30 = (m12 * m21 * m30 - m11 * m22 * m30 - m12 * m20 * m31 + m10 * m22 * m31 + m11 * m20 * m32 - m10 * m21 * m32) * detInv;
+
+        mat.m01 = t01 * detInv;
+        mat.m11 = (m02 * m23 * m30 - m03 * m22 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 + m00 * m22 * m33) * detInv;
+        mat.m21 = (m03 * m21 * m30 - m01 * m23 * m30 - m03 * m20 * m31 + m00 * m23 * m31 + m01 * m20 * m33 - m00 * m21 * m33) * detInv;
         mat.m31 = (m01 * m22 * m30 - m02 * m21 * m30 + m02 * m20 * m31 - m00 * m22 * m31 - m01 * m20 * m32 + m00 * m21 * m32) * detInv;
+
+        mat.m02 = t02 * detInv;
+        mat.m12 = (m03 * m12 * m30 - m02 * m13 * m30 - m03 * m10 * m32 + m00 * m13 * m32 + m02 * m10 * m33 - m00 * m12 * m33) * detInv;
+        mat.m22 = (m01 * m13 * m30 - m03 * m11 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 + m00 * m11 * m33) * detInv;
         mat.m32 = (m02 * m11 * m30 - m01 * m12 * m30 - m02 * m10 * m31 + m00 * m12 * m31 + m01 * m10 * m32 - m00 * m11 * m32) * detInv;
+
+        mat.m03 = t03 * detInv;
+        mat.m13 = (m02 * m13 * m20 - m03 * m12 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 + m00 * m12 * m23) * detInv;
+        mat.m23 = (m03 * m11 * m20 - m01 * m13 * m20 - m03 * m10 * m21 + m00 * m13 * m21 + m01 * m10 * m23 - m00 * m11 * m23) * detInv;
         mat.m33 = (m01 * m12 * m20 - m02 * m11 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 + m00 * m11 * m22) * detInv;
 
         return mat;
@@ -172,23 +172,23 @@ namespace Deep {
 
     Mat4& Mat4::operator= (const Mat3& other) {
         m00 = other.m00;
-        m01 = other.m01;
-        m02 = other.m02;
-        m03 = 0;
-
         m10 = other.m10;
-        m11 = other.m11;
-        m12 = other.m12;
-        m13 = 0;
-
         m20 = other.m20;
-        m21 = other.m21;
-        m22 = other.m22;
-        m23 = 0;
-
         m30 = 0;
+
+        m01 = other.m01;
+        m11 = other.m11;
+        m21 = other.m21;
         m31 = 0;
+
+        m02 = other.m02;
+        m12 = other.m12;
+        m22 = other.m22;
         m32 = 0;
+
+        m03 = 0;
+        m13 = 0;
+        m23 = 0;
         m33 = 1;
     }
 

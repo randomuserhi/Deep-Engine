@@ -42,13 +42,13 @@ namespace Deep {
         float32 xw = q.w * q.x * inverse;
 
         m00 = x2 - y2 - z2 + w2;
-        m01 = 2.0f * (xy - zw);
-        m02 = 2.0f * (xz + yw);
         m10 = 2.0f * (xy + zw);
-        m11 = -x2 + y2 - z2 + w2;
-        m12 = 2.0f * (yz - xw);
         m20 = 2.0f * (xz - yw);
+        m01 = 2.0f * (xy - zw);
+        m11 = -x2 + y2 - z2 + w2;
         m21 = 2.0f * (yz + xw);
+        m02 = 2.0f * (xz + yw);
+        m12 = 2.0f * (yz - xw);
         m22 = -x2 - y2 + z2 + w2;
         return *this;
     }
@@ -71,15 +71,15 @@ namespace Deep {
         Mat3 temp = *this;
 
         m00 = t00 * detInv;
-        m01 = t01 * detInv;
-        m02 = t02 * detInv;
-
         m10 = (temp.m20 * temp.m12 - temp.m22 * temp.m10) * detInv;
-        m11 = (temp.m22 * temp.m00 - temp.m20 * temp.m02) * detInv;
-        m12 = (temp.m10 * temp.m02 - temp.m12 * temp.m00) * detInv;
-
         m20 = (temp.m21 * temp.m10 - temp.m20 * temp.m11) * detInv;
+
+        m01 = t01 * detInv;
+        m11 = (temp.m22 * temp.m00 - temp.m20 * temp.m02) * detInv;
         m21 = (temp.m20 * temp.m01 - temp.m21 * temp.m00) * detInv;
+
+        m02 = t02 * detInv;
+        m12 = (temp.m10 * temp.m02 - temp.m12 * temp.m00) * detInv;
         m22 = (temp.m11 * temp.m00 - temp.m10 * temp.m01) * detInv;
 
         return *this;
@@ -99,15 +99,15 @@ namespace Deep {
         Mat3 mat;
 
         mat.m00 = t00 * detInv;
-        mat.m01 = t01 * detInv;
-        mat.m02 = t02 * detInv;
-
         mat.m10 = (m20 * m12 - m22 * m10) * detInv;
-        mat.m11 = (m22 * m00 - m20 * m02) * detInv;
-        mat.m12 = (m10 * m02 - m12 * m00) * detInv;
-
         mat.m20 = (m21 * m10 - m20 * m11) * detInv;
+
+        mat.m01 = t01 * detInv;
+        mat.m11 = (m22 * m00 - m20 * m02) * detInv;
         mat.m21 = (m20 * m01 - m21 * m00) * detInv;
+
+        mat.m02 = t02 * detInv;
+        mat.m12 = (m10 * m02 - m12 * m00) * detInv;
         mat.m22 = (m11 * m00 - m10 * m01) * detInv;
 
         return mat;
@@ -115,15 +115,15 @@ namespace Deep {
 
     Mat3& Mat3::operator= (const Mat4& other) {
         m00 = other.m00;
-        m01 = other.m01;
-        m02 = other.m02;
-
         m10 = other.m10;
-        m11 = other.m11;
-        m12 = other.m12;
-
         m20 = other.m20;
+
+        m01 = other.m01;
+        m11 = other.m11;
         m21 = other.m21;
+
+        m02 = other.m02;
+        m12 = other.m12;
         m22 = other.m22;
     }
 

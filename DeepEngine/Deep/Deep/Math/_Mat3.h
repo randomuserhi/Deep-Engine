@@ -33,16 +33,16 @@ namespace Deep {
         union {
             float32 values[9];
             // NOTE(randomuserhi): order of values matter for specific memory access patterns
-            //                     row-major ordering is used
+            //                     column-major ordering is used
             struct {
                 float32 m00;
-                float32 m01;
-                float32 m02;
                 float32 m10;
-                float32 m11;
-                float32 m12;
                 float32 m20;
+                float32 m01;
+                float32 m11;
                 float32 m21;
+                float32 m02;
+                float32 m12;
                 float32 m22;
             };
         };
