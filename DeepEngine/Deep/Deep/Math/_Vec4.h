@@ -33,6 +33,11 @@ namespace Deep {
         };
     };
 
+    bool operator!=(const Vec4& a, const Vec4& b);
+    Deep_Inline bool operator==(const Vec4& a, const Vec4& b) {
+        return !(a != b);
+    }
+
     Vec4 operator+ (Vec4 a, const Vec4& b);
     Vec4 operator- (Vec4 a, const Vec4& b);
     Vec4 operator* (Vec4 v, const float32 a);

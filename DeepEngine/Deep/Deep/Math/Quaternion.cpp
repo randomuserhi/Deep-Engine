@@ -34,6 +34,10 @@ namespace Deep {
         Normalize();
     }
 
+    bool operator!=(const Quaternion& a, const Quaternion& b) {
+        return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+    }
+
     Quaternion& Quaternion::operator+= (const Quaternion& other) {
         x += other.x;
         y += other.y;

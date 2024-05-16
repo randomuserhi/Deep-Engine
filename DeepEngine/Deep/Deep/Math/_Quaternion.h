@@ -53,6 +53,11 @@ namespace Deep {
         };
     };
 
+    bool operator!=(const Quaternion& a, const Quaternion& b);
+    Deep_Inline bool operator==(const Quaternion& a, const Quaternion& b) {
+        return !(a != b);
+    }
+
     Quaternion operator+ (Quaternion a, const Quaternion& b);
     Quaternion operator- (Quaternion a, const Quaternion& b);
     Quaternion operator* (Quaternion v, const float32 a);

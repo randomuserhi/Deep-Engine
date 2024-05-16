@@ -10,6 +10,10 @@ namespace Deep {
         return *this;
     }
 
+    bool operator!=(const Vec4& a, const Vec4& b) {
+        return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+    }
+
     Vec4& Vec4::operator+= (const Vec4& other) {
         x += other.x;
         y += other.y;
