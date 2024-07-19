@@ -85,7 +85,7 @@ namespace Deep {
         return *this;
     }
 
-    Mat3 Mat3::inversed() {
+    Mat3 Mat3::inversed() const {
         float32 t00 = m22 * m11 - m21 * m12;
         float32 t01 = m21 * m02 - m22 * m01;
         float32 t02 = m12 * m01 - m11 * m02;

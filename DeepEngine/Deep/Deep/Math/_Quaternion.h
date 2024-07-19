@@ -29,6 +29,9 @@ namespace Deep {
             return m.FromQuaternion(*this);
         }
 
+        Quaternion& FromMat3(const Mat3& m);
+        Quaternion& FromMat4(const Mat4& m);
+
         Quaternion& operator+= (const Quaternion& other);
         Quaternion& operator-= (const Quaternion& other);
         Quaternion& operator*= (const Quaternion& other);

@@ -9,9 +9,9 @@ namespace Deep {
         Mat3& Transpose();
         Mat3 transposed() const {
             Mat3 q{
-                m00, m01, m02,
-                m10, m11, m12,
-                m20, m21, m22
+                m00, m10, m20,
+                m01, m11, m21,
+                m02, m12, m22,
             };
             return q;
         }
@@ -20,10 +20,27 @@ namespace Deep {
 
         float32 Determinant();
         Mat3& Inverse();
-        Mat3 inversed();
+        Mat3 inversed() const;
 
         Mat3& operator= (const Mat4& other);
         Mat3& operator*= (const Mat3& other);
+
+        Mat3() = default;
+        Deep_Inline Mat3(
+            float32 m00, float32 m01, float32 m02,
+            float32 m10, float32 m11, float32 m12,
+            float32 m20, float32 m21, float32 m22
+        ) {
+            values[0] = m00;
+            values[1] = m10;
+            values[2] = m20;
+            values[3] = m01;
+            values[4] = m11;
+            values[5] = m21;
+            values[6] = m02;
+            values[7] = m12;
+            values[8] = m22;
+        }
 
         /**
          * (00, 01, 02)

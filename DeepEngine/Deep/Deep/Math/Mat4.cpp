@@ -2,6 +2,107 @@
 #include <cassert>
 
 namespace Deep {
+    const Mat4 Mat4::identity = Mat4{
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    Mat4& Mat4::Compose(const Vec3& position, const Quaternion& rotation, const Vec3& scale) {
+        // NOTE(randomuserhi): Assume quaternion is normalized
+
+        const float32 x = rotation.x;
+        const float32 y = rotation.y;
+        const float32 z = rotation.z;
+        const float32 w = rotation.w;
+
+        const float32 x2 = x + x;
+        const float32 y2 = y + y;
+        const float32 z2 = z + z;
+
+        const float32 xx = x * x2;
+        const float32 xy = x * y2;
+        const float32 xz = x * z2;
+
+        const float32 yy = y * y2;
+        const float32 yz = y * z2;
+        const float32 zz = z * z2;
+
+        const float32 wx = w * x2;
+        const float32 wy = w * y2;
+        const float32 wz = w * z2;
+
+        const float32 sx = scale.x;
+        const float32 sy = scale.y;
+        const float32 sz = scale.z;
+
+        m00 = (1 - (yy + zz)) * sx;
+        m10 = (xy - wz) * sy;
+        m20 = (xz + wy) * sz;
+        m30 = position.x;
+
+        m01 = (xy + wz) * sx;
+        m11 = (1 - (xx + zz)) * sy;
+        m21 = (yz - wx) * sz;
+        m31 = position.y;
+
+        m02 = (xz - wy) * sx;
+        m12 = (yz + wx) * sy;
+        m22 = (1 - (xx + yy)) * sz;
+        m32 = position.z;
+
+        m03 = 0;
+        m13 = 0;
+        m23 = 0;
+        m33 = 1;
+
+        return *this;
+    }
+
+    void Mat4::Decompose(Vec3& position, Quaternion& rotation, Vec3& scale) const {
+        float32 sx = Vec3{ m00, m10, m20 }.magnitude();
+        const float32 sy = Vec3{ m01, m11, m21 }.magnitude();
+        const float32 sz = Vec3{ m02, m12, m22 }.magnitude();
+
+        // if determine is negative, we need to invert one scale
+        const float32 det = Determinant();
+        if (det < 0) sx = -sx;
+
+        position.x = m30;
+        position.y = m31;
+        position.z = m32;
+
+        // scale the rotation part
+        Mat3 _m1{
+            m00, m01, m02,
+            m10, m11, m12,
+            m20, m21, m22
+        };
+
+        const float32 invSX = 1.0f / sx;
+        const float32 invSY = 1.0f / sy;
+        const float32 invSZ = 1.0f / sz;
+
+        _m1.m00 *= invSX;
+        _m1.m10 *= invSX;
+        _m1.m20 *= invSX;
+
+        _m1.m01 *= invSY;
+        _m1.m11 *= invSY;
+        _m1.m21 *= invSY;
+
+        _m1.m02 *= invSZ;
+        _m1.m12 *= invSZ;
+        _m1.m22 *= invSZ;
+
+        rotation.FromMat3(_m1);
+
+        scale.x = sx;
+        scale.y = sy;
+        scale.z = sz;
+    }
+
     Mat4& Mat4::Transpose() {
         float32 temp = m10;
         m10 = m01;
@@ -44,14 +145,14 @@ namespace Deep {
         z2 *= inverse;
         w2 *= inverse;
 
-        float32 xy = q.x * q.y * inverse;
-        float32 zw = q.w * q.z * inverse;
+        const float32 xy = q.x * q.y * inverse;
+        const float32 zw = q.w * q.z * inverse;
 
-        float32 xz = q.x * q.z * inverse;
-        float32 yw = q.w * q.y * inverse;
+        const float32 xz = q.x * q.z * inverse;
+        const float32 yw = q.w * q.y * inverse;
 
-        float32 yz = q.y * q.z * inverse;
-        float32 xw = q.w * q.x * inverse;
+        const float32 yz = q.y * q.z * inverse;
+        const float32 xw = q.w * q.x * inverse;
 
         m00 = x2 - y2 - z2 + w2;
         m10 = 2.0f * (xy + zw);
@@ -65,7 +166,7 @@ namespace Deep {
         return *this;
     }
 
-    float32 Mat4::Determinant() {
+    float32 Mat4::Determinant() const {
         return m30 * (
             +m03 * m12 * m21
             - m02 * m13 * m21
@@ -133,7 +234,7 @@ namespace Deep {
         return *this;
     }
 
-    Mat4 Mat4::inversed() {
+    Mat4 Mat4::inversed() const {
         float32 t00 = m12 * m23 * m31 - m13 * m22 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 + m11 * m22 * m33;
         float32 t01 = m03 * m22 * m31 - m02 * m23 * m31 - m03 * m21 * m32 + m01 * m23 * m32 + m02 * m21 * m33 - m01 * m22 * m33;
         float32 t02 = m02 * m13 * m31 - m03 * m12 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 + m01 * m12 * m33;
