@@ -5,15 +5,15 @@
 namespace Deep {
     struct Vec4 {
         Vec4& Normalize();
-        Vec4 normalized() const {
+        [[nodiscard]] Vec4 normalized() const {
             Vec4 v{ x, y, z, w };
             return v.Normalize();
         }
 
-        Deep_Inline float32 sqrdMagnitude() const {
+        [[nodiscard]] Deep_Inline float32 sqrdMagnitude() const {
             return x * x + y * y + z * z + w * w;
         }
-        Deep_Inline float32 magnitude() const {
+        [[nodiscard]] Deep_Inline float32 magnitude() const {
             return Deep::Sqrt(sqrdMagnitude());
         }
 

@@ -7,7 +7,7 @@ namespace Deep {
 
     struct Mat3 {
         Mat3& Transpose();
-        Mat3 transposed() const {
+        [[nodiscard]] Mat3 transposed() const {
             Mat3 q{
                 m00, m10, m20,
                 m01, m11, m21,
@@ -18,9 +18,9 @@ namespace Deep {
 
         Mat3& FromQuaternion(const Quaternion& quaternion);
 
-        float32 Determinant();
+        [[nodiscard]] float32 Determinant();
         Mat3& Inverse();
-        Mat3 inversed() const;
+        [[nodiscard]] Mat3 inversed() const;
 
         Mat3& operator= (const Mat4& other);
         Mat3& operator*= (const Mat3& other);

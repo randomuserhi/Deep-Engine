@@ -7,7 +7,7 @@ namespace Deep {
         static const Mat4 identity;
 
         Mat4& Transpose();
-        Mat4 transposed() const {
+        [[nodiscard]] Mat4 transposed() const {
             Mat4 q{
                 m00, m10, m20, m30,
                 m01, m11, m21, m31,
@@ -19,9 +19,9 @@ namespace Deep {
 
         Mat4& FromQuaternion(const Quaternion& quaternion);
 
-        float32 Determinant() const;
+        [[nodiscard]] float32 Determinant() const;
         Mat4& Inverse();
-        Mat4 inversed() const;
+        [[nodiscard]] Mat4 inversed() const;
 
         Mat4& Compose(const Vec3& position, const Quaternion& rotation, const Vec3& scale);
         void Decompose(Vec3& position, Quaternion& rotation, Vec3& scale) const;
