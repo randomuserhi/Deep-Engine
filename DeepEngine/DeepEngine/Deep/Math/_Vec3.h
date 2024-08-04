@@ -50,6 +50,7 @@ namespace Deep {
     Vec3 operator- (Vec3 a, const Vec3& b);
     Vec3 operator* (Vec3 v, const float32 a);
     Vec3 operator* (const float32 a, Vec3 v);
+    Vec3 operator/ (Vec3 v, const float32 a);
     float32 operator* (const Vec3& a, const Vec3& b);
 
     // NOTE(randomuserhi): Assumes Vec4 with w = 1

@@ -42,6 +42,7 @@ namespace Deep {
     Vec4 operator- (Vec4 a, const Vec4& b);
     Vec4 operator* (Vec4 v, const float32 a);
     Vec4 operator* (const float32 a, Vec4 v);
+    Vec4 operator/ (Vec4 v, const float32 a);
     float32 operator* (const Vec4& a, const Vec4& b);
 
     // NOTE(randomuserhi): Treats Vec4 as Vec3, ignoring w component
