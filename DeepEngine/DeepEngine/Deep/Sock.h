@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Deep.h"
+#include "../Deep.h"
 
 #define DEEP_SOCKET_NOERROR (0)
 #define DEEP_SOCKET_ERROR (-1)

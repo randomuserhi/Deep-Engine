@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -18,35 +18,76 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Deep.h" />
+    <ClInclude Include="Deep\Deep_Types.h" />
+    <ClInclude Include="Deep\ECS.h" />
+    <ClInclude Include="Deep\ECS\Allocator.h" />
+    <ClInclude Include="Deep\Math.h" />
+    <ClInclude Include="Deep\Math\_Mat3.h" />
+    <ClInclude Include="Deep\Math\_Mat4.h" />
+    <ClInclude Include="Deep\Math\_Quaternion.h" />
+    <ClInclude Include="Deep\Math\_Vec3.h" />
+    <ClInclude Include="Deep\Math\_Vec4.h" />
+    <ClInclude Include="Deep\Net.h" />
+    <ClInclude Include="Deep\Net\BitHelper.h" />
+    <ClInclude Include="Deep\Net\Packet.h" />
+    <ClInclude Include="Deep\Net\PacketReader.h" />
+    <ClInclude Include="Deep\Net\PacketWriter.h" />
+    <ClInclude Include="Deep\Physics.h" />
+    <ClInclude Include="Deep\Sock.h" />
+    <ClInclude Include="Deep\Sock\AF_INET.h" />
+    <ClInclude Include="Deep\Sock\IPv4.h" />
+    <ClInclude Include="Deep\Sock\Sock_Windows.h" />
+    <ClInclude Include="Deep\Threading.h" />
+    <ClInclude Include="Deep\Threading\ThreadPool.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Deep\ECS\ECS.cpp" />
+    <ClCompile Include="Deep\Math\Mat3.cpp" />
+    <ClCompile Include="Deep\Math\Mat4.cpp" />
+    <ClCompile Include="Deep\Math\Quaternion.cpp" />
+    <ClCompile Include="Deep\Math\Vec3.cpp" />
+    <ClCompile Include="Deep\Math\Vec4.cpp" />
+    <ClCompile Include="Deep\Net\Net.cpp" />
+    <ClCompile Include="Deep\Net\PacketReader.cpp" />
+    <ClCompile Include="Deep\Net\PacketWriter.cpp" />
+    <ClCompile Include="Deep\Physics\Physics.cpp" />
+    <ClCompile Include="Deep\Sock\IPv4.cpp" />
+    <ClCompile Include="Deep\Sock\Sock.cpp" />
+    <ClCompile Include="Deep\Sock\Sock_Posix.cpp" />
+    <ClCompile Include="Deep\Sock\Sock_Windows.cpp" />
+    <ClCompile Include="Deep\Threading\ThreadPool.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{be525114-300d-47b9-937d-f5678422f6d7}</ProjectGuid>
-    <RootNamespace>Deep</RootNamespace>
+    <ProjectGuid>{0734970a-cc71-4b3b-b2b2-4726fb4eff34}</ProjectGuid>
+    <RootNamespace>DeepEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -74,14 +115,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Deep;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,32 +133,36 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Deep;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Deep;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,68 +171,22 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Deep;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Deep\Deep\Math\Mat4.cpp" />
-    <ClCompile Include="Deep\Deep\Net\PacketReader.cpp" />
-    <ClCompile Include="Deep\Deep\Net\PacketWriter.cpp" />
-    <ClCompile Include="Deep\Deep\Threading\ThreadPool.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Deep\Deep\ECS\ECS.cpp" />
-    <ClCompile Include="Deep\Deep\Math\Mat3.cpp" />
-    <ClCompile Include="Deep\Deep\Math\Quaternion.cpp" />
-    <ClCompile Include="Deep\Deep\Math\Vec3.cpp" />
-    <ClCompile Include="Deep\Deep\Math\Vec4.cpp" />
-    <ClCompile Include="Deep\Deep\Net\Net.cpp" />
-    <ClCompile Include="Deep\Deep\Physics\Physics.cpp" />
-    <ClCompile Include="Deep\Deep\Sock\IPv4.cpp" />
-    <ClCompile Include="Deep\Deep\Sock\Sock.cpp" />
-    <ClCompile Include="Deep\Deep\Sock\Sock_Posix.cpp" />
-    <ClCompile Include="Deep\Deep\Sock\Sock_Windows.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Deep\Deep.h" />
-    <ClInclude Include="Deep\Deep\Deep_Types.h" />
-    <ClInclude Include="Deep\Deep\ECS.h" />
-    <ClInclude Include="Deep\Deep\ECS\Allocator.h" />
-    <ClInclude Include="Deep\Deep\Math.h" />
-    <ClInclude Include="Deep\Deep\Math\_Mat3.h" />
-    <ClInclude Include="Deep\Deep\Math\_Mat4.h" />
-    <ClInclude Include="Deep\Deep\Math\_Quaternion.h" />
-    <ClInclude Include="Deep\Deep\Math\_Vec3.h" />
-    <ClInclude Include="Deep\Deep\Math\_Vec4.h" />
-    <ClInclude Include="Deep\Deep\Net.h" />
-    <ClInclude Include="Deep\Deep\Net\BitHelper.h" />
-    <ClInclude Include="Deep\Deep\Net\Packet.h" />
-    <ClInclude Include="Deep\Deep\Net\PacketReader.h" />
-    <ClInclude Include="Deep\Deep\Net\PacketWriter.h" />
-    <ClInclude Include="Deep\Deep\Physics.h" />
-    <ClInclude Include="Deep\Deep\Sock.h" />
-    <ClInclude Include="Deep\Deep\Sock\AF_INET.h" />
-    <ClInclude Include="Deep\Deep\Sock\IPv4.h" />
-    <ClInclude Include="Deep\Deep\Sock\Sock_Windows.h" />
-    <ClInclude Include="Deep\Deep\Threading.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="Deep\Deep\Threading\ThreadPool.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
