@@ -1,1 +1,0 @@
-gcc -I./ -o gcc-test -std=c11 -pedantic -Wall -Wextra -O3 *.c -lws2_32
