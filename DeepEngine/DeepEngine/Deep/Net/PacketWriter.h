@@ -18,8 +18,8 @@ namespace Deep {
         }
 
         // TODO(randomuserhi): https://stackoverflow.com/a/51615364/9642458
-        Deep_Inline const uint8* data();
-        Deep_Inline size_t size();
+        Deep_Inline const uint8* data() const;
+        Deep_Inline size_t size() const;
 
         void Write(uint8 byte);
         void Write(const uint8* bytes, size_t numBytes);
@@ -38,10 +38,10 @@ namespace Deep {
     private:
         std::vector<uint8> buffer;
     };
-    Deep_Inline const uint8* PacketWriter::data() {
+    Deep_Inline const uint8* PacketWriter::data() const {
         return buffer.data();
     }
-    Deep_Inline size_t PacketWriter::size() {
+    Deep_Inline size_t PacketWriter::size() const {
         return buffer.size();
     }
 

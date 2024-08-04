@@ -16,7 +16,7 @@ int main() {
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
     socket.Open();
-    socket.Connect(Deep::IPv4(127, 0, 0, 1, 1000));
+    int32 res = socket.Connect(Deep::IPv4(127, 0, 0, 1, 23152));
     Deep::IPv4 address;
     socket.GetPeerName(address);
     std::cout << static_cast<uint32>(address.a)
@@ -47,10 +47,10 @@ int main() {
 
     while (true) {
         Deep::PacketWriter packet;
-        packet.Write(static_cast<uint8>(sizeof data));
+        packet.Write(static_cast<uint16>(sizeof data));
         packet.Write(data, sizeof data);
 
-        socket.Send(packet.data(), packet.size());
+        socket.Send(packet);
 
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(100ms);
