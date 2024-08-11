@@ -68,7 +68,7 @@
 
 #elif defined(DEEP_COMPILER_MSCV)
 #define Deep_Inline __forceinline
-#define Deep_AlignOf(type) _Alignof(type)
+#define Deep_AlignOf(type) alignof(type)
 
 #define Deep_PushPack __pragma(pack(push, 1))
 #define Deep_PopPack __pragma(pack(pop))

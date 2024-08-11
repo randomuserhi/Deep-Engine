@@ -16,7 +16,7 @@
 
 #include <immintrin.h>
 
-#define DEEP_VEC_ALIGNMENT 16
+#define DEEP_VEC_ALIGNMENT Deep_AlignOf(__m128)
 
 #else
 
