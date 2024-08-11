@@ -23,11 +23,15 @@ namespace Deep {
 
         Deep_Inline Vec4& operator+= (const Vec4& other);
         Deep_Inline Vec4& operator-= (const Vec4& other);
-        Deep_Inline Vec4& operator*= (const float32 other);
-        Deep_Inline Vec4& operator/= (const float32 other);
+        Deep_Inline Vec4& operator*= (const Vec4& other);
+        Deep_Inline Vec4& operator/= (const Vec4& other);
+        Deep_Inline Vec4& operator*= (float32 other);
+        Deep_Inline Vec4& operator/= (float32 other);
+
+        static Deep_Inline float32 Dot(const Vec4& a, const Vec4& b);
 
         union {
-            Type internal;
+            Type _internal;
             float32 values[4];
             struct {
                 float32 x;
@@ -45,10 +49,12 @@ namespace Deep {
 
     Deep_Inline Vec4 operator+ (Vec4 a, const Vec4& b);
     Deep_Inline Vec4 operator- (Vec4 a, const Vec4& b);
+    Deep_Inline Vec4 operator- (Vec4 a);
     Deep_Inline Vec4 operator* (Vec4 v, const float32 a);
-    Deep_Inline Vec4 operator* (const float32 a, Vec4 v);
+    Deep_Inline Vec4 operator* (float32 a, Vec4 v);
     Deep_Inline Vec4 operator/ (Vec4 v, const float32 a);
-    Deep_Inline float32 operator* (const Vec4& a, const Vec4& b);
+    Deep_Inline Vec4 operator* (Vec4 a, const Vec4& b);
+    Deep_Inline Vec4 operator/ (Vec4 a, const Vec4& b);
 
     // NOTE(randomuserhi): Treats Vec4 as Vec3, ignoring w component
     Deep_Inline Vec4 operator* (const Mat3& m, const Vec4& v);

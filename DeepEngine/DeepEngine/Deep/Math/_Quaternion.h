@@ -34,11 +34,11 @@ namespace Deep {
         Deep_Inline Quaternion& operator+= (const Quaternion& other);
         Deep_Inline Quaternion& operator-= (const Quaternion& other);
         Deep_Inline Quaternion& operator*= (const Quaternion& other);
-        Deep_Inline Quaternion& operator*= (const float32 other);
-        Deep_Inline Quaternion& operator/= (const float32 other);
+        Deep_Inline Quaternion& operator*= (float32 other);
+        Deep_Inline Quaternion& operator/= (float32 other);
 
         union {
-            Type internal;
+            Type _internal;
             float32 val[4];
             struct {
                 float32 x;
@@ -58,9 +58,9 @@ namespace Deep {
     Deep_Inline Quaternion operator+ (Quaternion a, const Quaternion& b);
     Deep_Inline Quaternion operator- (Quaternion a, const Quaternion& b);
     Deep_Inline Quaternion operator* (Quaternion v, const float32 a);
-    Deep_Inline Quaternion operator* (const float32 a, Quaternion v);
+    Deep_Inline Quaternion operator* (float32 a, Quaternion v);
     Deep_Inline Quaternion operator* (Quaternion a, const Quaternion& b);
-    Deep_Inline Quaternion operator/(Quaternion a, const float32 other);
+    Deep_Inline Quaternion operator/(Quaternion a, float32 other);
 
     Deep_Inline Vec3 operator* (const Quaternion& rot, Vec3 v);
 }

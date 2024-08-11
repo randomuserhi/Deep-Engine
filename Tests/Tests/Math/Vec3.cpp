@@ -3,8 +3,9 @@
 #include "Deep/Math.h"
 
 TEST(Vec3, Equality) {
-    Deep::Vec3 a{ 1, 2, 3 };
-    Deep::Vec3 b{ 1, 2, 3 };
+    const Deep::Vec3 a{ 1, 2, 3 };
+    const Deep::Vec3 b{ 1, 2, 3 };
+
     EXPECT_EQ(a, b);
 }
 

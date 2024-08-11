@@ -4,12 +4,12 @@
 
 namespace Deep {
     Vec4& Vec4::Normalize() {
-        float32 length = magnitude();
-        x /= length;
-        y /= length;
-        z /= length;
-        w /= length;
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_div_ps(_internal, _mm_sqrt_ps(_mm_dp_ps(_internal, _internal, 0xff)));
         return *this;
+        #else
+        return *this /= magnitude();
+        #endif
     }
     Vec4 Vec4::normalized() const {
         Vec4 v{ x, y, z, w };
@@ -17,24 +17,42 @@ namespace Deep {
     }
 
     float32 Vec4::sqrdMagnitude() const {
-        return x * x + y * y + z * z + w * w;
+        #ifdef DEEP_USE_SSE4_1
+        return _mm_cvtss_f32(_mm_dp_ps(_internal, _internal, 0xff));
+        #else
+        // NOTE(randomuserhi): brackets to keep consistent with vectorised version
+        return (x * x + y * y) + (z * z + w * w);
+        #endif
     }
     float32 Vec4::magnitude() const {
+        #ifdef DEEP_USE_SSE4_1
+        return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(_internal, _internal, 0xff)));
+        #else
         return Deep::Sqrt(sqrdMagnitude());
+        #endif
     }
 
     bool operator!=(const Vec4& a, const Vec4& b) {
+        #ifdef DEEP_USE_SSE4_1
+        __m128i vec4i = _mm_castps_si128(_mm_cmpeq_ps(a._internal, b._internal));
+        return (_mm_movemask_ps(_mm_castsi128_ps(vec4i)) & 0b111) != 0b111;
+        #else
         return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+        #endif
     }
     bool operator==(const Vec4& a, const Vec4& b) {
         return !(a != b);
     }
 
     Vec4& Vec4::operator+= (const Vec4& other) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_add_ps(_internal, other._internal);
+        #else
         x += other.x;
         y += other.y;
         z += other.z;
         w += other.w;
+        #endif
         return *this;
     }
 
@@ -43,10 +61,14 @@ namespace Deep {
     }
 
     Vec4& Vec4::operator-= (const Vec4& other) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_sub_ps(_internal, other._internal);
+        #else
         x -= other.x;
         y -= other.y;
         z -= other.z;
         w -= other.w;
+        #endif
         return *this;
     }
 
@@ -54,38 +76,93 @@ namespace Deep {
         return a -= b;
     }
 
-    Vec4& Vec4::operator*= (const float32 other) {
+    Vec4 operator- (Vec4 a) {
+        #ifdef DEEP_USE_SSE4_1
+        a._internal = _mm_sub_ps(_mm_setzero_ps(), a._internal);
+        #else
+        a.x = -a.x;
+        a.y = -a.y;
+        a.z = -a.z;
+        a.w = -a.w;
+        #endif
+        return a;
+    }
+
+    Vec4& Vec4::operator*= (const Vec4& other) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_mul_ps(_internal, other._internal);
+        #else
+        x *= other.x;
+        y *= other.y;
+        z *= other.z;
+        w *= other.w;
+        #endif
+        return *this;
+    }
+    Vec4 operator* (Vec4 a, const Vec4& b) {
+        return a *= b;
+    }
+
+    Vec4& Vec4::operator*= (float32 other) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_mul_ps(_internal, _mm_set1_ps(other));
+        #else
         x *= other;
         y *= other;
         z *= other;
         w *= other;
+        #endif
         return *this;
     }
 
-    Vec4& Vec4::operator/= (const float32 other) {
+    Vec4& Vec4::operator/= (const Vec4& other) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_div_ps(_internal, other._internal);
+        #else
+        x /= other.x;
+        y /= other.y;
+        z /= other.z;
+        w /= other.w;
+        #endif
+        return *this;
+    }
+    Vec4 operator/ (Vec4 a, const Vec4& b) {
+        return a /= b;
+    }
+
+    Vec4& Vec4::operator/= (float32 other) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_div_ps(_internal, _mm_set1_ps(other));
+        #else
         x /= other;
         y /= other;
         z /= other;
         w /= other;
+        #endif
         return *this;
     }
 
-    Vec4 operator* (Vec4 a, const float32 other) {
+    Vec4 operator* (Vec4 a, float32 other) {
         return a *= other;
     }
 
-    Vec4 operator* (const float32 other, Vec4 a) {
+    Vec4 operator* (float32 other, Vec4 a) {
         return a *= other;
     }
 
-    Vec4 operator/ (Vec4 a, const float32 other) {
+    Vec4 operator/ (Vec4 a, float32 other) {
         return a /= other;
     }
 
-    float32 operator* (const Vec4& a, const Vec4& b) {
+    float32 Vec4::Dot(const Vec4& a, const Vec4& b) {
+        #ifdef DEEP_USE_SSE4_1 
+        return _mm_cvtss_f32(_mm_dp_ps(a._internal, b._internal, 0xff));
+        #else
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+        #endif
     }
 
+    // TODO(randomuserhi): Vectorisation
     Vec4 operator* (const Mat3& m, const Vec4& v) {
         Vec4 _v;
         _v.x = m.m00 * v.x + m.m01 * v.y + m.m02 * v.z;
@@ -94,6 +171,7 @@ namespace Deep {
         return _v;
     }
 
+    // TODO(randomuserhi): Vectorisation
     Vec4 operator* (const Mat4& m, const Vec4& v) {
         Vec4 _v;
         _v.x = m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03 * v.w;

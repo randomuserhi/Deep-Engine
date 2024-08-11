@@ -2,6 +2,8 @@
 
 #include "../Math.h"
 
+// TODO(randomuserhi): Vectorisation of all methods
+
 namespace Deep {
     Quaternion::Quaternion(float32 x, float32 y, float32 z, float32 w)
         : vec{ x, y, z, w } {
@@ -184,7 +186,7 @@ namespace Deep {
         return a -= b;
     }
 
-    Quaternion& Quaternion::operator*= (const float32 other) {
+    Quaternion& Quaternion::operator*= (float32 other) {
         x *= other;
         y *= other;
         z *= other;
@@ -192,7 +194,7 @@ namespace Deep {
         return *this;
     }
 
-    Quaternion& Quaternion::operator/= (const float32 other) {
+    Quaternion& Quaternion::operator/= (float32 other) {
         x /= other;
         y /= other;
         z /= other;
@@ -200,15 +202,15 @@ namespace Deep {
         return *this;
     }
 
-    Quaternion operator* (Quaternion a, const float32 other) {
+    Quaternion operator* (Quaternion a, float32 other) {
         return a *= other;
     }
 
-    Quaternion operator* (const float32 other, Quaternion a) {
+    Quaternion operator* (float32 other, Quaternion a) {
         return a *= other;
     }
 
-    Quaternion operator/ (Quaternion a, const float32 other) {
+    Quaternion operator/ (Quaternion a, float32 other) {
         return a /= other;
     }
 
@@ -225,8 +227,8 @@ namespace Deep {
     }
 
     // TODO(randomuserhi): Can be optimised to not use a `toMat3` call
-    Vec3 operator* (const Quaternion& q, Vec3 v) {
+    Vec3 operator* (const Quaternion& q, const Vec3& v) {
         Mat3 m = q.ToMat3();
-        return v *= m;
+        return m * v;
     }
 }
