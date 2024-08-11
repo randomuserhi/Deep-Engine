@@ -63,22 +63,8 @@ namespace Deep {
     Deep_Inline void PacketWriter::Write(const uint8* bytes, size_t numBytes) {
         size_t old = buffer.size();
         buffer.resize(buffer.size() + numBytes);
-        // Fairly sure this is UB to the abstract Cpp machine, since no uint8 objects
-        // are constructed and besides, we don't construct them as array elements
-        // so adjacent access is still UB.
-        // 
-        // Reasonable compilers shouldn't care, but by the abstract cpp engine this is UB
-        // 
-        // NOTE(randomuserhi): Use of memcpy means there are portability issues for systems where length of byte
-        //                     >8 bits, refer to Deep_Types.h
         memcpy(buffer.data() + old, bytes, numBytes);
     }
-
-    // Fairly sure the below reinterpret_cast's are UB to the abstract Cpp machine, 
-    // since we are constructing an int object instead of an array of uint8 objects, 
-    // so access to the uint8 objects via the vector is UB.
-    // 
-    // Reasonable compilers shouldn't care, but by the cpp standard this is UB
 
     Deep_Inline void PacketWriter::Write(uint16 value) {
         size_t old = buffer.size();
@@ -90,12 +76,6 @@ namespace Deep {
         buffer.resize(buffer.size() + sizeof value);
         *reinterpret_cast<int16*>(buffer.data() + old) = hton(value);
     }
-
-    // Fairly sure the below reinterpret_cast's are UB to the abstract Cpp machine, 
-    // since we are constructing an int object instead of an array of uint8 objects, 
-    // so access to the uint8 objects via the vector is UB.
-    // 
-    // Reasonable compilers shouldn't care, but by the cpp standard this is UB
 
     Deep_Inline void PacketWriter::Write(uint32 value) {
         size_t old = buffer.size();
