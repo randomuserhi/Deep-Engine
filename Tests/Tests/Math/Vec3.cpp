@@ -73,3 +73,31 @@ TEST(Vec3, Dot) {
     EXPECT_EQ(c, 10);
     EXPECT_EQ(d, 10);
 }
+
+TEST(Vec3, Mul) {
+    Deep::Vec3 a{ 1, 2, 3 };
+    Deep::Vec3 b{ 3, 2, 1 };
+    Deep::Vec3 c = a * b;
+    EXPECT_EQ(c.x, 3.0f);
+    EXPECT_EQ(c.y, 4.0f);
+    EXPECT_EQ(c.z, 3.0f);
+
+    a *= b;
+    EXPECT_EQ(a.x, 3.0f);
+    EXPECT_EQ(a.y, 4.0f);
+    EXPECT_EQ(a.z, 3.0f);
+}
+
+TEST(Vec3, Div) {
+    Deep::Vec3 a{ 1, 2, 3 };
+    Deep::Vec3 b{ 3, 2, 1 };
+    Deep::Vec3 c = a / b;
+    EXPECT_EQ(c.x, 1.0f / 3.0f);
+    EXPECT_EQ(c.y, 1.0f);
+    EXPECT_EQ(c.z, 3.0f);
+
+    a /= b;
+    EXPECT_EQ(a.x, 1.0f / 3.0f);
+    EXPECT_EQ(a.y, 1.0f);
+    EXPECT_EQ(a.z, 3.0f);
+}
