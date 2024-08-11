@@ -68,8 +68,8 @@ TEST(Vec3, Scale) {
 TEST(Vec3, Dot) {
     Deep::Vec3 a{ 1, 2, 3 };
     Deep::Vec3 b{ 3, 2, 1 };
-    float32 c = a * b;
-    float32 d = b * a;
+    float32 c = Deep::Vec3::Dot(a, b);
+    float32 d = Deep::Vec3::Dot(b, a);
     EXPECT_EQ(c, 10);
     EXPECT_EQ(d, 10);
 }
