@@ -12,6 +12,18 @@
 
 #include "../Deep.h"
 
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+
+#include <immintrin.h>
+
+#define DEEP_VEC_ALIGNMENT 16
+
+#else
+
+#error Unsupported CPU architecture
+
+#endif
+
 #include <cmath>
 
 #define PI 3.141592653589793f
@@ -47,8 +59,12 @@ namespace Deep {
 
 #include "./Math/_Vec3.h"
 #include "./Math/_Vec4.h"
-
 #include "./Math/_Mat3.h"
 #include "./Math/_Mat4.h"
-
 #include "./Math/_Quaternion.h"
+
+#include "./Math/Vec3.inl"
+#include "./Math/Vec4.inl"
+#include "./Math/Mat3.inl"
+#include "./Math/Mat4.inl"
+#include "./Math/Quaternion.inl"

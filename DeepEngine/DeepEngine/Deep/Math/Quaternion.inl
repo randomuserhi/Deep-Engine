@@ -1,6 +1,12 @@
+#pragma once
+
 #include "../Math.h"
 
 namespace Deep {
+    Quaternion::Quaternion(float32 x, float32 y, float32 z, float32 w)
+        : vec{ x, y, z, w } {
+    };
+
     Quaternion& Quaternion::FromMat3(const Mat3& m) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
@@ -105,12 +111,29 @@ namespace Deep {
         w /= length;
         return *this;
     }
+    Quaternion Quaternion::normalized() const {
+        Quaternion q{ x, y, z, w };
+        return q.Normalize();
+    }
+
+    Mat3 Quaternion::ToMat3() const {
+        Mat3 m;
+        return m.FromQuaternion(*this);
+    }
+    Mat4 Quaternion::ToMat4() const {
+        Mat4 m;
+        return m.FromQuaternion(*this);
+    }
 
     Quaternion& Quaternion::Inverse() {
         x *= -1;
         y *= -1;
         z *= -1;
         return *this;
+    }
+    Quaternion Quaternion::inversed() const {
+        Quaternion q{ x, y, z, w };
+        return q.Inverse();
     }
 
     Quaternion::Quaternion(Vec3 axis, float32 angle) {
@@ -132,6 +155,9 @@ namespace Deep {
 
     bool operator!=(const Quaternion& a, const Quaternion& b) {
         return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+    }
+    bool operator==(const Quaternion& a, const Quaternion& b) {
+        return !(a != b);
     }
 
     Quaternion& Quaternion::operator+= (const Quaternion& other) {

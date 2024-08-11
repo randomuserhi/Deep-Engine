@@ -4,24 +4,24 @@
 
 #pragma once
 
- /*
- * Compiler Macros
- */
+/*
+* Compiler Macros
+*/
 
 #if defined(__clang__)
-#define Deep_Compiler_Clang
+#define DEEP_COMPILER_CLANG
 
 #elif defined(__GNUC__) || defined(__GNUG__)
-#define Deep_Compiler_GCC
+#define DEEP_COMPILER_GCC
 
 #elif defined(_MSC_VER)
-#define Deep_Compiler_MSCV
+#define DEEP_COMPILER_MSCV
 
 #endif
 
- /*
- * Platform Macros
- */
+/*
+* Platform Macros
+*/
 
 #if defined(_WIN32)
 #define DEEP_PLATFORM_WINDOWS
@@ -34,13 +34,13 @@
 
 #endif
 
- /*
- * Deep Utilities
- */
+/*
+* Deep Utilities
+*/
 
 #include "./Deep/Deep_Types.h"
 
-#if defined(Deep_Compiler_Clang)
+#if defined(DEEP_COMPILER_CLANG)
 #define Deep_Inline inline
 #define Deep_AlignOf(type) __alignof__(type)
 
@@ -53,7 +53,7 @@
 #define Deep__File__ __FILE__
 #define Deep__Line__ __LINE__
 
-#elif defined(Deep_Compiler_GCC)
+#elif defined(DEEP_COMPILER_GCC)
 #define Deep_Inline inline __attribute__((always_inline))
 #define Deep_AlignOf(type) __alignof__(type)
 
@@ -66,7 +66,7 @@
 #define Deep__File__ __FILE__
 #define Deep__Line__ __LINE__
 
-#elif defined(Deep_Compiler_MSCV)
+#elif defined(DEEP_COMPILER_MSCV)
 #define Deep_Inline __forceinline
 #define Deep_AlignOf(type) _Alignof(type)
 
@@ -82,5 +82,46 @@
 // NOTE(randomuserhi): Undef MSVC pre-processor macros: https://stackoverflow.com/questions/21483038/undefining-min-and-max-macros
 #undef min
 #undef max
+
+/*
+* Vectorised Instructions
+*/
+
+
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+
+#define DEEP_USE_SSE
+
+// Detect enabled instruction sets
+#if defined(__AVX512F__) && defined(__AVX512VL__) && defined(__AVX512DQ__) && !defined(DEEP_USE_AVX512)
+#define DEEP_USE_AVX512
+#endif
+#if (defined(__AVX2__) || defined(DEEP_USE_AVX512)) && !defined(DEEP_USE_AVX2)
+#define DEEP_USE_AVX2
+#endif
+#if (defined(__AVX__) || defined(DEEP_USE_AVX2)) && !defined(DEEP_USE_AVX)
+#define DEEP_USE_AVX
+#endif
+#if (defined(__SSE4_2__) || defined(DEEP_USE_AVX)) && !defined(DEEP_USE_SSE4_2)
+#define DEEP_USE_SSE4_2
+#endif
+#if (defined(__SSE4_1__) || defined(DEEP_USE_SSE4_2)) && !defined(DEEP_USE_SSE4_1)
+#define DEEP_USE_SSE4_1
+#endif
+#if (defined(__F16C__) || defined(DEEP_USE_AVX2)) && !defined(DEEP_USE_F16C)
+#define DEEP_USE_F16C
+#endif
+#if (defined(__LZCNT__) || defined(DEEP_USE_AVX2)) && !defined(DEEP_USE_LZCNT)
+#define DEEP_USE_LZCNT
+#endif
+#if (defined(__BMI__) || defined(DEEP_USE_AVX2)) && !defined(DEEP_USE_TZCNT)
+#define DEEP_USE_TZCNT
+#endif
+
+#else
+
+#error Unsupported CPU architecture
+
+#endif
 
 #endif

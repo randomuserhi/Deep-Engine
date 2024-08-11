@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Math.h"
 
 namespace Deep {
@@ -8,9 +10,23 @@ namespace Deep {
         z /= length;
         return *this;
     }
+    Vec3 Vec3::normalized() const {
+        Vec3 v{ x, y, z };
+        return v.Normalize();
+    }
+
+    float32 Vec3::sqrdMagnitude() const {
+        return x * x + y * y + z * z;
+    }
+    float32 Vec3::magnitude() const {
+        return Deep::Sqrt(sqrdMagnitude());
+    }
 
     bool operator!=(const Vec3& a, const Vec3& b) {
         return a.x != b.x || a.y != b.y || a.z != b.z;
+    }
+    bool operator==(const Vec3& a, const Vec3& b) {
+        return !(a != b);
     }
 
     Vec3& Vec3::operator+= (const Vec3& other) {
