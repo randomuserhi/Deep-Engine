@@ -21,9 +21,6 @@
     <ClInclude Include="Deep\ECS\Allocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Math\_Mat3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Deep\Math\_Mat4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,9 +81,6 @@
     <ClInclude Include="Deep\Math\_MathTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Math\Mat3.inl">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Deep\Math\Mat4.inl">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -129,9 +123,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Threading\ThreadPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Deep\Math\Mat3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Math\Mat4.cpp">

@@ -25,10 +25,8 @@ namespace Deep {
         Deep_Inline Quaternion& Inverse();
         Deep_Inline [[nodiscard]] Quaternion inversed() const;
 
-        Deep_Inline Mat3 ToMat3() const;
         Deep_Inline Mat4 ToMat4() const;
 
-        Deep_Inline Quaternion& FromMat3(const Mat3& m);
         Deep_Inline Quaternion& FromMat4(const Mat4& m);
 
         Deep_Inline Quaternion& operator+= (const Quaternion& other);

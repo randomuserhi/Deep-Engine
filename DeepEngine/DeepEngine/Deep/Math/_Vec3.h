@@ -56,6 +56,5 @@ namespace Deep {
     Deep_Inline Vec3 operator/ (Vec3 a, const Vec3& b);
 
     // NOTE(randomuserhi): Assumes Vec4 with w = 1
-    Deep_Inline Vec3 operator* (const Mat3& m, const Vec3& v);
     Deep_Inline Vec3 operator* (const Mat4& m, const Vec3& v);
 }

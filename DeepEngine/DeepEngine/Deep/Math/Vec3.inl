@@ -155,21 +155,19 @@ namespace Deep {
     }
 
     // TODO(randomuserhi): Vectorisation
-    Vec3 operator* (const Mat3& m, const Vec3& v) {
-        Vec3 _v;
-        _v.x = m.m00 * v.x + m.m01 * v.y + m.m02 * v.z;
-        _v.y = m.m10 * v.x + m.m11 * v.y + m.m12 * v.z;
-        _v.z = m.m20 * v.x + m.m21 * v.y + m.m22 * v.z;
-        return _v;
-    }
-
-    // TODO(randomuserhi): Vectorisation
     Vec3 operator* (const Mat4& m, const Vec3& v) {
         Vec3 _v;
+        #ifdef DEEP_USE_SSE4_1
+        _v._internal = _mm_mul_ps(m.columns[0]._internal, _mm_shuffle_ps(m.columns[0]._internal, v._internal, _MM_SHUFFLE(0, 0, 0, 0)));
+        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[1]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(1, 1, 1, 1))));
+        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[2]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(2, 2, 2, 2))));
+        _v._internal = _mm_add_ps(_v._internal, m.columns[3]._internal);
+        #else
         float32 invW = 1.0f / (m.m30 * v.x + m.m31 * v.y + m.m32 * v.z + m.m33);
         _v.x = (m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03) * invW;
         _v.y = (m.m10 * v.x + m.m11 * v.y + m.m12 * v.z + m.m13) * invW;
         _v.z = (m.m20 * v.x + m.m21 * v.y + m.m22 * v.z + m.m23) * invW;
+        #endif
         return _v;
     }
 }

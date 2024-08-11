@@ -3,6 +3,8 @@
 #include "../Math.h"
 #include <cassert>
 
+// TODO(randomuserhi): Vectorisation of all methods
+
 namespace Deep {
     Mat4::Mat4(
         float32 m00, float32 m01, float32 m02, float32 m03,
@@ -93,10 +95,11 @@ namespace Deep {
         position.z = m32;
 
         // scale the rotation part
-        Mat3 _m1{
-            m00, m01, m02,
-            m10, m11, m12,
-            m20, m21, m22
+        Mat4 _m1{
+            m00, m01, m02, 0,
+            m10, m11, m12, 0,
+            m20, m21, m22, 0,
+            0  , 0  , 0  , 1
         };
 
         const float32 invSX = 1.0f / sx;
@@ -115,7 +118,7 @@ namespace Deep {
         _m1.m12 *= invSZ;
         _m1.m22 *= invSZ;
 
-        rotation.FromMat3(_m1);
+        rotation.FromMat4(_m1);
 
         scale.x = sx;
         scale.y = sy;
@@ -297,28 +300,6 @@ namespace Deep {
         mat.m33 = (m01 * m12 * m20 - m02 * m11 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 + m00 * m11 * m22) * detInv;
 
         return mat;
-    }
-
-    Mat4& Mat4::operator= (const Mat3& other) {
-        m00 = other.m00;
-        m10 = other.m10;
-        m20 = other.m20;
-        m30 = 0;
-
-        m01 = other.m01;
-        m11 = other.m11;
-        m21 = other.m21;
-        m31 = 0;
-
-        m02 = other.m02;
-        m12 = other.m12;
-        m22 = other.m22;
-        m32 = 0;
-
-        m03 = 0;
-        m13 = 0;
-        m23 = 0;
-        m33 = 1;
     }
 
     Mat4& Mat4::operator*= (const Mat4& other) {

@@ -24,7 +24,6 @@
     <ClInclude Include="Deep\ECS.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
     <ClInclude Include="Deep\Math.h" />
-    <ClInclude Include="Deep\Math\_Mat3.h" />
     <ClInclude Include="Deep\Math\_Mat4.h" />
     <ClInclude Include="Deep\Math\_MathTypes.h" />
     <ClInclude Include="Deep\Math\_Quaternion.h" />
@@ -45,10 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECS.cpp" />
-    <ClCompile Include="Deep\Math\Mat3.cpp" />
-    <ClInclude Include="Deep\Math\Mat3.inl">
-      <FileType>Document</FileType>
-    </ClInclude>
     <ClCompile Include="Deep\Math\Mat4.cpp" />
     <ClInclude Include="Deep\Math\Mat4.inl">
       <FileType>Document</FileType>

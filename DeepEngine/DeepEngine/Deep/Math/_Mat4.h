@@ -25,7 +25,6 @@ namespace Deep {
         Deep_Inline Mat4& Compose(const Vec3& position, const Quaternion& rotation, const Vec3& scale);
         Deep_Inline void Decompose(Vec3& position, Quaternion& rotation, Vec3& scale) const;
 
-        Deep_Inline Mat4& operator= (const Mat3& other);
         Deep_Inline Mat4& operator*= (const Mat4& other);
 
         /**

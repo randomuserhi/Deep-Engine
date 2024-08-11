@@ -59,12 +59,10 @@ namespace Deep {
 
 #include "./Math/_Vec3.h"
 #include "./Math/_Vec4.h"
-#include "./Math/_Mat3.h"
 #include "./Math/_Mat4.h"
 #include "./Math/_Quaternion.h"
 
 #include "./Math/Vec3.inl"
 #include "./Math/Vec4.inl"
-#include "./Math/Mat3.inl"
 #include "./Math/Mat4.inl"
 #include "./Math/Quaternion.inl"

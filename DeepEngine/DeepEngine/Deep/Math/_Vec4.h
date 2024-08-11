@@ -56,7 +56,5 @@ namespace Deep {
     Deep_Inline Vec4 operator* (Vec4 a, const Vec4& b);
     Deep_Inline Vec4 operator/ (Vec4 a, const Vec4& b);
 
-    // NOTE(randomuserhi): Treats Vec4 as Vec3, ignoring w component
-    Deep_Inline Vec4 operator* (const Mat3& m, const Vec4& v);
     Deep_Inline Vec4 operator* (const Mat4& m, const Vec4& v);
 }

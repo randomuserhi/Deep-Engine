@@ -8,5 +8,4 @@ namespace Deep {
     struct Quaternion;
 
     struct Mat4;
-    struct Mat3;
 }

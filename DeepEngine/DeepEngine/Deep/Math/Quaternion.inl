@@ -9,54 +9,6 @@ namespace Deep {
         : vec{ x, y, z, w } {
     };
 
-    Quaternion& Quaternion::FromMat3(const Mat3& m) {
-        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-
-        // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
-
-        const float32 trace = m.m00 + m.m11 + m.m22;
-
-        if (trace > 0) {
-
-            const float32 s = 0.5f / Deep::Sqrt(trace + 1.0f);
-
-            w = 0.25f / s;
-            x = (m.m21 - m.m12) * s;
-            y = (m.m02 - m.m20) * s;
-            z = (m.m10 - m.m01) * s;
-
-        } else if (m.m00 > m.m11 && m.m00 > m.m22) {
-
-            const float32 s = 2.0f * Deep::Sqrt(1.0f + m.m00 - m.m11 - m.m22);
-
-            w = (m.m21 - m.m12) / s;
-            x = 0.25f * s;
-            y = (m.m01 + m.m10) / s;
-            z = (m.m02 + m.m20) / s;
-
-        } else if (m.m11 > m.m22) {
-
-            const float32 s = 2.0f * Deep::Sqrt(1.0f + m.m11 - m.m00 - m.m22);
-
-            w = (m.m02 - m.m20) / s;
-            x = (m.m01 + m.m10) / s;
-            y = 0.25f * s;
-            z = (m.m12 + m.m21) / s;
-
-        } else {
-
-            const float32 s = 2.0f * Deep::Sqrt(1.0f + m.m22 - m.m00 - m.m11);
-
-            w = (m.m10 - m.m01) / s;
-            x = (m.m02 + m.m20) / s;
-            y = (m.m12 + m.m21) / s;
-            z = 0.25f * s;
-
-        }
-
-        return *this;
-    }
-
     Quaternion& Quaternion::FromMat4(const Mat4& m) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
@@ -118,10 +70,6 @@ namespace Deep {
         return q.Normalize();
     }
 
-    Mat3 Quaternion::ToMat3() const {
-        Mat3 m;
-        return m.FromQuaternion(*this);
-    }
     Mat4 Quaternion::ToMat4() const {
         Mat4 m;
         return m.FromQuaternion(*this);
@@ -228,7 +176,7 @@ namespace Deep {
 
     // TODO(randomuserhi): Can be optimised to not use a `toMat3` call
     Vec3 operator* (const Quaternion& q, const Vec3& v) {
-        Mat3 m = q.ToMat3();
+        Mat4 m = q.ToMat4();
         return m * v;
     }
 }
