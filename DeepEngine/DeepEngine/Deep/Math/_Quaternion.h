@@ -62,5 +62,5 @@ namespace Deep {
     Deep_Inline Quaternion operator* (Quaternion a, const Quaternion& b);
     Deep_Inline Quaternion operator/(Quaternion a, float32 other);
 
-    Deep_Inline Vec3 operator* (const Quaternion& rot, Vec3 v);
+    Deep_Inline Vec3 operator* (const Quaternion& rot, const Vec3& v);
 }

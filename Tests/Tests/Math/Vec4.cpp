@@ -75,8 +75,8 @@ TEST(Vec4, Scale) {
 TEST(Vec4, Dot) {
     Deep::Vec4 a{ 1, 2, 3, 4 };
     Deep::Vec4 b{ 4, 3, 2, 1 };
-    float32 c = a * b;
-    float32 d = b * a;
+    float32 c = Deep::Vec4::Dot(a, b);
+    float32 d = Deep::Vec4::Dot(b, a);
     EXPECT_EQ(c, 20);
     EXPECT_EQ(d, 20);
 }
