@@ -79,9 +79,11 @@
 #define Deep__File__ __FILE__
 #define Deep__Line__ __LINE__
 
+#ifdef DEEP_COMPILER_MSVC
 // NOTE(randomuserhi): Undef MSVC pre-processor macros: https://stackoverflow.com/questions/21483038/undefining-min-and-max-macros
 #undef min
 #undef max
+#endif
 
 /*
 * Vectorised Instructions

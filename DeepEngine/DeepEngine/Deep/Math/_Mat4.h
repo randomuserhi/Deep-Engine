@@ -27,6 +27,8 @@ namespace Deep {
 
         Deep_Inline Mat4& operator*= (const Mat4& other);
 
+        friend Deep_Inline Mat4 operator* (const Mat4& a, const Mat4& b);
+
         /**
          * (00, 01, 02, 03)
          * (10, 11, 12, 13)
@@ -62,6 +64,4 @@ namespace Deep {
     };
 
     static_assert(std::is_trivial<Mat4>(), "Is supposed to be a trivial type!");
-
-    Deep_Inline Mat4 operator* (const Mat4& a, const Mat4& b);
 }

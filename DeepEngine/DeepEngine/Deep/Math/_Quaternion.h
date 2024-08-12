@@ -35,6 +35,18 @@ namespace Deep {
         Deep_Inline Quaternion& operator*= (float32 other);
         Deep_Inline Quaternion& operator/= (float32 other);
 
+        friend Deep_Inline bool operator!=(const Quaternion& a, const Quaternion& b);
+        friend Deep_Inline bool operator==(const Quaternion& a, const Quaternion& b);
+
+        friend Deep_Inline Quaternion operator+ (Quaternion a, const Quaternion& b);
+        friend Deep_Inline Quaternion operator- (Quaternion a, const Quaternion& b);
+        friend Deep_Inline Quaternion operator* (Quaternion v, const float32 a);
+        friend Deep_Inline Quaternion operator* (float32 a, Quaternion v);
+        friend Deep_Inline Quaternion operator* (Quaternion a, const Quaternion& b);
+        friend Deep_Inline Quaternion operator/(Quaternion a, float32 other);
+
+        friend Deep_Inline Vec3 operator* (const Quaternion& rot, const Vec3& v);
+
         union {
             Type _internal;
             float32 val[4];
@@ -49,16 +61,4 @@ namespace Deep {
     };
 
     static_assert(std::is_trivial<Quaternion>(), "Is supposed to be a trivial type!");
-
-    Deep_Inline bool operator!=(const Quaternion& a, const Quaternion& b);
-    Deep_Inline bool operator==(const Quaternion& a, const Quaternion& b);
-
-    Deep_Inline Quaternion operator+ (Quaternion a, const Quaternion& b);
-    Deep_Inline Quaternion operator- (Quaternion a, const Quaternion& b);
-    Deep_Inline Quaternion operator* (Quaternion v, const float32 a);
-    Deep_Inline Quaternion operator* (float32 a, Quaternion v);
-    Deep_Inline Quaternion operator* (Quaternion a, const Quaternion& b);
-    Deep_Inline Quaternion operator/(Quaternion a, float32 other);
-
-    Deep_Inline Vec3 operator* (const Quaternion& rot, const Vec3& v);
 }

@@ -29,6 +29,20 @@ namespace Deep {
         Deep_Inline Vec4& operator*= (float32 other);
         Deep_Inline Vec4& operator/= (float32 other);
 
+        friend Deep_Inline bool operator!=(const Vec4& a, const Vec4& b);
+        friend Deep_Inline bool operator==(const Vec4& a, const Vec4& b);
+
+        friend Deep_Inline Vec4 operator+ (Vec4 a, const Vec4& b);
+        friend Deep_Inline Vec4 operator- (Vec4 a, const Vec4& b);
+        friend Deep_Inline Vec4 operator- (Vec4 a);
+        friend Deep_Inline Vec4 operator* (Vec4 v, const float32 a);
+        friend Deep_Inline Vec4 operator* (float32 a, Vec4 v);
+        friend Deep_Inline Vec4 operator/ (Vec4 v, const float32 a);
+        friend Deep_Inline Vec4 operator* (Vec4 a, const Vec4& b);
+        friend Deep_Inline Vec4 operator/ (Vec4 a, const Vec4& b);
+
+        friend Deep_Inline Vec4 operator* (const Mat4& m, const Vec4& v);
+
         static Deep_Inline float32 Dot(const Vec4& a, const Vec4& b);
 
         union {
@@ -46,18 +60,4 @@ namespace Deep {
     };
 
     static_assert(std::is_trivial<Vec4>(), "Is supposed to be a trivial type!");
-
-    Deep_Inline bool operator!=(const Vec4& a, const Vec4& b);
-    Deep_Inline bool operator==(const Vec4& a, const Vec4& b);
-
-    Deep_Inline Vec4 operator+ (Vec4 a, const Vec4& b);
-    Deep_Inline Vec4 operator- (Vec4 a, const Vec4& b);
-    Deep_Inline Vec4 operator- (Vec4 a);
-    Deep_Inline Vec4 operator* (Vec4 v, const float32 a);
-    Deep_Inline Vec4 operator* (float32 a, Vec4 v);
-    Deep_Inline Vec4 operator/ (Vec4 v, const float32 a);
-    Deep_Inline Vec4 operator* (Vec4 a, const Vec4& b);
-    Deep_Inline Vec4 operator/ (Vec4 a, const Vec4& b);
-
-    Deep_Inline Vec4 operator* (const Mat4& m, const Vec4& v);
 }
