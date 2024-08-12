@@ -5,6 +5,7 @@
 TEST(Vec4, Equality) {
     Deep::Vec4 a{ 1, 2, 3, 4 };
     Deep::Vec4 b{ 1, 2, 3, 4 };
+
     EXPECT_EQ(a, b);
 }
 

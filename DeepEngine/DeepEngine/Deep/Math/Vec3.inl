@@ -3,19 +3,20 @@
 #include "../Math.h"
 
 namespace Deep {
+    #ifdef DEEP_USE_SSE4_1
+    Vec3::Vec3(float32 x, float32 y, float32 z) : sse_mm128(x, y, z, z) {
+    }
+    #else
     Vec3::Vec3(float32 x, float32 y, float32 z) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_set_ps(z, z, y, x);
-        #else
         this->x = x;
         this->y = y;
         this->z = z;
-        #endif
     }
+    #endif
 
     Vec3& Vec3::Normalize() {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_div_ps(_internal, _mm_sqrt_ps(_mm_dp_ps(_internal, _internal, 0x7f)));
+        sse_mm128 = _mm_div_ps(sse_mm128, _mm_sqrt_ps(_mm_dp_ps(sse_mm128, sse_mm128, 0x7f)));
         return *this;
         #else
         return *this /= magnitude();
@@ -25,17 +26,20 @@ namespace Deep {
         Vec3 v{ x, y, z };
         return v.Normalize();
     }
+    bool Vec3::IsNormalized(float tolerance) const {
+        return Deep::Abs(sqrdMagnitude() - 1.0f) <= tolerance;
+    }
 
     float32 Vec3::sqrdMagnitude() const {
         #ifdef DEEP_USE_SSE4_1
-        return _mm_cvtss_f32(_mm_dp_ps(_internal, _internal, 0x7f));;
+        return _mm_cvtss_f32(_mm_dp_ps(sse_mm128, sse_mm128, 0x7f));;
         #else
         return x * x + y * y + z * z;
         #endif
     }
     float32 Vec3::magnitude() const {
         #ifdef DEEP_USE_SSE4_1
-        return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(_internal, _internal, 0x7f)));
+        return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(sse_mm128, sse_mm128, 0x7f)));
         #else
         return Deep::Sqrt(sqrdMagnitude());
         #endif
@@ -43,7 +47,7 @@ namespace Deep {
 
     bool operator!=(const Vec3& a, const Vec3& b) {
         #ifdef DEEP_USE_SSE4_1
-        __m128i vec4i = _mm_castps_si128(_mm_cmpeq_ps(a._internal, b._internal));
+        __m128i vec4i = _mm_castps_si128(_mm_cmpeq_ps(a.sse_mm128, b.sse_mm128));
         return (_mm_movemask_ps(_mm_castsi128_ps(vec4i)) & 0b111) != 0b111;
         #else
         return a.x != b.x || a.y != b.y || a.z != b.z;
@@ -55,7 +59,7 @@ namespace Deep {
 
     Vec3& Vec3::operator+= (const Vec3& other) {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_add_ps(_internal, other._internal);
+        sse_mm128 += other.sse_mm128;
         #else
         x += other.x;
         y += other.y;
@@ -70,7 +74,7 @@ namespace Deep {
 
     Vec3& Vec3::operator-= (const Vec3& other) {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_sub_ps(_internal, other._internal);
+        sse_mm128 -= other.sse_mm128;
         #else
         x -= other.x;
         y -= other.y;
@@ -85,7 +89,7 @@ namespace Deep {
 
     Vec3 operator- (Vec3 a) {
         #ifdef DEEP_USE_SSE4_1
-        a._internal = _mm_sub_ps(_mm_setzero_ps(), a._internal);
+        a.sse_mm128 = -a.sse_mm128;
         #else
         a.x = -a.x;
         a.y = -a.y;
@@ -96,7 +100,7 @@ namespace Deep {
 
     Vec3& Vec3::operator*= (const Vec3& other) {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_mul_ps(_internal, other._internal);
+        sse_mm128 *= other.sse_mm128;
         #else
         x *= other.x;
         y *= other.y;
@@ -110,7 +114,7 @@ namespace Deep {
 
     Vec3& Vec3::operator*= (float32 other) {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_mul_ps(_internal, _mm_set1_ps(other));
+        sse_mm128 *= other;
         #else
         x *= other;
         y *= other;
@@ -119,9 +123,17 @@ namespace Deep {
         return *this;
     }
 
+    Vec3 operator* (Vec3 a, float32 other) {
+        return a *= other;
+    }
+
+    Vec3 operator* (float32 other, Vec3 a) {
+        return a *= other;
+    }
+
     Vec3& Vec3::operator/= (const Vec3& other) {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_div_ps(_internal, other._internal);
+        sse_mm128 /= other.sse_mm128;
         #else
         x /= other.x;
         y /= other.y;
@@ -135,7 +147,7 @@ namespace Deep {
 
     Vec3& Vec3::operator/= (float32 other) {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_div_ps(_internal, _mm_set1_ps(other));
+        sse_mm128 /= other;
         #else
         x /= other;
         y /= other;
@@ -144,21 +156,13 @@ namespace Deep {
         return *this;
     }
 
-    Vec3 operator* (Vec3 a, float32 other) {
-        return a *= other;
-    }
-
-    Vec3 operator* (float32 other, Vec3 a) {
-        return a *= other;
-    }
-
     Vec3 operator/ (Vec3 a, float32 other) {
         return a /= other;
     }
 
     float32 Vec3::Dot(const Vec3& a, const Vec3& b) {
         #ifdef DEEP_USE_SSE4_1
-        return _mm_cvtss_f32(_mm_dp_ps(a._internal, b._internal, 0x7f));
+        return _mm_cvtss_f32(_mm_dp_ps(a.sse_mm128, b.sse_mm128, 0x7f));
         #else
         return a.x * b.x + a.y * b.y + a.z * b.z;
         #endif
@@ -168,10 +172,10 @@ namespace Deep {
     Vec3 operator* (const Mat4& m, const Vec3& v) {
         Vec3 _v;
         #ifdef DEEP_USE_SSE4_1
-        _v._internal = _mm_mul_ps(m.columns[0]._internal, _mm_shuffle_ps(m.columns[0]._internal, v._internal, _MM_SHUFFLE(0, 0, 0, 0)));
-        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[1]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(1, 1, 1, 1))));
-        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[2]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(2, 2, 2, 2))));
-        _v._internal = _mm_add_ps(_v._internal, m.columns[3]._internal);
+        _v.sse_mm128 = _mm_mul_ps(m.columns[0].sse_mm128, _mm_shuffle_ps(m.columns[0].sse_mm128, v.sse_mm128, _MM_SHUFFLE(0, 0, 0, 0)));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[1].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(1, 1, 1, 1))));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[2].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(2, 2, 2, 2))));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, m.columns[3].sse_mm128);
         #else
         float32 invW = 1.0f / (m.m30 * v.x + m.m31 * v.y + m.m32 * v.z + m.m33);
         _v.x = (m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03) * invW;

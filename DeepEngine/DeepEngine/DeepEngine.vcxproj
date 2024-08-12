@@ -24,6 +24,8 @@
     <ClInclude Include="Deep\ECS.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
     <ClInclude Include="Deep\Math.h" />
+    <ClInclude Include="Deep\Math\_SSE_mm128.h" />
+    <ClInclude Include="Deep\Math\_SSE_mm128i.h" />
     <ClInclude Include="Deep\Math\_Mat4.h" />
     <ClInclude Include="Deep\Math\_MathTypes.h" />
     <ClInclude Include="Deep\Math\_Quaternion.h" />
@@ -68,6 +70,10 @@
     <ClCompile Include="Deep\Sock\Sock_Posix.cpp" />
     <ClCompile Include="Deep\Sock\Sock_Windows.cpp" />
     <ClCompile Include="Deep\Threading\ThreadPool.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Deep\Math\SSE_mm128.inl" />
+    <None Include="Deep\Math\SSE_mm128i.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

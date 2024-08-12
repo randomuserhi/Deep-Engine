@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Math.h"
-#include <cassert>
 
 // TODO(randomuserhi): Vectorisation of all methods
 

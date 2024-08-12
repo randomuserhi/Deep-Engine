@@ -93,6 +93,12 @@
     <ClInclude Include="Deep\Math\Vec4.inl">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\Math\_SSE_mm128i.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Math\_SSE_mm128.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECS.cpp">
@@ -134,5 +140,13 @@
     <ClCompile Include="Deep\Math\Vec4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Deep\Math\SSE_mm128i.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Math\SSE_mm128.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -5,14 +5,6 @@
 
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Vec4 {
-        #if defined(DEEP_USE_SSE)
-        using Type = __m128;
-        #else
-        using Type = struct {
-            float32 values[4];
-        };
-        #endif
-
         Vec4() = default;
         Deep_Inline Vec4(float32 x, float32 y, float32 z, float32 w);
 
@@ -45,8 +37,11 @@ namespace Deep {
 
         static Deep_Inline float32 Dot(const Vec4& a, const Vec4& b);
 
+        Deep_Inline bool IsNormalized(float tolerance = 1.0e-6f) const;
+
         union {
-            Type _internal;
+            SSE_mm128 sse_mm128;
+            SSE_mm128i sse_mm128i;
             float32 values[4];
             struct {
                 float32 x;

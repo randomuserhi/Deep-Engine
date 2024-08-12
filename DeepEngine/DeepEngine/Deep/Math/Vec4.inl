@@ -3,20 +3,21 @@
 #include "../Math.h"
 
 namespace Deep {
+    #ifdef DEEP_USE_SSE4_1
+    Vec4::Vec4(float32 x, float32 y, float32 z, float32 w) : sse_mm128(x, y, z, w) {
+    }
+    #else
     Vec4::Vec4(float32 x, float32 y, float32 z, float32 w) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_set_ps(w, z, y, x);
-        #else
         this->x = x;
         this->y = y;
         this->z = z;
         this->w = w;
-        #endif
     }
+    #endif
 
     Vec4& Vec4::Normalize() {
         #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_div_ps(_internal, _mm_sqrt_ps(_mm_dp_ps(_internal, _internal, 0xff)));
+        sse_mm128 = _mm_div_ps(sse_mm128, _mm_sqrt_ps(_mm_dp_ps(sse_mm128, sse_mm128, 0xff)));
         return *this;
         #else
         return *this /= magnitude();
@@ -26,10 +27,13 @@ namespace Deep {
         Vec4 v{ x, y, z, w };
         return v.Normalize();
     }
+    bool Vec4::IsNormalized(float tolerance) const {
+        return Deep::Abs(sqrdMagnitude() - 1.0f) <= tolerance;
+    }
 
     float32 Vec4::sqrdMagnitude() const {
         #ifdef DEEP_USE_SSE4_1
-        return _mm_cvtss_f32(_mm_dp_ps(_internal, _internal, 0xff));
+        return _mm_cvtss_f32(_mm_dp_ps(sse_mm128, sse_mm128, 0xff));
         #else
         // NOTE(randomuserhi): brackets to keep consistent with vectorised version
         return (x * x + y * y) + (z * z + w * w);
@@ -37,33 +41,21 @@ namespace Deep {
     }
     float32 Vec4::magnitude() const {
         #ifdef DEEP_USE_SSE4_1
-        return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(_internal, _internal, 0xff)));
+        return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(sse_mm128, sse_mm128, 0xff)));
         #else
         return Deep::Sqrt(sqrdMagnitude());
         #endif
     }
 
     bool operator!=(const Vec4& a, const Vec4& b) {
-        #ifdef DEEP_USE_SSE4_1
-        __m128i vec4i = _mm_castps_si128(_mm_cmpeq_ps(a._internal, b._internal));
-        return (_mm_movemask_ps(_mm_castsi128_ps(vec4i)) & 0b111) != 0b111;
-        #else
-        return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
-        #endif
+        return a.sse_mm128 != b.sse_mm128;
     }
     bool operator==(const Vec4& a, const Vec4& b) {
         return !(a != b);
     }
 
     Vec4& Vec4::operator+= (const Vec4& other) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_add_ps(_internal, other._internal);
-        #else
-        x += other.x;
-        y += other.y;
-        z += other.z;
-        w += other.w;
-        #endif
+        sse_mm128 += other.sse_mm128;
         return *this;
     }
 
@@ -72,14 +64,7 @@ namespace Deep {
     }
 
     Vec4& Vec4::operator-= (const Vec4& other) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_sub_ps(_internal, other._internal);
-        #else
-        x -= other.x;
-        y -= other.y;
-        z -= other.z;
-        w -= other.w;
-        #endif
+        sse_mm128 -= other.sse_mm128;
         return *this;
     }
 
@@ -88,26 +73,12 @@ namespace Deep {
     }
 
     Vec4 operator- (Vec4 a) {
-        #ifdef DEEP_USE_SSE4_1
-        a._internal = _mm_sub_ps(_mm_setzero_ps(), a._internal);
-        #else
-        a.x = -a.x;
-        a.y = -a.y;
-        a.z = -a.z;
-        a.w = -a.w;
-        #endif
+        a.sse_mm128 = -a.sse_mm128;
         return a;
     }
 
     Vec4& Vec4::operator*= (const Vec4& other) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_mul_ps(_internal, other._internal);
-        #else
-        x *= other.x;
-        y *= other.y;
-        z *= other.z;
-        w *= other.w;
-        #endif
+        sse_mm128 *= other.sse_mm128;
         return *this;
     }
     Vec4 operator* (Vec4 a, const Vec4& b) {
@@ -115,41 +86,7 @@ namespace Deep {
     }
 
     Vec4& Vec4::operator*= (float32 other) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_mul_ps(_internal, _mm_set1_ps(other));
-        #else
-        x *= other;
-        y *= other;
-        z *= other;
-        w *= other;
-        #endif
-        return *this;
-    }
-
-    Vec4& Vec4::operator/= (const Vec4& other) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_div_ps(_internal, other._internal);
-        #else
-        x /= other.x;
-        y /= other.y;
-        z /= other.z;
-        w /= other.w;
-        #endif
-        return *this;
-    }
-    Vec4 operator/ (Vec4 a, const Vec4& b) {
-        return a /= b;
-    }
-
-    Vec4& Vec4::operator/= (float32 other) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_div_ps(_internal, _mm_set1_ps(other));
-        #else
-        x /= other;
-        y /= other;
-        z /= other;
-        w /= other;
-        #endif
+        sse_mm128 *= other;
         return *this;
     }
 
@@ -161,13 +98,26 @@ namespace Deep {
         return a *= other;
     }
 
+    Vec4& Vec4::operator/= (const Vec4& other) {
+        sse_mm128 /= other.sse_mm128;
+        return *this;
+    }
+    Vec4 operator/ (Vec4 a, const Vec4& b) {
+        return a /= b;
+    }
+
+    Vec4& Vec4::operator/= (float32 other) {
+        sse_mm128 /= other;
+        return *this;
+    }
+
     Vec4 operator/ (Vec4 a, float32 other) {
         return a /= other;
-    }
+}
 
     float32 Vec4::Dot(const Vec4& a, const Vec4& b) {
         #ifdef DEEP_USE_SSE4_1 
-        return _mm_cvtss_f32(_mm_dp_ps(a._internal, b._internal, 0xff));
+        return _mm_cvtss_f32(_mm_dp_ps(a.sse_mm128, b.sse_mm128, 0xff));
         #else
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
         #endif
@@ -176,10 +126,10 @@ namespace Deep {
     Vec4 operator* (const Mat4& m, const Vec4& v) {
         Vec4 _v;
         #ifdef DEEP_USE_SSE4_1
-        _v._internal = _mm_mul_ps(m.columns[0]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(0, 0, 0, 0)));
-        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[1]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(1, 1, 1, 1))));
-        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[2]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(2, 2, 2, 2))));
-        _v._internal = _mm_add_ps(_v._internal, _mm_mul_ps(m.columns[3]._internal, _mm_shuffle_ps(v._internal, v._internal, _MM_SHUFFLE(3, 3, 3, 3))));
+        _v.sse_mm128 = _mm_mul_ps(m.columns[0].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(0, 0, 0, 0)));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[1].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(1, 1, 1, 1))));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[2].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(2, 2, 2, 2))));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[3].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(3, 3, 3, 3))));
         #else
         _v.x = m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03 * v.w;
         _v.y = m.m10 * v.x + m.m11 * v.y + m.m12 * v.z + m.m13 * v.w;

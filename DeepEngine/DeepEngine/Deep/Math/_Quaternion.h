@@ -9,18 +9,16 @@
 
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Quaternion {
-        #if defined(DEEP_USE_SSE)
-        using Type = __m128;
-        #else
-        using Type = Vec4::Type;
-        #endif
-
         Quaternion() = default;
+        Deep_Inline Quaternion(Vec4 vec);
         Deep_Inline Quaternion(float32 x, float32 y, float32 z, float32 w);
         Deep_Inline Quaternion(Vec3 axis, float32 angle);
 
         Deep_Inline Quaternion& Normalize();
         Deep_Inline [[nodiscard]] Quaternion normalized() const;
+
+        Deep_Inline Quaternion& Conjugate();
+        Deep_Inline [[nodiscard]] Quaternion conjugated() const;
 
         Deep_Inline Quaternion& Inverse();
         Deep_Inline [[nodiscard]] Quaternion inversed() const;
@@ -48,7 +46,8 @@ namespace Deep {
         friend Deep_Inline Vec3 operator* (const Quaternion& rot, const Vec3& v);
 
         union {
-            Type _internal;
+            SSE_mm128 sse_mm128;
+            SSE_mm128i sse_mm128i;
             float32 val[4];
             struct {
                 float32 x;

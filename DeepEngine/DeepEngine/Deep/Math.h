@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../Deep.h"
+#include "./BitHelper.h"
 
 // Vector alignment for vectorisation
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
@@ -26,6 +27,7 @@
 #endif
 
 #include <cmath>
+#include <cassert>
 
 #define PI 3.141592653589793f
 
@@ -51,12 +53,22 @@ namespace Deep {
     Deep_Inline const float32 Sqrt(const float32& x) {
         return std::sqrt(x);
     }
+
+    Deep_Inline const float32 Abs(const float32& x) {
+        return std::abs(x);
+    }
 }
 
 // NOTE(randomuserhi): Headers beginning with "_" indicate that they are non-standalone headers and
 //                     are not meant to be included in non-library code. This is because they cannot
 //                     be used standalone and require other defined headers in order for their
 //                     implementation etc...
+
+#include "./Math/_SSE_mm128.h"
+#include "./Math/_SSE_mm128i.h"
+
+#include "./Math/SSE_mm128.inl"
+#include "./Math/SSE_mm128i.inl"
 
 #include "./Math/_Vec3.h"
 #include "./Math/_Vec4.h"
