@@ -33,7 +33,7 @@
     <ClInclude Include="Deep\Math\_Vec4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Net\BitHelper.h">
+    <ClInclude Include="Deep\BitHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Deep\Net\Packet.h">
@@ -126,6 +126,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Math\Mat4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep\Math\Vec3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep\Math\Vec4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

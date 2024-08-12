@@ -4,7 +4,50 @@
 
 #pragma once
 
-#include "../../Deep.h"
+#include "../Deep.h"
+
+// Bitcast support
+#if __cplusplus >= 202002L
+#include <bit>
+#elif defined(DEEP_COMPILER_MSVC)
+#include <type_traits>
+#endif
+namespace Deep {
+    #if __cplusplus >= 202002L
+
+    template <class To, class From>
+    constexpr Deep_Inline To BitCast(const From& value) {
+        return std::bit_cast<To>(value);
+    }
+
+    #elif defined(DEEP_COMPILER_MSVC)
+
+    template <class To, class From>
+    constexpr Deep_Inline To BitCast(const From& value) {
+        return std::_Bit_cast<To>(value);
+    }
+
+    #else
+
+    // NOTE(randomuserhi): Can't be constexpr as the active member of union cannot be changed
+    //                     int a constexpr
+    template <class To, class From>
+    Deep_Inline To BitCast(const From& value) {
+        static_assert(std::is_trivially_constructible_v<To>);
+        static_assert(sizeof(From) == sizeof(To));
+
+        union FromTo {
+            To			mTo;
+            From		mFrom;
+        };
+
+        FromTo convert;
+        convert.mFrom = value;
+        return convert.mTo;
+    }
+
+    #endif
+}
 
 namespace Deep {
     // NOTE(randomuserhi): I technically should pack and unpack floating point types
@@ -54,10 +97,10 @@ namespace Deep {
     }
 
     Deep_Inline uint32 AsUInt(const float32 x) {
-        return *reinterpret_cast<const uint32*>(&x);
+        return Deep::BitCast<const uint32>(x);
     }
     Deep_Inline float32 AsFloat(const uint x) {
-        return *reinterpret_cast<const float32*>(&x);
+        return Deep::BitCast<const float32>(x);
     }
 
     Deep_Inline float32 HalfToFloat(const uint16 x) { // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits

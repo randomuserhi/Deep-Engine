@@ -12,6 +12,7 @@ namespace Deep {
         #endif
 
         Vec3() = default;
+        Deep_Inline Vec3(float32 x, float32 y, float32 z);
 
         Deep_Inline Vec3& Normalize();
         Deep_Inline [[nodiscard]] Vec3 normalized() const;
@@ -36,9 +37,18 @@ namespace Deep {
                 float32 x;
                 float32 y;
                 float32 z;
-                float32 _w;
+                //float32 w;
             };
         };
+
+        static const Vec3 zero;
+
+        static const Vec3 up;
+        static const Vec3 down;
+        static const Vec3 left;
+        static const Vec3 right;
+        static const Vec3 forwards;
+        static const Vec3 backwards;
     };
 
     static_assert(std::is_trivial<Vec3>(), "Is supposed to be a trivial type!");

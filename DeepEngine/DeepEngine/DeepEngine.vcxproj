@@ -30,7 +30,7 @@
     <ClInclude Include="Deep\Math\_Vec3.h" />
     <ClInclude Include="Deep\Math\_Vec4.h" />
     <ClInclude Include="Deep\Net.h" />
-    <ClInclude Include="Deep\Net\BitHelper.h" />
+    <ClInclude Include="Deep\BitHelper.h" />
     <ClInclude Include="Deep\Net\Packet.h" />
     <ClInclude Include="Deep\Net\PacketReader.h" />
     <ClInclude Include="Deep\Net\PacketWriter.h" />
@@ -57,6 +57,8 @@
     <ClInclude Include="Deep\Math\Vec4.inl">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClCompile Include="Deep\Math\Vec3.cpp" />
+    <ClCompile Include="Deep\Math\Vec4.cpp" />
     <ClCompile Include="Deep\Net\Net.cpp" />
     <ClCompile Include="Deep\Net\PacketReader.cpp" />
     <ClCompile Include="Deep\Net\PacketWriter.cpp" />
@@ -128,6 +130,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -148,6 +152,8 @@
       </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -166,6 +172,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -186,6 +194,8 @@
       </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>

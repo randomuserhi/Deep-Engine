@@ -14,6 +14,7 @@ namespace Deep {
         #endif
 
         Vec4() = default;
+        Deep_Inline Vec4(float32 x, float32 y, float32 z, float32 w);
 
         Deep_Inline Vec4& Normalize();
         Deep_Inline [[nodiscard]] Vec4 normalized() const;
@@ -40,6 +41,8 @@ namespace Deep {
                 float32 w;
             };
         };
+
+        static const Vec4 zero;
     };
 
     static_assert(std::is_trivial<Vec4>(), "Is supposed to be a trivial type!");

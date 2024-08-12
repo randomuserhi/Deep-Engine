@@ -3,6 +3,17 @@
 #include "../Math.h"
 
 namespace Deep {
+    Vec4::Vec4(float32 x, float32 y, float32 z, float32 w) {
+        #ifdef DEEP_USE_SSE4_1
+        _internal = _mm_set_ps(w, z, y, x);
+        #else
+        this->x = x;
+        this->y = y;
+        this->z = z;
+        this->w = w;
+        #endif
+    }
+
     Vec4& Vec4::Normalize() {
         #ifdef DEEP_USE_SSE4_1
         _internal = _mm_div_ps(_internal, _mm_sqrt_ps(_mm_dp_ps(_internal, _internal, 0xff)));

@@ -15,7 +15,7 @@
 #define DEEP_COMPILER_GCC
 
 #elif defined(_MSC_VER)
-#define DEEP_COMPILER_MSCV
+#define DEEP_COMPILER_MSVC
 
 #endif
 
@@ -66,7 +66,7 @@
 #define Deep__File__ __FILE__
 #define Deep__Line__ __LINE__
 
-#elif defined(DEEP_COMPILER_MSCV)
+#elif defined(DEEP_COMPILER_MSVC)
 #define Deep_Inline __forceinline
 #define Deep_AlignOf(type) alignof(type)
 
@@ -86,7 +86,6 @@
 /*
 * Vectorised Instructions
 */
-
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 

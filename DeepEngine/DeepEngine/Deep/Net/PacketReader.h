@@ -7,7 +7,7 @@
 #include <vector>
 #include "../../Deep.h"
 #include "../Math.h"
-#include "./BitHelper.h"
+#include "../BitHelper.h"
 
 namespace Deep {
     struct PacketReader {
