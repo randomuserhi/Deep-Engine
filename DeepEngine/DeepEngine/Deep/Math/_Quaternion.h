@@ -16,6 +16,7 @@ namespace Deep {
 
         Deep_Inline Quaternion& Normalize();
         Deep_Inline [[nodiscard]] Quaternion normalized() const;
+        Deep_Inline [[nodiscard]] bool IsNormalized(float tolerance = 1.0e-6f) const;
 
         Deep_Inline Quaternion& Conjugate();
         Deep_Inline [[nodiscard]] Quaternion conjugated() const;
@@ -25,7 +26,7 @@ namespace Deep {
 
         Deep_Inline Mat4 ToMat4() const;
 
-        Deep_Inline Quaternion& FromMat4(const Mat4& m);
+        static Deep_Inline Quaternion FromMat4(const Mat4& m);
 
         Deep_Inline Quaternion& operator+= (const Quaternion& other);
         Deep_Inline Quaternion& operator-= (const Quaternion& other);

@@ -12,53 +12,56 @@ namespace Deep {
         : vec{ vec } {
     };
 
-    // TODO(randomuserhi): vectorise
-    Quaternion& Quaternion::FromMat4(const Mat4& m) {
+    Quaternion Quaternion::FromMat4(const Mat4& m) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
-        // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+        float trace = m.m00 + m.m11 + m.m22;
 
-        const float32 trace = m.m00 + m.m11 + m.m22;
-
-        if (trace > 0) {
-
-            const float32 s = 0.5f / Deep::Sqrt(trace + 1.0f);
-
-            w = 0.25f / s;
-            x = (m.m21 - m.m12) * s;
-            y = (m.m02 - m.m20) * s;
-            z = (m.m10 - m.m01) * s;
-
-        } else if (m.m00 > m.m11 && m.m00 > m.m22) {
-
-            const float32 s = 2.0f * Deep::Sqrt(1.0f + m.m00 - m.m11 - m.m22);
-
-            w = (m.m21 - m.m12) / s;
-            x = 0.25f * s;
-            y = (m.m01 + m.m10) / s;
-            z = (m.m02 + m.m20) / s;
-
-        } else if (m.m11 > m.m22) {
-
-            const float32 s = 2.0f * Deep::Sqrt(1.0f + m.m11 - m.m00 - m.m22);
-
-            w = (m.m02 - m.m20) / s;
-            x = (m.m01 + m.m10) / s;
-            y = 0.25f * s;
-            z = (m.m12 + m.m21) / s;
-
+        if (trace >= 0.0f) {
+            float s = Deep::Sqrt(trace + 1.0f);
+            float is = 0.5f / s;
+            return Quaternion(
+                (m.m12 - m.m21) * is,
+                (m.m20 - m.m02) * is,
+                (m.m01 - m.m10) * is,
+                0.5f * s
+            );
         } else {
+            int i = 0;
+            if (m.m11 > m.m00) i = 1;
+            if (m.m22 > m.cols[i].values[i]) i = 2;
 
-            const float32 s = 2.0f * Deep::Sqrt(1.0f + m.m22 - m.m00 - m.m11);
+            if (i == 0) {
+                float s = sqrt(m.m00 - (m.m11 + m.m22) + 1);
+                float is = 0.5f / s;
+                return Quaternion(
+                    0.5f * s,
+                    (m.m10 + m.m01) * is,
+                    (m.m02 + m.m20) * is,
+                    (m.m12 - m.m21) * is
+                );
+            } else if (i == 1) {
+                float s = sqrt(m.m11 - (m.m22 + m.m00) + 1);
+                float is = 0.5f / s;
+                return Quaternion(
+                    (m.m10 + m.m01) * is,
+                    0.5f * s,
+                    (m.m21 + m.m12) * is,
+                    (m.m20 - m.m02) * is
+                );
+            } else {
+                assert(i == 2);
 
-            w = (m.m10 - m.m01) / s;
-            x = (m.m02 + m.m20) / s;
-            y = (m.m12 + m.m21) / s;
-            z = 0.25f * s;
-
+                float s = sqrt(m.m22 - (m.m00 + m.m11) + 1);
+                float is = 0.5f / s;
+                return Quaternion(
+                    (m.m02 + m.m20) * is,
+                    (m.m21 + m.m12) * is,
+                    0.5f * s,
+                    (m.m01 - m.m10) * is
+                );
+            }
         }
-
-        return *this;
     }
 
     Quaternion& Quaternion::Normalize() {
@@ -68,6 +71,9 @@ namespace Deep {
     Quaternion Quaternion::normalized() const {
         Quaternion q{ x, y, z, w };
         return q.Normalize();
+    }
+    bool Quaternion::IsNormalized(float tolerance) const {
+        return vec.IsNormalized(tolerance);
     }
 
     Mat4 Quaternion::ToMat4() const {
@@ -86,7 +92,7 @@ namespace Deep {
         w ^= 0;
         #endif
         return *this;
-    }
+}
     Quaternion Quaternion::conjugated() const {
         Quaternion q{ x, y, z, w };
         return q.Conjugate();

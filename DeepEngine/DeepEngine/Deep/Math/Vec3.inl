@@ -172,10 +172,10 @@ namespace Deep {
     Vec3 operator* (const Mat4& m, const Vec3& v) {
         Vec3 _v;
         #ifdef DEEP_USE_SSE4_1
-        _v.sse_mm128 = _mm_mul_ps(m.columns[0].sse_mm128, _mm_shuffle_ps(m.columns[0].sse_mm128, v.sse_mm128, _MM_SHUFFLE(0, 0, 0, 0)));
-        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[1].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(1, 1, 1, 1))));
-        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.columns[2].sse_mm128, _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(2, 2, 2, 2))));
-        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, m.columns[3].sse_mm128);
+        _v.sse_mm128 = _mm_mul_ps(m.cols[0], _mm_shuffle_ps(m.cols[0], v.sse_mm128, _MM_SHUFFLE(0, 0, 0, 0)));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.cols[1], _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(1, 1, 1, 1))));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, _mm_mul_ps(m.cols[2], _mm_shuffle_ps(v.sse_mm128, v.sse_mm128, _MM_SHUFFLE(2, 2, 2, 2))));
+        _v.sse_mm128 = _mm_add_ps(_v.sse_mm128, m.cols[3]);
         #else
         float32 invW = 1.0f / (m.m30 * v.x + m.m31 * v.y + m.m32 * v.z + m.m33);
         _v.x = (m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03) * invW;

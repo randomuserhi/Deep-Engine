@@ -10,6 +10,7 @@ namespace Deep {
 
         Deep_Inline Vec4& Normalize();
         Deep_Inline [[nodiscard]] Vec4 normalized() const;
+        Deep_Inline [[nodiscard]] bool IsNormalized(float tolerance = 1.0e-6f) const;
 
         Deep_Inline [[nodiscard]] float32 sqrdMagnitude() const;
         Deep_Inline [[nodiscard]] float32 magnitude() const;
@@ -35,9 +36,7 @@ namespace Deep {
 
         friend Deep_Inline Vec4 operator* (const Mat4& m, const Vec4& v);
 
-        static Deep_Inline float32 Dot(const Vec4& a, const Vec4& b);
-
-        Deep_Inline bool IsNormalized(float tolerance = 1.0e-6f) const;
+        static Deep_Inline [[nodiscard]] float32 Dot(const Vec4& a, const Vec4& b);
 
         union {
             SSE_mm128 sse_mm128;

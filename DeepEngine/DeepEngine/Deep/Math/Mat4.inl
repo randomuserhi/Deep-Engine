@@ -5,126 +5,35 @@
 // TODO(randomuserhi): Vectorisation of all methods
 
 namespace Deep {
+    Mat4::Mat4(SSE_mm128 col0, SSE_mm128 col1, SSE_mm128 col2, SSE_mm128 col3) : cols{ col0, col1, col2, col3 } {
+    }
     Mat4::Mat4(
         float32 m00, float32 m01, float32 m02, float32 m03,
         float32 m10, float32 m11, float32 m12, float32 m13,
         float32 m20, float32 m21, float32 m22, float32 m23,
         float32 m30, float32 m31, float32 m32, float32 m33
-    ) {
-        values[0] = m00;
-        values[1] = m10;
-        values[2] = m20;
-        values[3] = m30;
-        values[4] = m01;
-        values[5] = m11;
-        values[6] = m21;
-        values[7] = m31;
-        values[8] = m02;
-        values[9] = m12;
-        values[10] = m22;
-        values[11] = m32;
-        values[12] = m03;
-        values[13] = m13;
-        values[14] = m23;
-        values[15] = m33;
+    ) : cols{
+        SSE_mm128(m00, m10, m20, m30),
+        SSE_mm128(m01, m11, m21, m31),
+        SSE_mm128(m02, m12, m22, m32),
+        SSE_mm128(m03, m13, m23, m33)
+    } {
     }
-
-    Mat4& Mat4::Compose(const Vec3& position, const Quaternion& rotation, const Vec3& scale) {
-        // NOTE(randomuserhi): Assume quaternion is normalized
-
-        const float32 x = rotation.x;
-        const float32 y = rotation.y;
-        const float32 z = rotation.z;
-        const float32 w = rotation.w;
-
-        const float32 x2 = x + x;
-        const float32 y2 = y + y;
-        const float32 z2 = z + z;
-
-        const float32 xx = x * x2;
-        const float32 xy = x * y2;
-        const float32 xz = x * z2;
-
-        const float32 yy = y * y2;
-        const float32 yz = y * z2;
-        const float32 zz = z * z2;
-
-        const float32 wx = w * x2;
-        const float32 wy = w * y2;
-        const float32 wz = w * z2;
-
-        const float32 sx = scale.x;
-        const float32 sy = scale.y;
-        const float32 sz = scale.z;
-
-        m00 = (1 - (yy + zz)) * sx;
-        m10 = (xy - wz) * sy;
-        m20 = (xz + wy) * sz;
-        m30 = position.x;
-
-        m01 = (xy + wz) * sx;
-        m11 = (1 - (xx + zz)) * sy;
-        m21 = (yz - wx) * sz;
-        m31 = position.y;
-
-        m02 = (xz - wy) * sx;
-        m12 = (yz + wx) * sy;
-        m22 = (1 - (xx + yy)) * sz;
-        m32 = position.z;
-
-        m03 = 0;
-        m13 = 0;
-        m23 = 0;
-        m33 = 1;
-
-        return *this;
-    }
-
-    void Mat4::Decompose(Vec3& position, Quaternion& rotation, Vec3& scale) const {
-        float32 sx = Vec3{ m00, m10, m20 }.magnitude();
-        const float32 sy = Vec3{ m01, m11, m21 }.magnitude();
-        const float32 sz = Vec3{ m02, m12, m22 }.magnitude();
-
-        // if determine is negative, we need to invert one scale
-        const float32 det = Determinant();
-        if (det < 0) sx = -sx;
-
-        position.x = m30;
-        position.y = m31;
-        position.z = m32;
-
-        // scale the rotation part
-        Mat4 _m1{
-            m00, m01, m02, 0,
-            m10, m11, m12, 0,
-            m20, m21, m22, 0,
-            0  , 0  , 0  , 1
-        };
-
-        const float32 invSX = 1.0f / sx;
-        const float32 invSY = 1.0f / sy;
-        const float32 invSZ = 1.0f / sz;
-
-        _m1.m00 *= invSX;
-        _m1.m10 *= invSX;
-        _m1.m20 *= invSX;
-
-        _m1.m01 *= invSY;
-        _m1.m11 *= invSY;
-        _m1.m21 *= invSY;
-
-        _m1.m02 *= invSZ;
-        _m1.m12 *= invSZ;
-        _m1.m22 *= invSZ;
-
-        rotation.FromMat4(_m1);
-
-        scale.x = sx;
-        scale.y = sy;
-        scale.z = sz;
+    Mat4::Mat4(Vec4 col0, Vec4 col1, Vec4 col2, Vec4 col3) : vcols{ col0, col1, col2, col3 } {
     }
 
     Mat4& Mat4::Transpose() {
+        #ifdef DEEP_USE_SSE
+        __m128 tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 tmp3 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(3, 2, 3, 2));
+        __m128 tmp2 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 tmp4 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(3, 2, 3, 2));
+
+        cols[0] = _mm_shuffle_ps(tmp1, tmp2, _MM_SHUFFLE(2, 0, 2, 0));
+        cols[1] = _mm_shuffle_ps(tmp1, tmp2, _MM_SHUFFLE(3, 1, 3, 1));
+        cols[2] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(2, 0, 2, 0));
+        cols[3] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(3, 1, 3, 1));
+        #else
         float32 temp = m10;
         m10 = m01;
         m01 = temp;
@@ -148,157 +57,330 @@ namespace Deep {
         temp = m32;
         m32 = m23;
         m23 = temp;
+        #endif
 
         return *this;
     }
     Mat4 Mat4::transposed() const {
-        Mat4 q{
+        #ifdef DEEP_USE_SSE
+        __m128 tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 tmp3 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(3, 2, 3, 2));
+        __m128 tmp2 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 tmp4 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(3, 2, 3, 2));
+
+        return Mat4{
+            _mm_shuffle_ps(tmp1, tmp2, _MM_SHUFFLE(2, 0, 2, 0)),
+            _mm_shuffle_ps(tmp1, tmp2, _MM_SHUFFLE(3, 1, 3, 1)),
+            _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(2, 0, 2, 0)),
+            _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(3, 1, 3, 1))
+        };
+        #else
+        return Mat4{
             m00, m10, m20, m30,
             m01, m11, m21, m31,
             m02, m12, m22, m32,
             m03, m13, m23, m33,
         };
-        return q;
+        #endif
     }
 
-    Mat4& Mat4::FromQuaternion(const Quaternion& q) {
-        float32 w2 = q.w * q.w;
-        float32 x2 = q.x * q.x;
-        float32 y2 = q.y * q.y;
-        float32 z2 = q.z * q.z;
+    Mat4 Mat4::FromQuaternion(const Quaternion& q) {
+        assert(q.IsNormalized());
 
-        //float32 inverse = 1.0f / (w2 + x2 + y2 + z2);
-        const float32 inverse = 1.0f; // NOTE(randomuserhi): Assume quaternion is normalized
+        // See: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation section 'Quaternion-derived rotation matrix'
+        #ifdef DEEP_USE_SSE4_1
+        __m128 xyzw = q.sse_mm128;
+        __m128 two_xyzw = _mm_add_ps(xyzw, xyzw);
+        __m128 yzxw = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(3, 0, 2, 1));
+        __m128 two_yzxw = _mm_add_ps(yzxw, yzxw);
+        __m128 zxyw = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(3, 1, 0, 2));
+        __m128 two_zxyw = _mm_add_ps(zxyw, zxyw);
+        __m128 wwww = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(3, 3, 3, 3));
+        __m128 diagonal = _mm_sub_ps(_mm_sub_ps(_mm_set1_ps(1.0f), _mm_mul_ps(two_yzxw, yzxw)), _mm_mul_ps(two_zxyw, zxyw));	// (1 - 2 y^2 - 2 z^2, 1 - 2 x^2 - 2 z^2, 1 - 2 x^2 - 2 y^2, 1 - 4 w^2)
+        __m128 plus = _mm_add_ps(_mm_mul_ps(two_xyzw, zxyw), _mm_mul_ps(two_yzxw, wwww));										// 2 * (xz + yw, xy + zw, yz + xw, ww)
+        __m128 minus = _mm_sub_ps(_mm_mul_ps(two_yzxw, xyzw), _mm_mul_ps(two_zxyw, wwww));										// 2 * (xy - zw, yz - xw, xz - yw, 0)
 
-        x2 *= inverse;
-        y2 *= inverse;
-        z2 *= inverse;
-        w2 *= inverse;
+        // Workaround for compiler changing _mm_sub_ps(_mm_mul_ps(...), ...) into a fused multiply sub instruction, resulting in w not being 0
+        // There doesn't appear to be a reliable way to turn this off in Clang
+        minus = _mm_insert_ps(minus, minus, 0b1000);
 
-        const float32 xy = q.x * q.y * inverse;
-        const float32 zw = q.w * q.z * inverse;
+        return Mat4{
+            _mm_blend_ps(_mm_blend_ps(plus, diagonal, 0b0001), minus, 0b1100),	// (1 - 2 y^2 - 2 z^2, 2 xy + 2 zw, 2 xz - 2 yw, 0)
+            _mm_blend_ps(_mm_blend_ps(diagonal, minus, 0b1001), plus, 0b0100),	// (2 xy - 2 zw, 1 - 2 x^2 - 2 z^2, 2 yz + 2 xw, 0)
+            _mm_blend_ps(_mm_blend_ps(minus, plus, 0b0001), diagonal, 0b0100),	// (2 xz + 2 yw, 2 yz - 2 xw, 1 - 2 x^2 - 2 y^2, 0)
+            _mm_set_ps(1, 0, 0, 0)
+        };
+        #else
+        float x = q.x;
+        float y = q.y;
+        float z = q.z;
+        float w = q.w;
 
-        const float32 xz = q.x * q.z * inverse;
-        const float32 yw = q.w * q.y * inverse;
+        // Note: Using x + x instead of 2.0f * x to to stay consistent with vectorised version
+        float tx = x + x;
+        float ty = y + y;
+        float tz = z + z;
 
-        const float32 yz = q.y * q.z * inverse;
-        const float32 xw = q.w * q.x * inverse;
+        float xx = tx * x;
+        float yy = ty * y;
+        float zz = tz * z;
+        float xy = tx * y;
+        float xz = tx * z;
+        float xw = tx * w;
+        float yz = ty * z;
+        float yw = ty * w;
+        float zw = tz * w;
 
-        m00 = x2 - y2 - z2 + w2;
-        m10 = 2.0f * (xy + zw);
-        m20 = 2.0f * (xz - yw);
-        m01 = 2.0f * (xy - zw);
-        m11 = -x2 + y2 - z2 + w2;
-        m21 = 2.0f * (yz + xw);
-        m02 = 2.0f * (xz + yw);
-        m12 = 2.0f * (yz - xw);
-        m22 = -x2 - y2 + z2 + w2;
-        return *this;
-    }
-
-    float32 Mat4::Determinant() const {
-        return m30 * (
-            +m03 * m12 * m21
-            - m02 * m13 * m21
-            - m03 * m11 * m22
-            + m01 * m13 * m22
-            + m02 * m11 * m23
-            - m01 * m12 * m23) +
-            m31 * (
-                +m00 * m12 * m23
-                - m00 * m13 * m22
-                + m03 * m10 * m22
-                - m02 * m10 * m23
-                + m02 * m13 * m20
-                - m03 * m12 * m20) +
-            m32 * (
-                +m00 * m13 * m21
-                - m00 * m11 * m23
-                - m03 * m10 * m21
-                + m01 * m10 * m23
-                + m03 * m11 * m20
-                - m01 * m13 * m20) +
-            m33 * (
-                -m02 * m11 * m20
-                - m00 * m12 * m21
-                + m00 * m11 * m22
-                + m02 * m10 * m21
-                - m01 * m10 * m22
-                + m01 * m12 * m20);
+        // NOTE(randomuserhi): Brackets to stay consistent with vectorised version
+        return Mat4{
+            SSE_mm128((1.0f - yy) - zz, xy + zw, xz - yw, 0.0f),
+            SSE_mm128(xy - zw, (1.0f - zz) - xx, yz + xw, 0.0f),
+            SSE_mm128(xz + yw, yz - xw, (1.0f - xx) - yy, 0.0f),
+            SSE_mm128(0.0f, 0.0f, 0.0f, 1.0f)
+        };
+        #endif
     }
 
     Mat4& Mat4::Inverse() {
-        float32 t00 = m12 * m23 * m31 - m13 * m22 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 + m11 * m22 * m33;
-        float32 t01 = m03 * m22 * m31 - m02 * m23 * m31 - m03 * m21 * m32 + m01 * m23 * m32 + m02 * m21 * m33 - m01 * m22 * m33;
-        float32 t02 = m02 * m13 * m31 - m03 * m12 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 + m01 * m12 * m33;
-        float32 t03 = m03 * m12 * m21 - m02 * m13 * m21 - m03 * m11 * m22 + m01 * m13 * m22 + m02 * m11 * m23 - m01 * m12 * m23;
+        #ifdef DEEP_USE_SSE
+        // Algorithm from: http://download.intel.com/design/PentiumIII/sml/24504301.pdf
+        // Streaming SIMD Extensions - Inverse of 4x4 Matrix
+        // Adapted to load data using _mm_shuffle_ps instead of loading from memory
+        // Replaced _mm_rcp_ps with _mm_div_ps for better accuracy
+        __m128 tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 row1 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 row0 = _mm_shuffle_ps(tmp1, row1, _MM_SHUFFLE(2, 0, 2, 0));
+        row1 = _mm_shuffle_ps(row1, tmp1, _MM_SHUFFLE(3, 1, 3, 1));
+        tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(3, 2, 3, 2));
+        __m128 row3 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(3, 2, 3, 2));
+        __m128 row2 = _mm_shuffle_ps(tmp1, row3, _MM_SHUFFLE(2, 0, 2, 0));
+        row3 = _mm_shuffle_ps(row3, tmp1, _MM_SHUFFLE(3, 1, 3, 1));
 
-        float32 det = m00 * t00 + m10 * t01 + m20 * t02 + m30 * t03;
+        tmp1 = _mm_mul_ps(row2, row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        __m128 minor0 = _mm_mul_ps(row1, tmp1);
+        __m128 minor1 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_sub_ps(_mm_mul_ps(row1, tmp1), minor0);
+        minor1 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor1);
+        minor1 = _mm_shuffle_ps(minor1, minor1, _MM_SHUFFLE(1, 0, 3, 2));
 
-        assert(det != 0);
+        tmp1 = _mm_mul_ps(row1, row2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor0 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor0);
+        __m128 minor3 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_sub_ps(minor0, _mm_mul_ps(row3, tmp1));
+        minor3 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor3);
+        minor3 = _mm_shuffle_ps(minor3, minor3, _MM_SHUFFLE(1, 0, 3, 2));
 
-        float32 detInv = 1.0f / det;
+        tmp1 = _mm_mul_ps(_mm_shuffle_ps(row1, row1, _MM_SHUFFLE(1, 0, 3, 2)), row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        row2 = _mm_shuffle_ps(row2, row2, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_add_ps(_mm_mul_ps(row2, tmp1), minor0);
+        __m128 minor2 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_sub_ps(minor0, _mm_mul_ps(row2, tmp1));
+        minor2 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor2);
+        minor2 = _mm_shuffle_ps(minor2, minor2, _MM_SHUFFLE(1, 0, 3, 2));
 
-        Mat4 temp = *this;
+        tmp1 = _mm_mul_ps(row0, row1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor2 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor2);
+        minor3 = _mm_sub_ps(_mm_mul_ps(row2, tmp1), minor3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor2 = _mm_sub_ps(_mm_mul_ps(row3, tmp1), minor2);
+        minor3 = _mm_sub_ps(minor3, _mm_mul_ps(row2, tmp1));
 
-        m00 = t00 * detInv;
-        m10 = (temp.m13 * temp.m22 * temp.m30 - temp.m12 * temp.m23 * temp.m30 - temp.m13 * temp.m20 * temp.m32 + temp.m10 * temp.m23 * temp.m32 + temp.m12 * temp.m20 * temp.m33 - temp.m10 * temp.m22 * temp.m33) * detInv;
-        m20 = (temp.m11 * temp.m23 * temp.m30 - temp.m13 * temp.m21 * temp.m30 + temp.m13 * temp.m20 * temp.m31 - temp.m10 * temp.m23 * temp.m31 - temp.m11 * temp.m20 * temp.m33 + temp.m10 * temp.m21 * temp.m33) * detInv;
-        m30 = (temp.m12 * temp.m21 * temp.m30 - temp.m11 * temp.m22 * temp.m30 - temp.m12 * temp.m20 * temp.m31 + temp.m10 * temp.m22 * temp.m31 + temp.m11 * temp.m20 * temp.m32 - temp.m10 * temp.m21 * temp.m32) * detInv;
+        tmp1 = _mm_mul_ps(row0, row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row2, tmp1));
+        minor2 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor1 = _mm_add_ps(_mm_mul_ps(row2, tmp1), minor1);
+        minor2 = _mm_sub_ps(minor2, _mm_mul_ps(row1, tmp1));
 
-        m01 = t01 * detInv;
-        m11 = (temp.m02 * temp.m23 * temp.m30 - temp.m03 * temp.m22 * temp.m30 + temp.m03 * temp.m20 * temp.m32 - temp.m00 * temp.m23 * temp.m32 - temp.m02 * temp.m20 * temp.m33 + temp.m00 * temp.m22 * temp.m33) * detInv;
-        m21 = (temp.m03 * temp.m21 * temp.m30 - temp.m01 * temp.m23 * temp.m30 - temp.m03 * temp.m20 * temp.m31 + temp.m00 * temp.m23 * temp.m31 + temp.m01 * temp.m20 * temp.m33 - temp.m00 * temp.m21 * temp.m33) * detInv;
-        m31 = (temp.m01 * temp.m22 * temp.m30 - temp.m02 * temp.m21 * temp.m30 + temp.m02 * temp.m20 * temp.m31 - temp.m00 * temp.m22 * temp.m31 - temp.m01 * temp.m20 * temp.m32 + temp.m00 * temp.m21 * temp.m32) * detInv;
+        tmp1 = _mm_mul_ps(row0, row2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor1 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor1);
+        minor3 = _mm_sub_ps(minor3, _mm_mul_ps(row1, tmp1));
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row3, tmp1));
+        minor3 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor3);
 
-        m02 = t02 * detInv;
-        m12 = (temp.m03 * temp.m12 * temp.m30 - temp.m02 * temp.m13 * temp.m30 - temp.m03 * temp.m10 * temp.m32 + temp.m00 * temp.m13 * temp.m32 + temp.m02 * temp.m10 * temp.m33 - temp.m00 * temp.m12 * temp.m33) * detInv;
-        m22 = (temp.m01 * temp.m13 * temp.m30 - temp.m03 * temp.m11 * temp.m30 + temp.m03 * temp.m10 * temp.m31 - temp.m00 * temp.m13 * temp.m31 - temp.m01 * temp.m10 * temp.m33 + temp.m00 * temp.m11 * temp.m33) * detInv;
-        m32 = (temp.m02 * temp.m11 * temp.m30 - temp.m01 * temp.m12 * temp.m30 - temp.m02 * temp.m10 * temp.m31 + temp.m00 * temp.m12 * temp.m31 + temp.m01 * temp.m10 * temp.m32 - temp.m00 * temp.m11 * temp.m32) * detInv;
+        __m128 det = _mm_mul_ps(row0, minor0);
+        // NOTE(randomuserhi): Original code did (x + z) + (y + w), changed to (x + y) + (z + w) to match the non vectorised code
+        det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det);
+        det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
+        det = _mm_div_ss(_mm_set_ss(1.0f), det);
+        det = _mm_shuffle_ps(det, det, _MM_SHUFFLE(0, 0, 0, 0));
 
-        m03 = t03 * detInv;
-        m13 = (temp.m02 * temp.m13 * temp.m20 - temp.m03 * temp.m12 * temp.m20 + temp.m03 * temp.m10 * temp.m22 - temp.m00 * temp.m13 * temp.m22 - temp.m02 * temp.m10 * temp.m23 + temp.m00 * temp.m12 * temp.m23) * detInv;
-        m23 = (temp.m03 * temp.m11 * temp.m20 - temp.m01 * temp.m13 * temp.m20 - temp.m03 * temp.m10 * temp.m21 + temp.m00 * temp.m13 * temp.m21 + temp.m01 * temp.m10 * temp.m23 - temp.m00 * temp.m11 * temp.m23) * detInv;
-        m33 = (temp.m01 * temp.m12 * temp.m20 - temp.m02 * temp.m11 * temp.m20 + temp.m02 * temp.m10 * temp.m21 - temp.m00 * temp.m12 * temp.m21 - temp.m01 * temp.m10 * temp.m22 + temp.m00 * temp.m11 * temp.m22) * detInv;
+        cols[0] = _mm_mul_ps(det, minor0);
+        cols[1] = _mm_mul_ps(det, minor1);
+        cols[2] = _mm_mul_ps(det, minor2);
+        cols[3] = _mm_mul_ps(det, minor3);
+        #else
+        // NOTE(randomuserhi): Translated column-row to row-column notation for ease of reading
+        float32 m00 = this->m00, m10 = this->m01, m20 = this->m02, m30 = this->m03;
+        float32 m01 = this->m10, m11 = this->m11, m21 = this->m12, m31 = this->m13;
+        float32 m02 = this->m20, m12 = this->m21, m22 = this->m22, m32 = this->m23;
+        float32 m03 = this->m30, m13 = this->m31, m23 = this->m32, m33 = this->m33;
+
+        float32 m10211120 = m10 * m21 - m11 * m20;
+        float32 m10221220 = m10 * m22 - m12 * m20;
+        float32 m10231320 = m10 * m23 - m13 * m20;
+        float32 m10311130 = m10 * m31 - m11 * m30;
+        float32 m10321230 = m10 * m32 - m12 * m30;
+        float32 m10331330 = m10 * m33 - m13 * m30;
+        float32 m11221221 = m11 * m22 - m12 * m21;
+        float32 m11231321 = m11 * m23 - m13 * m21;
+        float32 m11321231 = m11 * m32 - m12 * m31;
+        float32 m11331331 = m11 * m33 - m13 * m31;
+        float32 m12231322 = m12 * m23 - m13 * m22;
+        float32 m12331332 = m12 * m33 - m13 * m32;
+        float32 m20312130 = m20 * m31 - m21 * m30;
+        float32 m20322230 = m20 * m32 - m22 * m30;
+        float32 m20332330 = m20 * m33 - m23 * m30;
+        float32 m21322231 = m21 * m32 - m22 * m31;
+        float32 m21332331 = m21 * m33 - m23 * m31;
+        float32 m22332332 = m22 * m33 - m23 * m32;
+
+        cols[0] = { m11 * m22332332 - m12 * m21332331 + m13 * m21322231, -m10 * m22332332 + m12 * m20332330 - m13 * m20322230, m10 * m21332331 - m11 * m20332330 + m13 * m20312130, -m10 * m21322231 + m11 * m20322230 - m12 * m20312130 };
+        cols[1] = { -m01 * m22332332 + m02 * m21332331 - m03 * m21322231, m00 * m22332332 - m02 * m20332330 + m03 * m20322230, -m00 * m21332331 + m01 * m20332330 - m03 * m20312130, m00 * m21322231 - m01 * m20322230 + m02 * m20312130 };
+        cols[2] = { m01 * m12331332 - m02 * m11331331 + m03 * m11321231, -m00 * m12331332 + m02 * m10331330 - m03 * m10321230, m00 * m11331331 - m01 * m10331330 + m03 * m10311130, -m00 * m11321231 + m01 * m10321230 - m02 * m10311130 };
+        cols[3] = { -m01 * m12231322 + m02 * m11231321 - m03 * m11221221, m00 * m12231322 - m02 * m10231320 + m03 * m10221220, -m00 * m11231321 + m01 * m10231320 - m03 * m10211120, m00 * m11221221 - m01 * m10221220 + m02 * m10211120 };
+
+        float det = m00 * cols[0].x + m01 * cols[0].y + m02 * cols[0].z + m03 * cols[0].w;
+
+        cols[0] /= det;
+        cols[1] /= det;
+        cols[2] /= det;
+        cols[3] /= det;
+        #endif
 
         return *this;
     }
 
     Mat4 Mat4::inversed() const {
-        float32 t00 = m12 * m23 * m31 - m13 * m22 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 + m11 * m22 * m33;
-        float32 t01 = m03 * m22 * m31 - m02 * m23 * m31 - m03 * m21 * m32 + m01 * m23 * m32 + m02 * m21 * m33 - m01 * m22 * m33;
-        float32 t02 = m02 * m13 * m31 - m03 * m12 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 + m01 * m12 * m33;
-        float32 t03 = m03 * m12 * m21 - m02 * m13 * m21 - m03 * m11 * m22 + m01 * m13 * m22 + m02 * m11 * m23 - m01 * m12 * m23;
+        #ifdef DEEP_USE_SSE
+        // Algorithm from: http://download.intel.com/design/PentiumIII/sml/24504301.pdf
+        // Streaming SIMD Extensions - Inverse of 4x4 Matrix
+        // Adapted to load data using _mm_shuffle_ps instead of loading from memory
+        // Replaced _mm_rcp_ps with _mm_div_ps for better accuracy
+        __m128 tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 row1 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(1, 0, 1, 0));
+        __m128 row0 = _mm_shuffle_ps(tmp1, row1, _MM_SHUFFLE(2, 0, 2, 0));
+        row1 = _mm_shuffle_ps(row1, tmp1, _MM_SHUFFLE(3, 1, 3, 1));
+        tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(3, 2, 3, 2));
+        __m128 row3 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(3, 2, 3, 2));
+        __m128 row2 = _mm_shuffle_ps(tmp1, row3, _MM_SHUFFLE(2, 0, 2, 0));
+        row3 = _mm_shuffle_ps(row3, tmp1, _MM_SHUFFLE(3, 1, 3, 1));
 
-        float32 det = m00 * t00 + m10 * t01 + m20 * t02 + m30 * t03;
+        tmp1 = _mm_mul_ps(row2, row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        __m128 minor0 = _mm_mul_ps(row1, tmp1);
+        __m128 minor1 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_sub_ps(_mm_mul_ps(row1, tmp1), minor0);
+        minor1 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor1);
+        minor1 = _mm_shuffle_ps(minor1, minor1, _MM_SHUFFLE(1, 0, 3, 2));
 
-        assert(det != 0);
+        tmp1 = _mm_mul_ps(row1, row2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor0 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor0);
+        __m128 minor3 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_sub_ps(minor0, _mm_mul_ps(row3, tmp1));
+        minor3 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor3);
+        minor3 = _mm_shuffle_ps(minor3, minor3, _MM_SHUFFLE(1, 0, 3, 2));
 
-        float32 detInv = 1.0f / det;
+        tmp1 = _mm_mul_ps(_mm_shuffle_ps(row1, row1, _MM_SHUFFLE(1, 0, 3, 2)), row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        row2 = _mm_shuffle_ps(row2, row2, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_add_ps(_mm_mul_ps(row2, tmp1), minor0);
+        __m128 minor2 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor0 = _mm_sub_ps(minor0, _mm_mul_ps(row2, tmp1));
+        minor2 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor2);
+        minor2 = _mm_shuffle_ps(minor2, minor2, _MM_SHUFFLE(1, 0, 3, 2));
 
-        Mat4 mat;
+        tmp1 = _mm_mul_ps(row0, row1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor2 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor2);
+        minor3 = _mm_sub_ps(_mm_mul_ps(row2, tmp1), minor3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor2 = _mm_sub_ps(_mm_mul_ps(row3, tmp1), minor2);
+        minor3 = _mm_sub_ps(minor3, _mm_mul_ps(row2, tmp1));
 
-        mat.m00 = t00 * detInv;
-        mat.m10 = (m13 * m22 * m30 - m12 * m23 * m30 - m13 * m20 * m32 + m10 * m23 * m32 + m12 * m20 * m33 - m10 * m22 * m33) * detInv;
-        mat.m20 = (m11 * m23 * m30 - m13 * m21 * m30 + m13 * m20 * m31 - m10 * m23 * m31 - m11 * m20 * m33 + m10 * m21 * m33) * detInv;
-        mat.m30 = (m12 * m21 * m30 - m11 * m22 * m30 - m12 * m20 * m31 + m10 * m22 * m31 + m11 * m20 * m32 - m10 * m21 * m32) * detInv;
+        tmp1 = _mm_mul_ps(row0, row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row2, tmp1));
+        minor2 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor1 = _mm_add_ps(_mm_mul_ps(row2, tmp1), minor1);
+        minor2 = _mm_sub_ps(minor2, _mm_mul_ps(row1, tmp1));
 
-        mat.m01 = t01 * detInv;
-        mat.m11 = (m02 * m23 * m30 - m03 * m22 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 + m00 * m22 * m33) * detInv;
-        mat.m21 = (m03 * m21 * m30 - m01 * m23 * m30 - m03 * m20 * m31 + m00 * m23 * m31 + m01 * m20 * m33 - m00 * m21 * m33) * detInv;
-        mat.m31 = (m01 * m22 * m30 - m02 * m21 * m30 + m02 * m20 * m31 - m00 * m22 * m31 - m01 * m20 * m32 + m00 * m21 * m32) * detInv;
+        tmp1 = _mm_mul_ps(row0, row2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
+        minor1 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor1);
+        minor3 = _mm_sub_ps(minor3, _mm_mul_ps(row1, tmp1));
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
+        minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row3, tmp1));
+        minor3 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor3);
 
-        mat.m02 = t02 * detInv;
-        mat.m12 = (m03 * m12 * m30 - m02 * m13 * m30 - m03 * m10 * m32 + m00 * m13 * m32 + m02 * m10 * m33 - m00 * m12 * m33) * detInv;
-        mat.m22 = (m01 * m13 * m30 - m03 * m11 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 + m00 * m11 * m33) * detInv;
-        mat.m32 = (m02 * m11 * m30 - m01 * m12 * m30 - m02 * m10 * m31 + m00 * m12 * m31 + m01 * m10 * m32 - m00 * m11 * m32) * detInv;
+        __m128 det = _mm_mul_ps(row0, minor0);
+        // NOTE(randomuserhi): Original code did (x + z) + (y + w), changed to (x + y) + (z + w) to match the non vectorised code
+        det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det);
+        det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
+        det = _mm_div_ss(_mm_set_ss(1.0f), det);
+        det = _mm_shuffle_ps(det, det, _MM_SHUFFLE(0, 0, 0, 0));
 
-        mat.m03 = t03 * detInv;
-        mat.m13 = (m02 * m13 * m20 - m03 * m12 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 + m00 * m12 * m23) * detInv;
-        mat.m23 = (m03 * m11 * m20 - m01 * m13 * m20 - m03 * m10 * m21 + m00 * m13 * m21 + m01 * m10 * m23 - m00 * m11 * m23) * detInv;
-        mat.m33 = (m01 * m12 * m20 - m02 * m11 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 + m00 * m11 * m22) * detInv;
+        return Mat4{
+            _mm_mul_ps(det, minor0),
+            _mm_mul_ps(det, minor1),
+            _mm_mul_ps(det, minor2),
+            _mm_mul_ps(det, minor3)
+        };
+        #else
+        // NOTE(randomuserhi): Translated column-row to row-column notation for ease of reading
+        float32 m00 = this->m00, m10 = this->m01, m20 = this->m02, m30 = this->m03;
+        float32 m01 = this->m10, m11 = this->m11, m21 = this->m12, m31 = this->m13;
+        float32 m02 = this->m20, m12 = this->m21, m22 = this->m22, m32 = this->m23;
+        float32 m03 = this->m30, m13 = this->m31, m23 = this->m32, m33 = this->m33;
 
-        return mat;
+        float32 m10211120 = m10 * m21 - m11 * m20;
+        float32 m10221220 = m10 * m22 - m12 * m20;
+        float32 m10231320 = m10 * m23 - m13 * m20;
+        float32 m10311130 = m10 * m31 - m11 * m30;
+        float32 m10321230 = m10 * m32 - m12 * m30;
+        float32 m10331330 = m10 * m33 - m13 * m30;
+        float32 m11221221 = m11 * m22 - m12 * m21;
+        float32 m11231321 = m11 * m23 - m13 * m21;
+        float32 m11321231 = m11 * m32 - m12 * m31;
+        float32 m11331331 = m11 * m33 - m13 * m31;
+        float32 m12231322 = m12 * m23 - m13 * m22;
+        float32 m12331332 = m12 * m33 - m13 * m32;
+        float32 m20312130 = m20 * m31 - m21 * m30;
+        float32 m20322230 = m20 * m32 - m22 * m30;
+        float32 m20332330 = m20 * m33 - m23 * m30;
+        float32 m21322231 = m21 * m32 - m22 * m31;
+        float32 m21332331 = m21 * m33 - m23 * m31;
+        float32 m22332332 = m22 * m33 - m23 * m32;
+
+        Mat4 result{
+            SSE_mm128{ m11 * m22332332 - m12 * m21332331 + m13 * m21322231, -m10 * m22332332 + m12 * m20332330 - m13 * m20322230, m10 * m21332331 - m11 * m20332330 + m13 * m20312130, -m10 * m21322231 + m11 * m20322230 - m12 * m20312130 },
+            SSE_mm128{ -m01 * m22332332 + m02 * m21332331 - m03 * m21322231, m00 * m22332332 - m02 * m20332330 + m03 * m20322230, -m00 * m21332331 + m01 * m20332330 - m03 * m20312130, m00 * m21322231 - m01 * m20322230 + m02 * m20312130 },
+            SSE_mm128{ m01 * m12331332 - m02 * m11331331 + m03 * m11321231, -m00 * m12331332 + m02 * m10331330 - m03 * m10321230, m00 * m11331331 - m01 * m10331330 + m03 * m10311130, -m00 * m11321231 + m01 * m10321230 - m02 * m10311130 },
+            SSE_mm128{ -m01 * m12231322 + m02 * m11231321 - m03 * m11221221, m00 * m12231322 - m02 * m10231320 + m03 * m10221220, -m00 * m11231321 + m01 * m10231320 - m03 * m10211120, m00 * m11221221 - m01 * m10221220 + m02 * m10211120 }
+        };
+
+        float det = m00 * result.cols[0].x + m01 * result.cols[0].y + m02 * result.cols[0].z + m03 * result.cols[0].w;
+
+        result.cols[0] /= det;
+        result.cols[1] /= det;
+        result.cols[2] /= det;
+        result.cols[3] /= det;
+        #endif
     }
 
     Mat4& Mat4::operator*= (const Mat4& other) {
