@@ -2,8 +2,6 @@
 
 #include "../Math.h"
 
-// TODO(randomuserhi): Vectorisation of all methods
-
 namespace Deep {
     Mat4::Mat4(SSE_mm128 col0, SSE_mm128 col1, SSE_mm128 col2, SSE_mm128 col3) : cols{ col0, col1, col2, col3 } {
     }
@@ -431,4 +429,4 @@ namespace Deep {
 
         return c;
     }
-}
+    }
