@@ -47,30 +47,30 @@
  /// For long, it is always atleast 32 bits. If you wish to guarantee atleast 64 bits, use long long
  /// https://en.cppreference.com/w/cpp/language/types#:~:text=target%20type%20will%20have%20width%20of%20at%20least%2064%20bits
 
-typedef long long longlong;
+using longlong = long long;
 
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
-typedef unsigned long long ulonglong;
+using uchar = unsigned char;
+using ushort = unsigned short;
+using uint = unsigned int;
+using ulong = unsigned long;
+using ulonglong = unsigned long long;
 
-typedef unsigned short half;
+using half = unsigned short;
 
 /// strict definitions => short hand for intXX_t
 /// Like above the type is atleast XX number of bits large
 ///
 /// int_fastXX_t can be used for loose definitions.
 
-typedef int8_t int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
+using int8 = int8_t;
+using int16 = int16_t;
+using int32 = int32_t;
+using int64 = int64_t;
 
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+using uint8 = uint8_t;
+using uint16 = uint16_t;
+using uint32 = uint32_t;
+using uint64 = uint64_t;
 
 /// Floating point explicit width definitions
 /// 
@@ -81,8 +81,8 @@ typedef uint64_t uint64;
 /// - long double/float128 is exactly 128 bits as per IEEE-754 binary128 format
 /// https://en.cppreference.com/w/cpp/language/types#:~:text=for%20every%20type.-,Floating%2Dpoint%20types,-Standard%20floating%2Dpoint
 
-typedef uint16_t float16;
+using float16 = uint16_t;
 
-typedef float float32;
-typedef double float64;
-typedef long double float128;
+using float32 = float;
+using float64 = double;
+using float128 = long double;

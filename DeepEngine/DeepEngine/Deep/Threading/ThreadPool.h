@@ -8,11 +8,12 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include "../NonCopyable.h"
 
 // TODO(randomuserhi): Refactor => needs to support proper task distribution (ensure all cores are utilized fully)
 
 namespace Deep {
-    class ThreadPool {
+    class ThreadPool : NonCopyable {
     private:
         void Worker();
 

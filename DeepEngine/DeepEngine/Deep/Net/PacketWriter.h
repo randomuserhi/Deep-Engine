@@ -29,11 +29,11 @@ namespace Deep {
         void Write(int32 value);
         void Write(float32 value);
         void Write(Vec3 value);
-        void Write(Quaternion value);
+        void Write(Quat value);
 
         void WriteHalf(float32 value);
         void WriteHalf(Vec3 value);
-        void WriteHalf(Quaternion value);
+        void WriteHalf(Quat value);
 
     private:
         std::vector<uint8> buffer;

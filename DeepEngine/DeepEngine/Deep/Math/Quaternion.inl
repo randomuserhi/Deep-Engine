@@ -5,14 +5,14 @@
 // TODO(randomuserhi): Vectorisation of all methods
 
 namespace Deep {
-    Quaternion::Quaternion(float32 x, float32 y, float32 z, float32 w)
+    Quat::Quat(float32 x, float32 y, float32 z, float32 w)
         : vec{ x, y, z, w } {
     };
-    Quaternion::Quaternion(Vec4 vec)
+    Quat::Quat(Vec4 vec)
         : vec{ vec } {
     };
 
-    Quaternion Quaternion::FromMat4(const Mat4& m) {
+    Quat Quat::FromMat4(Mat4Arg m) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
         float trace = m.m00 + m.m11 + m.m22;
@@ -20,7 +20,7 @@ namespace Deep {
         if (trace >= 0.0f) {
             float s = Deep::Sqrt(trace + 1.0f);
             float is = 0.5f / s;
-            return Quaternion(
+            return Quat(
                 (m.m12 - m.m21) * is,
                 (m.m20 - m.m02) * is,
                 (m.m01 - m.m10) * is,
@@ -34,7 +34,7 @@ namespace Deep {
             if (i == 0) {
                 float s = sqrt(m.m00 - (m.m11 + m.m22) + 1);
                 float is = 0.5f / s;
-                return Quaternion(
+                return Quat(
                     0.5f * s,
                     (m.m10 + m.m01) * is,
                     (m.m02 + m.m20) * is,
@@ -43,7 +43,7 @@ namespace Deep {
             } else if (i == 1) {
                 float s = sqrt(m.m11 - (m.m22 + m.m00) + 1);
                 float is = 0.5f / s;
-                return Quaternion(
+                return Quat(
                     (m.m10 + m.m01) * is,
                     0.5f * s,
                     (m.m21 + m.m12) * is,
@@ -54,7 +54,7 @@ namespace Deep {
 
                 float s = sqrt(m.m22 - (m.m00 + m.m11) + 1);
                 float is = 0.5f / s;
-                return Quaternion(
+                return Quat(
                     (m.m02 + m.m20) * is,
                     (m.m21 + m.m12) * is,
                     0.5f * s,
@@ -64,27 +64,27 @@ namespace Deep {
         }
     }
 
-    Quaternion& Quaternion::Normalize() {
+    Quat& Quat::Normalize() {
         vec.Normalize();
         return *this;
     }
-    Quaternion Quaternion::normalized() const {
-        Quaternion q = *this;
+    Quat Quat::normalized() const {
+        Quat q = *this;
         return q.Normalize();
     }
-    bool Quaternion::IsNormalized(float tolerance) const {
+    bool Quat::IsNormalized(float tolerance) const {
         return vec.IsNormalized(tolerance);
     }
 
-    Mat4 Quaternion::ToMat4() const {
+    Mat4 Quat::ToMat4() const {
         Mat4 m;
         return m.FromQuaternion(*this);
     }
 
-    Quaternion& Quaternion::Conjugate() {
+    Quat& Quat::Conjugate() {
         // https://stackoverflow.com/questions/56992811/is-there-a-way-to-flip-the-sign-bit-of-32-bit-float-with-xor
         #if defined(DEEP_USE_SSE)
-        sse_mm128 = _mm_xor_ps(sse_mm128, _mm_castsi128_ps(_mm_set_epi32(0x80000000, 0x80000000, 0x80000000, 0)));
+        sse_m128 = _mm_xor_ps(sse_m128, _mm_castsi128_ps(_mm_set_epi32(0x80000000, 0x80000000, 0x80000000, 0)));
         #else
         x ^= 0x80000000;
         y ^= 0x80000000;
@@ -93,82 +93,86 @@ namespace Deep {
         #endif
         return *this;
     }
-    Quaternion Quaternion::conjugated() const {
-        Quaternion q = *this;
+    Quat Quat::conjugated() const {
+        Quat q = *this;
         return q.Conjugate();
     }
 
-    Quaternion& Quaternion::Inverse() {
+    Quat& Quat::Inverse() {
         return Conjugate() /= vec.magnitude();
     }
-    Quaternion Quaternion::inversed() const {
-        Quaternion q = *this;
+    Quat Quat::inversed() const {
+        Quat q = *this;
         return q.Inverse();
     }
 
-    Quaternion::Quaternion(Vec3 axis, float32 angle) {
+    Quat::Quat(Vec3 axis, float32 angle) {
         assert(axis.IsNormalized()); // Must be normalized for the below equation
 
         // { x,y,z } = axis * sin(0.5f * inAngle)
         //   w       = cos(0.5f * inAngle)
 
-        SSE_mm128 s, c;
-        SSE_mm128::Replicate(0.5f * angle).SinCos(s, c);
-        sse_mm128 = SSE_mm128::Select(axis.sse_mm128 * s, c, SSE_mm128i{ 0, 0, 0, (int32)0xffffffff });
+        SSE_m128 s, c;
+        SSE_m128::Replicate(0.5f * angle).SinCos(s, c);
+        sse_m128 = SSE_m128::Select(axis.sse_m128 * s, c, SSE_m128i{ 0, 0, 0, (int32)0xffffffff });
     }
 
-    bool operator!=(const Quaternion& a, const Quaternion& b) {
+    bool operator!=(QuatArg a, QuatArg b) {
         return a.vec != b.vec;
     }
-    bool operator==(const Quaternion& a, const Quaternion& b) {
+    bool operator==(QuatArg a, QuatArg b) {
         return !(a != b);
     }
 
-    Quaternion& Quaternion::operator+= (const Quaternion& other) {
+    Quat& Quat::operator+= (QuatArg other) {
         vec += other.vec;
         return *this;
     }
 
-    Quaternion operator+ (Quaternion a, const Quaternion& b) {
-        return a += b;
+    Quat operator+ (QuatArg a, QuatArg b) {
+        return a.vec + b.vec;
     }
 
-    Quaternion& Quaternion::operator-= (const Quaternion& other) {
+    Quat& Quat::operator-= (QuatArg other) {
         vec -= other.vec;
         return *this;
     }
 
-    Quaternion operator- (Quaternion a, const Quaternion& b) {
-        return a -= b;
+    Quat operator- (QuatArg a, QuatArg b) {
+        return a.vec - b.vec;
     }
 
-    Quaternion& Quaternion::operator*= (float32 other) {
+    Quat& Quat::operator*= (float32 other) {
         vec *= other;
         return *this;
     }
 
-    Quaternion& Quaternion::operator/= (float32 other) {
+    Quat& Quat::operator/= (float32 other) {
         vec /= other;
         return *this;
     }
 
-    Quaternion operator* (Quaternion a, float32 other) {
-        return a *= other;
+    Quat operator* (QuatArg q, float32 a) {
+        return q.vec * a;
     }
 
-    Quaternion operator* (float32 other, Quaternion a) {
-        return a *= other;
+    Quat operator* (float32 a, QuatArg q) {
+        return a * q.vec;
     }
 
-    Quaternion operator/ (Quaternion a, float32 other) {
-        return a /= other;
+    Quat operator/ (QuatArg q, float32 a) {
+        return q.vec / a;
     }
 
-    Quaternion& Quaternion::operator*= (const Quaternion& other) {
+    Quat operator/ (float32 a, QuatArg q) {
+        return a / q.vec;
+    }
+
+    Quat& Quat::operator*= (QuatArg other) {
         #ifdef DEEP_USE_SSE4_1
         // Taken from: https://stackoverflow.com/questions/18542894/how-to-multiply-two-quaternions-with-minimal-instructions
-        __m128 abcd = sse_mm128;
-        __m128 xyzw = other.sse_mm128;
+        __m128 abcd = sse_m128;
+        __m128 xyzw = other.sse_m128;
 
         __m128 t0 = _mm_shuffle_ps(abcd, abcd, _MM_SHUFFLE(3, 3, 3, 3));
         __m128 t1 = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(2, 3, 0, 1));
@@ -209,7 +213,7 @@ namespace Deep {
         e = _mm_addsub_ps(e, m3);
 
         // [dw-ax-by-cz,dz+ay-bx+cw,dy-az+bw+cx,dx+aw+bz-cy]
-        sse_mm128 = _mm_shuffle_ps(e, e, _MM_SHUFFLE(2, 3, 1, 0));
+        sse_m128 = _mm_shuffle_ps(e, e, _MM_SHUFFLE(2, 3, 1, 0));
         #else
         float lx = x;
         float ly = y;
@@ -229,12 +233,12 @@ namespace Deep {
         return *this;
     }
 
-    Quaternion operator* (Quaternion a, const Quaternion& b) {
-        return a *= b;
+    Quat operator* (QuatArg a, QuatArg b) {
+        return a.vec * b.vec;
     }
 
     // TODO(randomuserhi): Can be optimised to not use a `toMat4` call
-    Vec3 operator* (const Quaternion& q, const Vec3& v) {
+    Vec3 operator* (QuatArg q, Vec3Arg v) {
         Mat4 m = q.ToMat4();
         return m * v;
     }

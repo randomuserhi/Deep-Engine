@@ -28,10 +28,10 @@ namespace Deep {
         Deep_Inline float32 ReadFloat();
 
         Deep_Inline Vec3 ReadVec3();
-        Quaternion ReadQuaternion();
+        Quat ReadQuaternion();
 
         Vec3 ReadHalfVec3();
-        Quaternion ReadHalfQuaternion();
+        Quat ReadHalfQuaternion();
 
         const uint8* head;
 

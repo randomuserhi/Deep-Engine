@@ -5,6 +5,7 @@
 
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Vec4 {
+        // Constructors
         Vec4() = default;
         Vec4(const Vec4& other) = default;
         Vec4& operator= (const Vec4& other) = default;
@@ -17,32 +18,45 @@ namespace Deep {
         Deep_Inline [[nodiscard]] float32 sqrdMagnitude() const;
         Deep_Inline [[nodiscard]] float32 magnitude() const;
 
-        Deep_Inline Vec4& operator+= (const Vec4& other);
-        Deep_Inline Vec4& operator-= (const Vec4& other);
-        Deep_Inline Vec4& operator*= (const Vec4& other);
-        Deep_Inline Vec4& operator/= (const Vec4& other);
+        static Deep_Inline [[nodiscard]] float32 Dot(Vec4Arg a, Vec4Arg b);
+
+        // Equality
+        friend Deep_Inline bool operator!= (Vec4Arg a, Vec4Arg b);
+        friend Deep_Inline bool operator== (Vec4Arg a, Vec4Arg b);
+
+        // Add vectors
+        Deep_Inline Vec4& operator+= (Vec4Arg other);
+        friend Deep_Inline Vec4 operator+ (Vec4Arg a, Vec4Arg b);
+
+        // Sub vectors
+        Deep_Inline Vec4& operator-= (Vec4Arg other);
+        friend Deep_Inline Vec4 operator- (Vec4Arg a, Vec4Arg b);
+        friend Deep_Inline Vec4 operator- (Vec4Arg a);
+
+        // Mul vectors
+        Deep_Inline Vec4& operator*= (Vec4Arg other);
+        friend Deep_Inline Vec4 operator* (Vec4Arg a, Vec4Arg b);
+
+        // Div vectors
+        Deep_Inline Vec4& operator/= (Vec4Arg other);
+        friend Deep_Inline Vec4 operator/ (Vec4Arg a, Vec4Arg b);
+
+        // Mul vector and float
         Deep_Inline Vec4& operator*= (float32 other);
+        friend Deep_Inline Vec4 operator* (Vec4Arg v, const float32 a);
+        friend Deep_Inline Vec4 operator* (float32 a, Vec4Arg v);
+
+        // Div vector and float
         Deep_Inline Vec4& operator/= (float32 other);
+        friend Deep_Inline Vec4 operator/ (Vec4Arg v, const float32 a);
+        friend Deep_Inline Vec4 operator/ (const float32 a, Vec4Arg v);
 
-        friend Deep_Inline bool operator!=(const Vec4& a, const Vec4& b);
-        friend Deep_Inline bool operator==(const Vec4& a, const Vec4& b);
-
-        friend Deep_Inline Vec4 operator+ (Vec4 a, const Vec4& b);
-        friend Deep_Inline Vec4 operator- (Vec4 a, const Vec4& b);
-        friend Deep_Inline Vec4 operator- (Vec4 a);
-        friend Deep_Inline Vec4 operator* (Vec4 v, const float32 a);
-        friend Deep_Inline Vec4 operator* (float32 a, Vec4 v);
-        friend Deep_Inline Vec4 operator/ (Vec4 v, const float32 a);
-        friend Deep_Inline Vec4 operator* (Vec4 a, const Vec4& b);
-        friend Deep_Inline Vec4 operator/ (Vec4 a, const Vec4& b);
-
-        friend Deep_Inline Vec4 operator* (const Mat4& m, const Vec4& v);
-
-        static Deep_Inline [[nodiscard]] float32 Dot(const Vec4& a, const Vec4& b);
+        // Multiply a Matrix4x4 and Vector
+        friend Deep_Inline Vec4 operator* (Mat4Arg m, Vec4Arg v);
 
         union {
-            SSE_mm128 sse_mm128;
-            SSE_mm128i sse_mm128i;
+            SSE_m128 sse_m128;
+            SSE_m128i sse_m128i;
             float32 values[4];
             struct {
                 float32 x;

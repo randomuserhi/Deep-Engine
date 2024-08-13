@@ -59,16 +59,14 @@ namespace Deep {
     }
 }
 
-// NOTE(randomuserhi): Headers beginning with "_" indicate that they are non-standalone headers and
-//                     are not meant to be included in non-library code. This is because they cannot
-//                     be used standalone and require other defined headers in order for their
-//                     implementation etc...
+// NOTE(randomuserhi): Below import order is important as there are cyclic references that have to be declared first, prior implementation.
+//                     For this reason, individual math components cannot be imported on their own.
 
-#include "./Math/_SSE_mm128.h"
-#include "./Math/_SSE_mm128i.h"
+#include "./Math/_SSE_m128.h"
+#include "./Math/_SSE_m128i.h"
 
-#include "./Math/SSE_mm128.inl"
-#include "./Math/SSE_mm128i.inl"
+#include "./Math/SSE_m128.inl"
+#include "./Math/SSE_m128i.inl"
 
 #include "./Math/_Vec3.h"
 #include "./Math/_Vec4.h"

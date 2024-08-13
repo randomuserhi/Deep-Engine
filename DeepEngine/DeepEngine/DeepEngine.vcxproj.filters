@@ -93,10 +93,13 @@
     <ClInclude Include="Deep\Math\Vec4.inl">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Math\_SSE_mm128i.h">
+    <ClInclude Include="Deep\Math\_SSE_m128i.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Math\_SSE_mm128.h">
+    <ClInclude Include="Deep\Math\_SSE_m128.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\NonCopyable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -142,10 +145,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Deep\Math\SSE_mm128i.inl">
+    <None Include="Deep\Math\SSE_m128i.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Deep\Math\SSE_mm128.inl">
+    <None Include="Deep\Math\SSE_m128.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

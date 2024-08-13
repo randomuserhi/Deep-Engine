@@ -3,7 +3,7 @@
 #include "../Math.h"
 
 namespace Deep {
-    Mat4::Mat4(SSE_mm128 col0, SSE_mm128 col1, SSE_mm128 col2, SSE_mm128 col3) : cols{ col0, col1, col2, col3 } {
+    Mat4::Mat4(SSE_m128 col0, SSE_m128 col1, SSE_m128 col2, SSE_m128 col3) : cols{ col0, col1, col2, col3 } {
     }
     Mat4::Mat4(
         float32 m00, float32 m01, float32 m02, float32 m03,
@@ -11,10 +11,10 @@ namespace Deep {
         float32 m20, float32 m21, float32 m22, float32 m23,
         float32 m30, float32 m31, float32 m32, float32 m33
     ) : cols{
-        SSE_mm128(m00, m10, m20, m30),
-        SSE_mm128(m01, m11, m21, m31),
-        SSE_mm128(m02, m12, m22, m32),
-        SSE_mm128(m03, m13, m23, m33)
+        SSE_m128(m00, m10, m20, m30),
+        SSE_m128(m01, m11, m21, m31),
+        SSE_m128(m02, m12, m22, m32),
+        SSE_m128(m03, m13, m23, m33)
     } {
     }
     Mat4::Mat4(Vec4 col0, Vec4 col1, Vec4 col2, Vec4 col3) : vcols{ col0, col1, col2, col3 } {
@@ -47,12 +47,12 @@ namespace Deep {
         #endif
     }
 
-    Mat4 Mat4::FromQuaternion(const Quaternion& q) {
+    Mat4 Mat4::FromQuaternion(const Quat& q) {
         assert(q.IsNormalized());
 
         // See: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation section 'Quaternion-derived rotation matrix'
         #ifdef DEEP_USE_SSE4_1
-        __m128 xyzw = q.sse_mm128;
+        __m128 xyzw = q.sse_m128;
         __m128 two_xyzw = _mm_add_ps(xyzw, xyzw);
         __m128 yzxw = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(3, 0, 2, 1));
         __m128 two_yzxw = _mm_add_ps(yzxw, yzxw);
@@ -96,10 +96,10 @@ namespace Deep {
 
         // NOTE(randomuserhi): Brackets to stay consistent with vectorised version
         return Mat4{
-            SSE_mm128((1.0f - yy) - zz, xy + zw, xz - yw, 0.0f),
-            SSE_mm128(xy - zw, (1.0f - zz) - xx, yz + xw, 0.0f),
-            SSE_mm128(xz + yw, yz - xw, (1.0f - xx) - yy, 0.0f),
-            SSE_mm128(0.0f, 0.0f, 0.0f, 1.0f)
+            SSE_m128((1.0f - yy) - zz, xy + zw, xz - yw, 0.0f),
+            SSE_m128(xy - zw, (1.0f - zz) - xx, yz + xw, 0.0f),
+            SSE_m128(xz + yw, yz - xw, (1.0f - xx) - yy, 0.0f),
+            SSE_m128(0.0f, 0.0f, 0.0f, 1.0f)
         };
         #endif
     }
@@ -190,39 +190,38 @@ namespace Deep {
             _mm_mul_ps(det, minor3)
         };
         #else
-        // NOTE(randomuserhi): Translated column-row to row-column notation for ease of reading
-        float32 m00 = this->m00, m10 = this->m01, m20 = this->m02, m30 = this->m03;
-        float32 m01 = this->m10, m11 = this->m11, m21 = this->m12, m31 = this->m13;
-        float32 m02 = this->m20, m12 = this->m21, m22 = this->m22, m32 = this->m23;
-        float32 m03 = this->m30, m13 = this->m31, m23 = this->m32, m33 = this->m33;
+        float32 m00 = this->m00, m01 = this->m01, m02 = this->m02, m03 = this->m03;
+        float32 m10 = this->m10, m11 = this->m11, m12 = this->m12, m13 = this->m13;
+        float32 m20 = this->m20, m21 = this->m21, m22 = this->m22, m23 = this->m23;
+        float32 m30 = this->m30, m31 = this->m31, m32 = this->m32, m33 = this->m33;
 
-        float32 m10211120 = m10 * m21 - m11 * m20;
-        float32 m10221220 = m10 * m22 - m12 * m20;
-        float32 m10231320 = m10 * m23 - m13 * m20;
-        float32 m10311130 = m10 * m31 - m11 * m30;
-        float32 m10321230 = m10 * m32 - m12 * m30;
-        float32 m10331330 = m10 * m33 - m13 * m30;
-        float32 m11221221 = m11 * m22 - m12 * m21;
-        float32 m11231321 = m11 * m23 - m13 * m21;
-        float32 m11321231 = m11 * m32 - m12 * m31;
-        float32 m11331331 = m11 * m33 - m13 * m31;
-        float32 m12231322 = m12 * m23 - m13 * m22;
-        float32 m12331332 = m12 * m33 - m13 * m32;
-        float32 m20312130 = m20 * m31 - m21 * m30;
-        float32 m20322230 = m20 * m32 - m22 * m30;
-        float32 m20332330 = m20 * m33 - m23 * m30;
-        float32 m21322231 = m21 * m32 - m22 * m31;
-        float32 m21332331 = m21 * m33 - m23 * m31;
-        float32 m22332332 = m22 * m33 - m23 * m32;
+        float32 n01121102 = m01 * m12 - m11 * m02;
+        float32 n01222102 = m01 * m22 - m21 * m02;
+        float32 n01323102 = m01 * m32 - m31 * m02;
+        float32 n01131103 = m01 * m13 - m11 * m03;
+        float32 n01232103 = m01 * m23 - m21 * m03;
+        float32 n01333103 = m01 * m33 - m31 * m03;
+        float32 n11222112 = m11 * m22 - m21 * m12;
+        float32 n11323112 = m11 * m32 - m31 * m12;
+        float32 n11232113 = m11 * m23 - m21 * m13;
+        float32 n11333113 = m11 * m33 - m31 * m13;
+        float32 n21323122 = m21 * m32 - m31 * m22;
+        float32 n21333123 = m21 * m33 - m31 * m23;
+        float32 n02131203 = m02 * m13 - m12 * m03;
+        float32 n02232203 = m02 * m23 - m22 * m03;
+        float32 n02333203 = m02 * m33 - m32 * m03;
+        float32 n12232213 = m12 * m23 - m22 * m13;
+        float32 n12333213 = m12 * m33 - m32 * m13;
+        float32 n22333223 = m22 * m33 - m32 * m23;
 
         Mat4 result{
-            SSE_mm128{ m11 * m22332332 - m12 * m21332331 + m13 * m21322231, -m10 * m22332332 + m12 * m20332330 - m13 * m20322230, m10 * m21332331 - m11 * m20332330 + m13 * m20312130, -m10 * m21322231 + m11 * m20322230 - m12 * m20312130 },
-            SSE_mm128{ -m01 * m22332332 + m02 * m21332331 - m03 * m21322231, m00 * m22332332 - m02 * m20332330 + m03 * m20322230, -m00 * m21332331 + m01 * m20332330 - m03 * m20312130, m00 * m21322231 - m01 * m20322230 + m02 * m20312130 },
-            SSE_mm128{ m01 * m12331332 - m02 * m11331331 + m03 * m11321231, -m00 * m12331332 + m02 * m10331330 - m03 * m10321230, m00 * m11331331 - m01 * m10331330 + m03 * m10311130, -m00 * m11321231 + m01 * m10321230 - m02 * m10311130 },
-            SSE_mm128{ -m01 * m12231322 + m02 * m11231321 - m03 * m11221221, m00 * m12231322 - m02 * m10231320 + m03 * m10221220, -m00 * m11231321 + m01 * m10231320 - m03 * m10211120, m00 * m11221221 - m01 * m10221220 + m02 * m10211120 }
+            SSE_m128{ m11 * n22333223 - m21 * n12333213 + m31 * n12232213, -m01 * n22333223 + m21 * n02333203 - m31 * n02232203, m01 * n12333213 - m11 * n02333203 + m31 * n02131203, -m01 * n12232213 + m11 * n02232203 - m21 * n02131203 },
+            SSE_m128{ -m10 * n22333223 + m20 * n12333213 - m30 * n12232213, m00 * n22333223 - m20 * n02333203 + m30 * n02232203, -m00 * n12333213 + m10 * n02333203 - m30 * n02131203, m00 * n12232213 - m10 * n02232203 + m20 * n02131203 },
+            SSE_m128{ m10 * n21333123 - m20 * n11333113 + m30 * n11232113, -m00 * n21333123 + m20 * n01333103 - m30 * n01232103, m00 * n11333113 - m10 * n01333103 + m30 * n01131103, -m00 * n11232113 + m10 * n01232103 - m20 * n01131103 },
+            SSE_m128{ -m10 * n21323122 + m20 * n11323112 - m30 * n11222112, m00 * n21323122 - m20 * n01323102 + m30 * n01222102, -m00 * n11323112 + m10 * n01323102 - m30 * n01121102, m00 * n11222112 - m10 * n01222102 + m20 * n01121102 }
         };
 
-        float det = m00 * result.cols[0].x + m01 * result.cols[0].y + m02 * result.cols[0].z + m03 * result.cols[0].w;
+        float det = m00 * result.cols[0].x + m10 * result.cols[0].y + m20 * result.cols[0].z + m30 * result.cols[0].w;
 
         result.cols[0] /= det;
         result.cols[1] /= det;
@@ -231,17 +230,17 @@ namespace Deep {
         #endif
     }
 
-    bool operator!=(const Mat4& a, const Mat4& b) {
-        return SSE_mm128i::And(
-            SSE_mm128i::And(SSE_mm128::Equals(a.cols[0], b.cols[0]), SSE_mm128::Equals(a.cols[1], b.cols[1])),
-            SSE_mm128i::And(SSE_mm128::Equals(a.cols[2], b.cols[2]), SSE_mm128::Equals(a.cols[3], b.cols[3]))
+    bool operator!=(Mat4Arg a, Mat4Arg b) {
+        return SSE_m128i::And(
+            SSE_m128i::And(SSE_m128::Equals(a.cols[0], b.cols[0]), SSE_m128::Equals(a.cols[1], b.cols[1])),
+            SSE_m128i::And(SSE_m128::Equals(a.cols[2], b.cols[2]), SSE_m128::Equals(a.cols[3], b.cols[3]))
         ).ToBooleanBitMask() != 0b1111;
     }
-    bool operator==(const Mat4& a, const Mat4& b) {
+    bool operator==(Mat4Arg a, Mat4Arg b) {
         return !(a != b);
     }
 
-    Mat4 operator* (const Mat4& a, const Mat4& b) {
+    Mat4 operator* (Mat4Arg a, Mat4Arg b) {
         Mat4 c;
 
         #ifdef DEEP_USE_SSE
@@ -287,5 +286,37 @@ namespace Deep {
         #endif
 
         return c;
+    }
+
+    Vec3 operator* (Mat4Arg m, Vec3Arg v) {
+        Vec3 _v;
+        #ifdef DEEP_USE_SSE4_1
+        _v.sse_m128 = _mm_mul_ps(m.cols[0], _mm_shuffle_ps(m.cols[0], v.sse_m128, _MM_SHUFFLE(0, 0, 0, 0)));
+        _v.sse_m128 = _mm_add_ps(_v.sse_m128, _mm_mul_ps(m.cols[1], _mm_shuffle_ps(v.sse_m128, v.sse_m128, _MM_SHUFFLE(1, 1, 1, 1))));
+        _v.sse_m128 = _mm_add_ps(_v.sse_m128, _mm_mul_ps(m.cols[2], _mm_shuffle_ps(v.sse_m128, v.sse_m128, _MM_SHUFFLE(2, 2, 2, 2))));
+        _v.sse_m128 = _mm_add_ps(_v.sse_m128, m.cols[3]);
+        #else
+        float32 invW = 1.0f / (m.m30 * v.x + m.m31 * v.y + m.m32 * v.z + m.m33);
+        _v.x = (m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03) * invW;
+        _v.y = (m.m10 * v.x + m.m11 * v.y + m.m12 * v.z + m.m13) * invW;
+        _v.z = (m.m20 * v.x + m.m21 * v.y + m.m22 * v.z + m.m23) * invW;
+        #endif
+        return _v;
+    }
+
+    Vec4 operator* (Mat4Arg m, Vec4Arg v) {
+        Vec4 _v;
+        #ifdef DEEP_USE_SSE4_1
+        _v.sse_m128 = _mm_mul_ps(m.cols[0], _mm_shuffle_ps(v.sse_m128, v.sse_m128, _MM_SHUFFLE(0, 0, 0, 0)));
+        _v.sse_m128 = _mm_add_ps(_v.sse_m128, _mm_mul_ps(m.cols[1], _mm_shuffle_ps(v.sse_m128, v.sse_m128, _MM_SHUFFLE(1, 1, 1, 1))));
+        _v.sse_m128 = _mm_add_ps(_v.sse_m128, _mm_mul_ps(m.cols[2], _mm_shuffle_ps(v.sse_m128, v.sse_m128, _MM_SHUFFLE(2, 2, 2, 2))));
+        _v.sse_m128 = _mm_add_ps(_v.sse_m128, _mm_mul_ps(m.cols[3], _mm_shuffle_ps(v.sse_m128, v.sse_m128, _MM_SHUFFLE(3, 3, 3, 3))));
+        #else
+        _v.x = m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03 * v.w;
+        _v.y = m.m10 * v.x + m.m11 * v.y + m.m12 * v.z + m.m13 * v.w;
+        _v.z = m.m20 * v.x + m.m21 * v.y + m.m22 * v.z + m.m23 * v.w;
+        _v.w = m.m30 * v.x + m.m31 * v.y + m.m32 * v.z + m.m33 * v.w;
+        #endif
+        return _v;
     }
 }

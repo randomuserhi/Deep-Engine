@@ -6,7 +6,7 @@
 
 #include "../Deep.h"
 
-// Bitcast support
+// Bitcast support for different Cpp versions
 #if __cplusplus >= 202002L
 #include <bit>
 #elif defined(DEEP_COMPILER_MSVC)
@@ -116,6 +116,8 @@ namespace Deep {
         return (b & 0x80000000) >> 16 | (e > 112) * ((((e - 112) << 10) & 0x7C00) | m >> 13) | ((e < 113) & (e > 101)) * ((((0x007FF000 + m) >> (125 - e)) + 1) >> 1) | (e > 143) * 0x7FFF; // sign : normalized : denormalized : saturate
     }
 
+    // Host to Network conversion methods
+
     Deep_Inline uint16 hton(const uint16 value) {
         return !IsBigEndian() ? value : ReverseEndianness(value);
     }
@@ -139,6 +141,8 @@ namespace Deep {
     Deep_Inline int64 hton(const int64 value) {
         return !IsBigEndian() ? value : ReverseEndianness(value);
     }
+
+    // Network to Host conversion methods
 
     Deep_Inline uint16 ntoh(const uint16 value) {
         return !IsBigEndian() ? value : ReverseEndianness(value);

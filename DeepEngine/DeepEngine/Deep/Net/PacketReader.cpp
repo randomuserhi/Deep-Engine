@@ -8,9 +8,9 @@
 #include "../Math.h"
 
 namespace Deep {
-    Quaternion PacketReader::ReadQuaternion() {
+    Quat PacketReader::ReadQuaternion() {
         uint8 i = ReadByte();
-        Quaternion q{};
+        Quat q{};
         switch (i) {
         case 0:
             q.y = ReadFloat();
@@ -40,9 +40,9 @@ namespace Deep {
         return q;
     }
 
-    Quaternion PacketReader::ReadHalfQuaternion() {
+    Quat PacketReader::ReadHalfQuaternion() {
         uint8 i = ReadByte();
-        Quaternion q{};
+        Quat q{};
         switch (i) {
         case 0:
             q.y = ReadHalf();

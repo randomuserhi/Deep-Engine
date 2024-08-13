@@ -4,12 +4,15 @@
 #include <type_traits>
 
 namespace Deep {
+    // Matrix4x4
+    // Notation is column followed by row, so m10 is column 1, row 0.
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Mat4 {
+        // Constructors
         Mat4() = default;
         Mat4(const Mat4& other) = default;
         Mat4& operator= (const Mat4& other) = default;
         Deep_Inline Mat4(
-            SSE_mm128 col0, SSE_mm128 col1, SSE_mm128 col2, SSE_mm128 col3
+            SSE_m128 col0, SSE_m128 col1, SSE_m128 col2, SSE_m128 col3
         );
         Deep_Inline Mat4(
             float32 m00, float32 m01, float32 m02, float32 m03,
@@ -27,12 +30,18 @@ namespace Deep {
         Deep_Inline Mat4& Inverse();
         Deep_Inline [[nodiscard]] Mat4 inversed() const;
 
-        friend Deep_Inline bool operator!=(const Mat4& a, const Mat4& b);
-        friend Deep_Inline bool operator==(const Mat4& a, const Mat4& b);
+        // Equality
+        friend Deep_Inline bool operator!=(Mat4Arg a, Mat4Arg b);
+        friend Deep_Inline bool operator==(Mat4Arg a, Mat4Arg b);
 
-        friend Deep_Inline Mat4 operator* (const Mat4& a, const Mat4& b);
+        // Mul Matrix4x4s
+        friend Deep_Inline Mat4 operator* (Mat4Arg a, Mat4Arg b);
 
-        static Deep_Inline [[nodiscard]] Mat4 FromQuaternion(const Quaternion& quaternion);
+        // Multiply Matrix4x4 and Vectors
+        friend Deep_Inline Vec3 operator* (Mat4Arg m, Vec3Arg v); // NOTE(randomuserhi): Assumes Vec4 with w = 1
+        friend Deep_Inline Vec4 operator* (Mat4Arg m, Vec4Arg v);
+
+        static Deep_Inline [[nodiscard]] Mat4 FromQuaternion(const Quat& quaternion);
 
         /**
          * (00, 01, 02, 03)
@@ -41,7 +50,7 @@ namespace Deep {
          * (30, 31, 32, 33)
          */
         union {
-            SSE_mm128 cols[4];
+            SSE_m128 cols[4];
             Vec4 vcols[4];
             float32 values[16];
             // NOTE(randomuserhi): order of values matter for specific memory access patterns

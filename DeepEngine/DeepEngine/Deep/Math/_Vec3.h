@@ -5,6 +5,7 @@
 
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Vec3 {
+        // Constructors
         Vec3() = default;
         Vec3(const Vec3& other) = default;
         Vec3& operator= (const Vec3& other) = default;
@@ -17,34 +18,49 @@ namespace Deep {
         Deep_Inline [[nodiscard]] float32 sqrdMagnitude() const;
         Deep_Inline [[nodiscard]] float32 magnitude() const;
 
-        Deep_Inline Vec3& operator+= (const Vec3& other);
-        Deep_Inline Vec3& operator-= (const Vec3& other);
-        Deep_Inline Vec3& operator*= (const Vec3& other);
-        Deep_Inline Vec3& operator/= (const Vec3& other);
+        static Deep_Inline [[nodiscard]] float32 Dot(Vec3Arg a, Vec3Arg b);
+
+        // Equality
+        friend Deep_Inline bool operator!= (Vec3Arg a, Vec3Arg b);
+        friend Deep_Inline bool operator== (Vec3Arg a, Vec3Arg b);
+
+        // Add vectors
+        Deep_Inline Vec3& operator+= (Vec3Arg other);
+        friend Deep_Inline Vec3 operator+ (Vec3Arg a, Vec3Arg b);
+
+        // Sub vectors
+        Deep_Inline Vec3& operator-= (Vec3Arg other);
+        friend Deep_Inline Vec3 operator- (Vec3Arg a, Vec3Arg b);
+        friend Deep_Inline Vec3 operator- (Vec3Arg a);
+
+        // Mul vectors
+        Deep_Inline Vec3& operator*= (Vec3Arg other);
+        friend Deep_Inline Vec3 operator* (Vec3Arg a, Vec3Arg b);
+
+        // Div vectors
+        Deep_Inline Vec3& operator/= (Vec3Arg other);
+        friend Deep_Inline Vec3 operator/ (Vec3Arg a, Vec3Arg b);
+
+        // Mul vector and float
         Deep_Inline Vec3& operator*= (float32 other);
+        friend Deep_Inline Vec3 operator* (Vec3Arg v, float32 a);
+        friend Deep_Inline Vec3 operator* (float32 a, Vec3Arg v);
+
+        // Div vector and float
         Deep_Inline Vec3& operator/= (float32 other);
+        friend Deep_Inline Vec3 operator/ (Vec3Arg v, float32 a);
+        friend Deep_Inline Vec3 operator/ (float32 a, Vec3Arg v);
 
-        friend Deep_Inline bool operator!= (const Vec3& a, const Vec3& b);
-        friend Deep_Inline bool operator== (const Vec3& a, const Vec3& b);
+        // Multiply a Matrix4x4 and Vector
+        friend Deep_Inline Vec3 operator* (Mat4Arg m, Vec3Arg v); // NOTE(randomuserhi): Assumes Vec4 with w = 1
 
-        friend Deep_Inline Vec3 operator+ (Vec3 a, const Vec3& b);
-        friend Deep_Inline Vec3 operator- (Vec3 a, const Vec3& b);
-        friend Deep_Inline Vec3 operator- (Vec3 a);
-        friend Deep_Inline Vec3 operator* (Vec3 v, float32 a);
-        friend Deep_Inline Vec3 operator* (float32 a, Vec3 v);
-        friend Deep_Inline Vec3 operator/ (Vec3 v, float32 a);
-        friend Deep_Inline Vec3 operator* (Vec3 a, const Vec3& b);
-        friend Deep_Inline Vec3 operator/ (Vec3 a, const Vec3& b);
+        // Apply a quaternion to a vector
+        friend Deep_Inline Vec3 operator* (QuatArg rot, Vec3Arg v);
 
-        // NOTE(randomuserhi): Assumes Vec4 with w = 1
-        friend Deep_Inline Vec3 operator* (const Mat4& m, const Vec3& v);
-
-        static Deep_Inline [[nodiscard]] float32 Dot(const Vec3& a, const Vec3& b);
-
-        // NOTE(randomuserhi): The underlying type is a Vec4 for SIMD instructions
+        // NOTE(randomuserhi): The underlying type is a Vec4 for vectorisation
         union {
-            SSE_mm128 sse_mm128;
-            SSE_mm128i sse_mm128i;
+            SSE_m128 sse_m128;
+            SSE_m128i sse_m128i;
             float32 val[4];
             struct {
                 float32 x;

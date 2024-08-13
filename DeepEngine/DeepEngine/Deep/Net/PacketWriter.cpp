@@ -8,7 +8,7 @@
 #include "../Math.h"
 
 namespace Deep {
-    void PacketWriter::Write(Quaternion value) {
+    void PacketWriter::Write(Quat value) {
         buffer.reserve(buffer.size() + sizeof(uint8) + sizeof(float32) * 3);
 
         float32 largest = value.x;
@@ -74,7 +74,7 @@ namespace Deep {
             break;
         }
     }
-    void PacketWriter::WriteHalf(Quaternion value) {
+    void PacketWriter::WriteHalf(Quat value) {
         buffer.reserve(buffer.size() + sizeof(uint8) + sizeof(float16) * 3);
 
         float32 largest = value.x;

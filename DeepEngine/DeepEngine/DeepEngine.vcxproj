@@ -24,8 +24,8 @@
     <ClInclude Include="Deep\ECS.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
     <ClInclude Include="Deep\Math.h" />
-    <ClInclude Include="Deep\Math\_SSE_mm128.h" />
-    <ClInclude Include="Deep\Math\_SSE_mm128i.h" />
+    <ClInclude Include="Deep\Math\_SSE_m128.h" />
+    <ClInclude Include="Deep\Math\_SSE_m128i.h" />
     <ClInclude Include="Deep\Math\_Mat4.h" />
     <ClInclude Include="Deep\Math\_MathTypes.h" />
     <ClInclude Include="Deep\Math\_Quaternion.h" />
@@ -36,6 +36,7 @@
     <ClInclude Include="Deep\Net\Packet.h" />
     <ClInclude Include="Deep\Net\PacketReader.h" />
     <ClInclude Include="Deep\Net\PacketWriter.h" />
+    <ClInclude Include="Deep\NonCopyable.h" />
     <ClInclude Include="Deep\Physics.h" />
     <ClInclude Include="Deep\Sock.h" />
     <ClInclude Include="Deep\Sock\AF_INET.h" />
@@ -72,8 +73,8 @@
     <ClCompile Include="Deep\Threading\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Deep\Math\SSE_mm128.inl" />
-    <None Include="Deep\Math\SSE_mm128i.inl" />
+    <None Include="Deep\Math\SSE_m128.inl" />
+    <None Include="Deep\Math\SSE_m128i.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
