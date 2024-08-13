@@ -31,7 +31,7 @@ int main() {
 
     Deep::Vec3 up{ 0, 1, 0 };
     Deep::Vec3 axis{ 0, 0, 1 };
-    Deep::Quaternion rotateLeft{ axis, PI / 2.0f };
+    Deep::Quat rotateLeft{ axis, PI / 2.0f };
     Deep::Vec3 right = rotateLeft * up;
     std::cout << rotateLeft.w
         << "," << rotateLeft.x

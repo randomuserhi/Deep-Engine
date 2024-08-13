@@ -79,6 +79,8 @@
 #define Deep__File__ __FILE__
 #define Deep__Line__ __LINE__
 
+#endif
+
 #ifdef DEEP_COMPILER_MSVC
 // NOTE(randomuserhi): Undef MSVC pre-processor macros: https://stackoverflow.com/questions/21483038/undefining-min-and-max-macros
 #undef min
@@ -88,6 +90,8 @@
 /*
 * Vectorised Instructions
 */
+
+#if !defined(DEEP_DONT_VECTORISE)
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 
