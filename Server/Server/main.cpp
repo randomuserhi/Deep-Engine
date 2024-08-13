@@ -9,7 +9,35 @@
 #include <thread>
 
 int main() {
-    std::cout << "Hello World!" << std::endl;
+    size_t count = 1000000000;
+
+    Deep::Vec3* positions = new Deep::Vec3[count];
+    Deep::Vec3* velocities = new Deep::Vec3[count];
+
+    for (size_t i = 0; i < count; ++i) {
+        positions[i] = Deep::Vec3::zero;
+        velocities[i] = Deep::Vec3::left;
+    }
+
+    auto start = std::chrono::system_clock::now();
+
+    for (size_t i = 0; i < count; ++i) {
+        positions[i] += velocities[i];
+    }
+
+    auto end = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << elapsed.count() << "ms\n";
+
+    for (size_t i = 0; i < 5; ++i) {
+        std::cout << positions[i].x << std::endl;
+    }
+    std::cout << "...\n";
+    for (size_t i = count - 6; i < count; ++i) {
+        std::cout << positions[i].x << std::endl;
+    }
+
+    /*std::cout << "Hello World!" << std::endl;
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
     socket.Open();
@@ -54,5 +82,5 @@ int main() {
     };
 
     socket.Close();
-    Deep::ShutdownSockets();
+    Deep::ShutdownSockets();*/
 }
