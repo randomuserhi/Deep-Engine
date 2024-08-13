@@ -210,10 +210,10 @@ namespace Deep {
         #else
         // NOTE(randomuserhi): 0.0f - x to stay consistent with vectorised version
         return SSE_m128i{
-            0.0f - a.x,
-            0.0f - a.y,
-            0.0f - a.z,
-            0.0f - a.w
+            0 - a.x,
+            0 - a.y,
+            0 - a.z,
+            0 - a.w
         };
         #endif
     }

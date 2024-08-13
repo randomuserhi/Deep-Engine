@@ -83,14 +83,7 @@ namespace Deep {
 
     Quat& Quat::Conjugate() {
         // https://stackoverflow.com/questions/56992811/is-there-a-way-to-flip-the-sign-bit-of-32-bit-float-with-xor
-        #if defined(DEEP_USE_SSE)
-        sse_m128 = _mm_xor_ps(sse_m128, _mm_castsi128_ps(_mm_set_epi32(0x80000000, 0x80000000, 0x80000000, 0)));
-        #else
-        x ^= 0x80000000;
-        y ^= 0x80000000;
-        z ^= 0x80000000;
-        w ^= 0;
-        #endif
+        sse_m128 = SSE_m128::Xor(sse_m128, SSE_m128i{ (int32)0x80000000, (int32)0x80000000, (int32)0x80000000, 0 }.ReinterpretAsFloat());
         return *this;
     }
     Quat Quat::conjugated() const {

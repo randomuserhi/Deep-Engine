@@ -23,10 +23,10 @@ namespace Deep {
         return _mm_cvttps_epi32(_internal);
         #else
         return SSE_m128i{
-            static_cast<float32>(x),
-            static_cast<float32>(y),
-            static_cast<float32>(z),
-            static_cast<float32>(w)
+            static_cast<int32>(x),
+            static_cast<int32>(y),
+            static_cast<int32>(z),
+            static_cast<int32>(w)
         };
         #endif
     }
@@ -349,4 +349,4 @@ namespace Deep {
         sin = SSE_m128::Xor(s, sinSign.ReinterpretAsFloat());
         cos = SSE_m128::Xor(c, cos_sign.ReinterpretAsFloat());
     }
-        }
+}

@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "Deep.h"
 #include "Deep/Net.h"
 #include "Deep/Math.h"

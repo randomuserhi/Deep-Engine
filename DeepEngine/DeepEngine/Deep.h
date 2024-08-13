@@ -91,7 +91,7 @@
 * Vectorised Instructions
 */
 
-#if !defined(DEEP_DONT_VECTORISE)
+#if !defined(DEEP_DONT_USE_SIMD_INTRINSICS)
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 
