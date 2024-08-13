@@ -27,8 +27,6 @@ namespace Deep {
         Deep_Inline Mat4& Inverse();
         Deep_Inline [[nodiscard]] Mat4 inversed() const;
 
-        Deep_Inline Mat4& operator*= (const Mat4& other);
-
         friend Deep_Inline Mat4 operator* (const Mat4& a, const Mat4& b);
 
         static Deep_Inline [[nodiscard]] Mat4 FromQuaternion(const Quaternion& quaternion);

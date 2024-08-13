@@ -381,54 +381,6 @@ namespace Deep {
         #endif
     }
 
-    Mat4& Mat4::operator*= (const Mat4& other) {
-        Mat4 temp = *this;
-
-        #ifdef DEEP_USE_SSE
-        cols[0] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(0, 0, 0, 0)));
-        cols[0] = _mm_add_ps(cols[0], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(1, 1, 1, 1))));
-        cols[0] = _mm_add_ps(cols[0], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(2, 2, 2, 2))));
-        cols[0] = _mm_add_ps(cols[0], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(3, 3, 3, 3))));
-
-        cols[1] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(0, 0, 0, 0)));
-        cols[1] = _mm_add_ps(cols[1], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(1, 1, 1, 1))));
-        cols[1] = _mm_add_ps(cols[1], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(2, 2, 2, 2))));
-        cols[1] = _mm_add_ps(cols[1], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(3, 3, 3, 3))));
-
-        cols[2] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(0, 0, 0, 0)));
-        cols[2] = _mm_add_ps(cols[2], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(1, 1, 1, 1))));
-        cols[2] = _mm_add_ps(cols[2], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(2, 2, 2, 2))));
-        cols[2] = _mm_add_ps(cols[2], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(3, 3, 3, 3))));
-
-        cols[3] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(0, 0, 0, 0)));
-        cols[3] = _mm_add_ps(cols[3], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(1, 1, 1, 1))));
-        cols[3] = _mm_add_ps(cols[3], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(2, 2, 2, 2))));
-        cols[3] = _mm_add_ps(cols[3], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(3, 3, 3, 3))));
-        #else
-        m00 = temp.m00 * other.m00 + temp.m01 * other.m10 + temp.m02 * other.m20 + temp.m03 * other.m30;
-        m10 = temp.m10 * other.m00 + temp.m11 * other.m10 + temp.m12 * other.m20 + temp.m13 * other.m30;
-        m20 = temp.m20 * other.m00 + temp.m21 * other.m10 + temp.m22 * other.m20 + temp.m23 * other.m30;
-        m30 = temp.m30 * other.m00 + temp.m31 * other.m10 + temp.m32 * other.m20 + temp.m33 * other.m30;
-
-        m01 = temp.m00 * other.m01 + temp.m01 * other.m11 + temp.m02 * other.m21 + temp.m03 * other.m31;
-        m11 = temp.m10 * other.m01 + temp.m11 * other.m11 + temp.m12 * other.m21 + temp.m13 * other.m31;
-        m21 = temp.m20 * other.m01 + temp.m21 * other.m11 + temp.m22 * other.m21 + temp.m23 * other.m31;
-        m31 = temp.m30 * other.m01 + temp.m31 * other.m11 + temp.m32 * other.m21 + temp.m33 * other.m31;
-
-        m02 = temp.m00 * other.m02 + temp.m01 * other.m12 + temp.m02 * other.m22 + temp.m03 * other.m32;
-        m12 = temp.m10 * other.m02 + temp.m11 * other.m12 + temp.m12 * other.m22 + temp.m13 * other.m32;
-        m22 = temp.m20 * other.m02 + temp.m21 * other.m12 + temp.m22 * other.m22 + temp.m23 * other.m32;
-        m32 = temp.m30 * other.m02 + temp.m31 * other.m12 + temp.m32 * other.m22 + temp.m33 * other.m32;
-
-        m03 = temp.m00 * other.m03 + temp.m01 * other.m13 + temp.m02 * other.m23 + temp.m03 * other.m33;
-        m13 = temp.m10 * other.m03 + temp.m11 * other.m13 + temp.m12 * other.m23 + temp.m13 * other.m33;
-        m23 = temp.m20 * other.m03 + temp.m21 * other.m13 + temp.m22 * other.m23 + temp.m23 * other.m33;
-        m33 = temp.m30 * other.m03 + temp.m31 * other.m13 + temp.m32 * other.m23 + temp.m33 * other.m33;
-        #endif
-
-        return *this;
-    }
-
     Mat4 operator* (const Mat4& a, const Mat4& b) {
         Mat4 c;
 
