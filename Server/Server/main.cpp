@@ -2,13 +2,11 @@
 #include "Deep.h"
 #include "Deep/Net.h"
 #include "Deep/Math.h"
+#include "Deep/Threading.h"
 
 // https://stackoverflow.com/a/62047818/9642458
 #include <chrono>
 #include <thread>
-
-// TODO(randomuserhi): Documentation, I need to stay on top of documentation
-//                     in code docs along side doc website
 
 int main() {
     std::cout << "Hello World!" << std::endl;
