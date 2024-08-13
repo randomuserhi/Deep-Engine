@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Math.h"
-
 namespace Deep {
     #ifdef DEEP_USE_SSE4_1
     Vec3::Vec3(float32 x, float32 y, float32 z) : sse_m128(x, y, z, z) {
@@ -73,7 +71,7 @@ namespace Deep {
         z += other.z;
         #endif
         return *this;
-}
+    }
 
     Vec3 operator+ (Vec3Arg a, Vec3Arg b) {
         #ifdef DEEP_USE_SSE4_1

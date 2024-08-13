@@ -151,5 +151,17 @@
     <None Include="Deep\Math\SSE_m128.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="Deep\Net\PacketReader.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Net\PacketWriter.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Sock\IPv4.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Sock.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

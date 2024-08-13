@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Math.h"
-
 namespace Deep {
     Mat4::Mat4(SSE_m128 col0, SSE_m128 col1, SSE_m128 col2, SSE_m128 col3) : cols{ col0, col1, col2, col3 } {
     }
@@ -319,4 +317,4 @@ namespace Deep {
         #endif
         return _v;
     }
-}
+    }

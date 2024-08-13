@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Math.h"
-
 namespace Deep {
     SSE_m128i::SSE_m128i(int32 x, int32 y, int32 z, int32 w) {
         #ifdef DEEP_USE_SSE4_1

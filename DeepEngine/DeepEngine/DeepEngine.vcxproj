@@ -75,6 +75,10 @@
   <ItemGroup>
     <None Include="Deep\Math\SSE_m128.inl" />
     <None Include="Deep\Math\SSE_m128i.inl" />
+    <None Include="Deep\Net\PacketReader.inl" />
+    <None Include="Deep\Net\PacketWriter.inl" />
+    <None Include="Deep\Sock.inl" />
+    <None Include="Deep\Sock\IPv4.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

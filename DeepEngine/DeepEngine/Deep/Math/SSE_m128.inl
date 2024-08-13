@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Math.h"
-
 namespace Deep {
     SSE_m128::SSE_m128(float32 x, float32 y, float32 z, float32 w) {
         #ifdef DEEP_USE_SSE4_1
@@ -351,4 +349,4 @@ namespace Deep {
         sin = SSE_m128::Xor(s, sinSign.ReinterpretAsFloat());
         cos = SSE_m128::Xor(c, cos_sign.ReinterpretAsFloat());
     }
-}
+        }

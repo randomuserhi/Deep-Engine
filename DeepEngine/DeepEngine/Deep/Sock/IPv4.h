@@ -16,7 +16,7 @@ namespace Deep {
             a(a), b(b), c(c), d(d), port(port) {
         }
 
-        friend bool operator==(const IPv4& sockA, const IPv4& sockB);
+        Deep_Inline friend bool operator==(const IPv4 lhs, const IPv4 rhs);
 
     public:
         static const IPv4 any;
@@ -27,11 +27,6 @@ namespace Deep {
         uint8 d;
         uint16 port;
     };
-    Deep_Inline bool operator==(const IPv4& lhs, const IPv4& rhs) {
-        return lhs.a == rhs.a &&
-            lhs.b == rhs.b &&
-            lhs.c == rhs.c &&
-            lhs.d == rhs.d &&
-            lhs.port == rhs.port;
-    }
 }
+
+#include "./IPv4.inl"

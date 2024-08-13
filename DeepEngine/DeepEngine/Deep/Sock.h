@@ -53,13 +53,9 @@ namespace Deep {
         int32 Bind(uint16 port = 0);
         int32 Connect(const IPv4 address);
         int32 Send(const uint8* data, size_t dataSize);
-        Deep_Inline int32 Send(const PacketWriter& packet) {
-            return Send(packet.data(), packet.size());
-        }
+        Deep_Inline int32 Send(const PacketWriter& packet);
         int32 SendTo(const uint8* data, size_t dataSize, const IPv4 address);
-        Deep_Inline int32 SendTo(const PacketWriter& packet) {
-            return Send(packet.data(), packet.size());
-        }
+        Deep_Inline int32 SendTo(const PacketWriter& packet);
         int32 Receive(uint8* buffer, const size_t maxBufferSize, size_t& bytesReceived, IPv4& fromAddress);
 
     private:
@@ -75,3 +71,5 @@ namespace Deep {
         __impl__::TCPSocket __impl__;
     };
 }
+
+#include "./Sock.inl"

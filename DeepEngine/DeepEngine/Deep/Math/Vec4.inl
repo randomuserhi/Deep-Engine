@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Math.h"
-
 namespace Deep {
     #ifdef DEEP_USE_SSE4_1
     Vec4::Vec4(float32 x, float32 y, float32 z, float32 w) : sse_m128(x, y, z, w) {
@@ -143,4 +141,4 @@ namespace Deep {
         result.sse_m128 = a / v.sse_m128;
         return result;
     }
-}
+    }
