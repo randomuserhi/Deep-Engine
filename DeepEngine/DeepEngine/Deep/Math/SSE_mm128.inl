@@ -66,11 +66,22 @@ namespace Deep {
         return SSE_mm128i::Xor(a.ReinterpretAsInt(), b.ReinterpretAsInt()).ReinterpretAsFloat();
         #endif
     }
+    SSE_mm128i SSE_mm128::Equals(SSE_mm128 a, SSE_mm128 b) {
+        #ifdef DEEP_USE_SSE
+        return _mm_castps_si128(_mm_cmpeq_ps(a, b));
+        #else
+        return SSE_mm128i{
+            a.x == b.x ? (int32)0xffffffff : 0,
+            a.y == b.y ? (int32)0xffffffff : 0,
+            a.z == b.z ? (int32)0xffffffff : 0,
+            a.w == b.w ? (int32)0xffffffff : 0
+        };
+        #endif
+    }
 
     bool operator!=(const SSE_mm128& a, const SSE_mm128& b) {
         #ifdef DEEP_USE_SSE4_1
-        __m128i vec4i = _mm_castps_si128(_mm_cmpeq_ps(a._internal, b._internal));
-        return _mm_movemask_ps(_mm_castsi128_ps(vec4i)) != 0b1111;
+        return SSE_mm128::Equals(a, b).ToBooleanBitMask() != 0b1111;
         #else
         return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
         #endif

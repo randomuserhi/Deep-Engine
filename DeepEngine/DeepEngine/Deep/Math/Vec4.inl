@@ -24,7 +24,7 @@ namespace Deep {
         #endif
     }
     Vec4 Vec4::normalized() const {
-        Vec4 v{ x, y, z, w };
+        Vec4 v = *this;
         return v.Normalize();
     }
     bool Vec4::IsNormalized(float tolerance) const {

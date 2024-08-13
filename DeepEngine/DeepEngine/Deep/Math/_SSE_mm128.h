@@ -27,6 +27,7 @@ namespace Deep {
         static Deep_Inline SSE_mm128 Replicate(float32 value);
         static Deep_Inline SSE_mm128 And(SSE_mm128 a, SSE_mm128 b);
         static Deep_Inline SSE_mm128 Xor(SSE_mm128 a, SSE_mm128 b);
+        static Deep_Inline SSE_mm128i Equals(SSE_mm128 a, SSE_mm128 b);
 
         static Deep_Inline SSE_mm128 Select(SSE_mm128 a, SSE_mm128 b, SSE_mm128i control);
 

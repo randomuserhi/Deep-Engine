@@ -69,7 +69,7 @@ namespace Deep {
         return *this;
     }
     Quaternion Quaternion::normalized() const {
-        Quaternion q{ x, y, z, w };
+        Quaternion q = *this;
         return q.Normalize();
     }
     bool Quaternion::IsNormalized(float tolerance) const {
@@ -92,9 +92,9 @@ namespace Deep {
         w ^= 0;
         #endif
         return *this;
-}
+    }
     Quaternion Quaternion::conjugated() const {
-        Quaternion q{ x, y, z, w };
+        Quaternion q = *this;
         return q.Conjugate();
     }
 
@@ -102,7 +102,7 @@ namespace Deep {
         return Conjugate() /= vec.magnitude();
     }
     Quaternion Quaternion::inversed() const {
-        Quaternion q{ x, y, z, w };
+        Quaternion q = *this;
         return q.Inverse();
     }
 

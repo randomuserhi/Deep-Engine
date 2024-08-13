@@ -21,42 +21,7 @@ namespace Deep {
     }
 
     Mat4& Mat4::Transpose() {
-        #ifdef DEEP_USE_SSE
-        __m128 tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(1, 0, 1, 0));
-        __m128 tmp3 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(3, 2, 3, 2));
-        __m128 tmp2 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(1, 0, 1, 0));
-        __m128 tmp4 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(3, 2, 3, 2));
-
-        cols[0] = _mm_shuffle_ps(tmp1, tmp2, _MM_SHUFFLE(2, 0, 2, 0));
-        cols[1] = _mm_shuffle_ps(tmp1, tmp2, _MM_SHUFFLE(3, 1, 3, 1));
-        cols[2] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(2, 0, 2, 0));
-        cols[3] = _mm_shuffle_ps(tmp3, tmp4, _MM_SHUFFLE(3, 1, 3, 1));
-        #else
-        float32 temp = m10;
-        m10 = m01;
-        m01 = temp;
-
-        temp = m20;
-        m20 = m02;
-        m02 = temp;
-
-        temp = m21;
-        m21 = m12;
-        m12 = temp;
-
-        temp = m30;
-        m30 = m03;
-        m03 = temp;
-
-        temp = m31;
-        m31 = m13;
-        m13 = temp;
-
-        temp = m32;
-        m32 = m23;
-        m23 = temp;
-        #endif
-
+        *this = transposed();
         return *this;
     }
     Mat4 Mat4::transposed() const {
@@ -140,122 +105,7 @@ namespace Deep {
     }
 
     Mat4& Mat4::Inverse() {
-        #ifdef DEEP_USE_SSE
-        // Algorithm from: http://download.intel.com/design/PentiumIII/sml/24504301.pdf
-        // Streaming SIMD Extensions - Inverse of 4x4 Matrix
-        // Adapted to load data using _mm_shuffle_ps instead of loading from memory
-        // Replaced _mm_rcp_ps with _mm_div_ps for better accuracy
-        __m128 tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(1, 0, 1, 0));
-        __m128 row1 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(1, 0, 1, 0));
-        __m128 row0 = _mm_shuffle_ps(tmp1, row1, _MM_SHUFFLE(2, 0, 2, 0));
-        row1 = _mm_shuffle_ps(row1, tmp1, _MM_SHUFFLE(3, 1, 3, 1));
-        tmp1 = _mm_shuffle_ps(cols[0], cols[1], _MM_SHUFFLE(3, 2, 3, 2));
-        __m128 row3 = _mm_shuffle_ps(cols[2], cols[3], _MM_SHUFFLE(3, 2, 3, 2));
-        __m128 row2 = _mm_shuffle_ps(tmp1, row3, _MM_SHUFFLE(2, 0, 2, 0));
-        row3 = _mm_shuffle_ps(row3, tmp1, _MM_SHUFFLE(3, 1, 3, 1));
-
-        tmp1 = _mm_mul_ps(row2, row3);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
-        __m128 minor0 = _mm_mul_ps(row1, tmp1);
-        __m128 minor1 = _mm_mul_ps(row0, tmp1);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
-        minor0 = _mm_sub_ps(_mm_mul_ps(row1, tmp1), minor0);
-        minor1 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor1);
-        minor1 = _mm_shuffle_ps(minor1, minor1, _MM_SHUFFLE(1, 0, 3, 2));
-
-        tmp1 = _mm_mul_ps(row1, row2);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
-        minor0 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor0);
-        __m128 minor3 = _mm_mul_ps(row0, tmp1);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
-        minor0 = _mm_sub_ps(minor0, _mm_mul_ps(row3, tmp1));
-        minor3 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor3);
-        minor3 = _mm_shuffle_ps(minor3, minor3, _MM_SHUFFLE(1, 0, 3, 2));
-
-        tmp1 = _mm_mul_ps(_mm_shuffle_ps(row1, row1, _MM_SHUFFLE(1, 0, 3, 2)), row3);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
-        row2 = _mm_shuffle_ps(row2, row2, _MM_SHUFFLE(1, 0, 3, 2));
-        minor0 = _mm_add_ps(_mm_mul_ps(row2, tmp1), minor0);
-        __m128 minor2 = _mm_mul_ps(row0, tmp1);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
-        minor0 = _mm_sub_ps(minor0, _mm_mul_ps(row2, tmp1));
-        minor2 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), minor2);
-        minor2 = _mm_shuffle_ps(minor2, minor2, _MM_SHUFFLE(1, 0, 3, 2));
-
-        tmp1 = _mm_mul_ps(row0, row1);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
-        minor2 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor2);
-        minor3 = _mm_sub_ps(_mm_mul_ps(row2, tmp1), minor3);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
-        minor2 = _mm_sub_ps(_mm_mul_ps(row3, tmp1), minor2);
-        minor3 = _mm_sub_ps(minor3, _mm_mul_ps(row2, tmp1));
-
-        tmp1 = _mm_mul_ps(row0, row3);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
-        minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row2, tmp1));
-        minor2 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor2);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
-        minor1 = _mm_add_ps(_mm_mul_ps(row2, tmp1), minor1);
-        minor2 = _mm_sub_ps(minor2, _mm_mul_ps(row1, tmp1));
-
-        tmp1 = _mm_mul_ps(row0, row2);
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(2, 3, 0, 1));
-        minor1 = _mm_add_ps(_mm_mul_ps(row3, tmp1), minor1);
-        minor3 = _mm_sub_ps(minor3, _mm_mul_ps(row1, tmp1));
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(1, 0, 3, 2));
-        minor1 = _mm_sub_ps(minor1, _mm_mul_ps(row3, tmp1));
-        minor3 = _mm_add_ps(_mm_mul_ps(row1, tmp1), minor3);
-
-        __m128 det = _mm_mul_ps(row0, minor0);
-        // NOTE(randomuserhi): Original code did (x + z) + (y + w), changed to (x + y) + (z + w) to match the non vectorised code
-        det = _mm_add_ps(_mm_shuffle_ps(det, det, _MM_SHUFFLE(2, 3, 0, 1)), det);
-        det = _mm_add_ss(_mm_shuffle_ps(det, det, _MM_SHUFFLE(1, 0, 3, 2)), det);
-        det = _mm_div_ss(_mm_set_ss(1.0f), det);
-        det = _mm_shuffle_ps(det, det, _MM_SHUFFLE(0, 0, 0, 0));
-
-        cols[0] = _mm_mul_ps(det, minor0);
-        cols[1] = _mm_mul_ps(det, minor1);
-        cols[2] = _mm_mul_ps(det, minor2);
-        cols[3] = _mm_mul_ps(det, minor3);
-        #else
-        // NOTE(randomuserhi): Translated column-row to row-column notation for ease of reading
-        float32 m00 = this->m00, m10 = this->m01, m20 = this->m02, m30 = this->m03;
-        float32 m01 = this->m10, m11 = this->m11, m21 = this->m12, m31 = this->m13;
-        float32 m02 = this->m20, m12 = this->m21, m22 = this->m22, m32 = this->m23;
-        float32 m03 = this->m30, m13 = this->m31, m23 = this->m32, m33 = this->m33;
-
-        float32 m10211120 = m10 * m21 - m11 * m20;
-        float32 m10221220 = m10 * m22 - m12 * m20;
-        float32 m10231320 = m10 * m23 - m13 * m20;
-        float32 m10311130 = m10 * m31 - m11 * m30;
-        float32 m10321230 = m10 * m32 - m12 * m30;
-        float32 m10331330 = m10 * m33 - m13 * m30;
-        float32 m11221221 = m11 * m22 - m12 * m21;
-        float32 m11231321 = m11 * m23 - m13 * m21;
-        float32 m11321231 = m11 * m32 - m12 * m31;
-        float32 m11331331 = m11 * m33 - m13 * m31;
-        float32 m12231322 = m12 * m23 - m13 * m22;
-        float32 m12331332 = m12 * m33 - m13 * m32;
-        float32 m20312130 = m20 * m31 - m21 * m30;
-        float32 m20322230 = m20 * m32 - m22 * m30;
-        float32 m20332330 = m20 * m33 - m23 * m30;
-        float32 m21322231 = m21 * m32 - m22 * m31;
-        float32 m21332331 = m21 * m33 - m23 * m31;
-        float32 m22332332 = m22 * m33 - m23 * m32;
-
-        cols[0] = { m11 * m22332332 - m12 * m21332331 + m13 * m21322231, -m10 * m22332332 + m12 * m20332330 - m13 * m20322230, m10 * m21332331 - m11 * m20332330 + m13 * m20312130, -m10 * m21322231 + m11 * m20322230 - m12 * m20312130 };
-        cols[1] = { -m01 * m22332332 + m02 * m21332331 - m03 * m21322231, m00 * m22332332 - m02 * m20332330 + m03 * m20322230, -m00 * m21332331 + m01 * m20332330 - m03 * m20312130, m00 * m21322231 - m01 * m20322230 + m02 * m20312130 };
-        cols[2] = { m01 * m12331332 - m02 * m11331331 + m03 * m11321231, -m00 * m12331332 + m02 * m10331330 - m03 * m10321230, m00 * m11331331 - m01 * m10331330 + m03 * m10311130, -m00 * m11321231 + m01 * m10321230 - m02 * m10311130 };
-        cols[3] = { -m01 * m12231322 + m02 * m11231321 - m03 * m11221221, m00 * m12231322 - m02 * m10231320 + m03 * m10221220, -m00 * m11231321 + m01 * m10231320 - m03 * m10211120, m00 * m11221221 - m01 * m10221220 + m02 * m10211120 };
-
-        float det = m00 * cols[0].x + m01 * cols[0].y + m02 * cols[0].z + m03 * cols[0].w;
-
-        cols[0] /= det;
-        cols[1] /= det;
-        cols[2] /= det;
-        cols[3] /= det;
-        #endif
-
+        *this = inversed();
         return *this;
     }
 
@@ -379,6 +229,16 @@ namespace Deep {
         result.cols[2] /= det;
         result.cols[3] /= det;
         #endif
+    }
+
+    bool operator!=(const Mat4& a, const Mat4& b) {
+        return SSE_mm128i::And(
+            SSE_mm128i::And(SSE_mm128::Equals(a.cols[0], b.cols[0]), SSE_mm128::Equals(a.cols[1], b.cols[1])),
+            SSE_mm128i::And(SSE_mm128::Equals(a.cols[2], b.cols[2]), SSE_mm128::Equals(a.cols[3], b.cols[3]))
+        ).ToBooleanBitMask() != 0b1111;
+    }
+    bool operator==(const Mat4& a, const Mat4& b) {
+        return !(a != b);
     }
 
     Mat4 operator* (const Mat4& a, const Mat4& b) {

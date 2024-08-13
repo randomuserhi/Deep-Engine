@@ -13,16 +13,6 @@ namespace Deep {
         this->w = w;
         #endif
     }
-    /*SSE_mm128i::SSE_mm128i(uint32 x, uint32 y, uint32 z, uint32 w) {
-        #ifdef DEEP_USE_SSE4_1
-        _internal = _mm_set_epi32((int32)w, (int32)z, (int32)y, (int32)x);
-        #else
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        this->w = w;
-        #endif
-    }*/
     SSE_mm128i::SSE_mm128i(Type _internal) : _internal(_internal) {
     }
 
@@ -63,6 +53,14 @@ namespace Deep {
         #endif
     }
 
+    int32 SSE_mm128i::ToBooleanBitMask() const {
+        #ifdef DEEP_USE_SSE
+        return _mm_movemask_ps(_mm_castsi128_ps(_internal));
+        #else
+        return (x >> 31) | ((y >> 31) << 1) | ((z >> 31) << 2) | ((w >> 31) << 3);
+        #endif
+    }
+
     SSE_mm128i SSE_mm128i::Xor(SSE_mm128i a, SSE_mm128i b) {
         #ifdef DEEP_USE_SSE
         return _mm_xor_si128(a, b);
@@ -85,6 +83,19 @@ namespace Deep {
             a.y & b.y,
             a.z & b.z,
             a.w & b.w
+        };
+        #endif
+    }
+
+    SSE_mm128i SSE_mm128i::Equals(SSE_mm128i a, SSE_mm128i b) {
+        #ifdef DEEP_USE_SSE
+        return _mm_cmpeq_epi32(a, b);
+        #else
+        return SSE_mm128i{
+            a.x == b.x ? (int32)0xffffffff : 0,
+            a.y == b.y ? (int32)0xffffffff : 0,
+            a.z == b.z ? (int32)0xffffffff : 0,
+            a.w == b.w ? (int32)0xffffffff : 0
         };
         #endif
     }

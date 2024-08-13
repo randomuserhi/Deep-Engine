@@ -23,7 +23,7 @@ namespace Deep {
         #endif
     }
     Vec3 Vec3::normalized() const {
-        Vec3 v{ x, y, z };
+        Vec3 v = *this;
         return v.Normalize();
     }
     bool Vec3::IsNormalized(float tolerance) const {
@@ -47,8 +47,7 @@ namespace Deep {
 
     bool operator!=(const Vec3& a, const Vec3& b) {
         #ifdef DEEP_USE_SSE4_1
-        __m128i vec4i = _mm_castps_si128(_mm_cmpeq_ps(a.sse_mm128, b.sse_mm128));
-        return (_mm_movemask_ps(_mm_castsi128_ps(vec4i)) & 0b111) != 0b111;
+        return (SSE_mm128::Equals(a.sse_mm128, b.sse_mm128).ToBooleanBitMask() & 0b111) != 0b111;
         #else
         return a.x != b.x || a.y != b.y || a.z != b.z;
         #endif

@@ -25,9 +25,13 @@ namespace Deep {
         Deep_Inline SSE_mm128 ToFloat() const;
         Deep_Inline SSE_mm128 ReinterpretAsFloat() const;
 
+        // NOTE(randomuserhi): True is when most significant bit of component is set
+        Deep_Inline int32 ToBooleanBitMask() const;
+
         static Deep_Inline SSE_mm128i Replicate(int value);
         static Deep_Inline SSE_mm128i Xor(SSE_mm128i a, SSE_mm128i b);
         static Deep_Inline SSE_mm128i And(SSE_mm128i a, SSE_mm128i b);
+        static Deep_Inline SSE_mm128i Equals(SSE_mm128i a, SSE_mm128i b);
 
         template <const uint Count>
         Deep_Inline SSE_mm128i LogicalShiftLeft() const;
