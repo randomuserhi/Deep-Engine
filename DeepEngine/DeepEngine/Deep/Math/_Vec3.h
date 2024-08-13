@@ -6,6 +6,8 @@
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Vec3 {
         Vec3() = default;
+        Vec3(const Vec3& other) = default;
+        Vec3& operator= (const Vec3& other) = default;
         Deep_Inline Vec3(float32 x, float32 y, float32 z);
 
         Deep_Inline Vec3& Normalize();

@@ -6,6 +6,8 @@
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Mat4 {
         Mat4() = default;
+        Mat4(const Mat4& other) = default;
+        Mat4& operator= (const Mat4& other) = default;
         Deep_Inline Mat4(
             SSE_mm128 col0, SSE_mm128 col1, SSE_mm128 col2, SSE_mm128 col3
         );

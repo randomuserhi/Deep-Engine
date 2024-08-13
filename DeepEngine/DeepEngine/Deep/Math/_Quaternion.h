@@ -10,6 +10,8 @@
 namespace Deep {
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Quaternion {
         Quaternion() = default;
+        Quaternion(const Quaternion& other) = default;
+        Quaternion& operator= (const Quaternion& other) = default;
         Deep_Inline Quaternion(Vec4 vec);
         Deep_Inline Quaternion(float32 x, float32 y, float32 z, float32 w);
         Deep_Inline Quaternion(Vec3 axis, float32 angle);

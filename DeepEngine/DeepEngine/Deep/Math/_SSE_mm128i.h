@@ -14,6 +14,8 @@ namespace Deep {
         #endif
 
         SSE_mm128i() = default;
+        SSE_mm128i(const SSE_mm128i& other) = default;
+        SSE_mm128i& operator= (const SSE_mm128i& other) = default;
         Deep_Inline SSE_mm128i(int32 x, int32 y, int32 z, int32 w);
         //Deep_Inline SSE_mm128i(uint32 x, uint32 y, uint32 z, uint32 w); // NOTE(randomuserhi): Provided for simplicity when passing raw values -> all values still get truncated to int32
         Deep_Inline SSE_mm128i(Type _internal);

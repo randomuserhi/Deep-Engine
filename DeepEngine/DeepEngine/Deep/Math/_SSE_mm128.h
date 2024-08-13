@@ -14,6 +14,8 @@ namespace Deep {
         #endif
 
         SSE_mm128() = default;
+        SSE_mm128(const SSE_mm128& other) = default;
+        SSE_mm128& operator= (const SSE_mm128& other) = default;
         Deep_Inline SSE_mm128(float32 x, float32 y, float32 z, float32 w);
         Deep_Inline SSE_mm128(Type _internal);
 

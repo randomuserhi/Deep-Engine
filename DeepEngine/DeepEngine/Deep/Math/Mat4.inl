@@ -384,6 +384,27 @@ namespace Deep {
     Mat4& Mat4::operator*= (const Mat4& other) {
         Mat4 temp = *this;
 
+        #ifdef DEEP_USE_SSE
+        cols[0] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(0, 0, 0, 0)));
+        cols[0] = _mm_add_ps(cols[0], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(1, 1, 1, 1))));
+        cols[0] = _mm_add_ps(cols[0], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(2, 2, 2, 2))));
+        cols[0] = _mm_add_ps(cols[0], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[0], other.cols[0], _MM_SHUFFLE(3, 3, 3, 3))));
+
+        cols[1] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(0, 0, 0, 0)));
+        cols[1] = _mm_add_ps(cols[1], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(1, 1, 1, 1))));
+        cols[1] = _mm_add_ps(cols[1], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(2, 2, 2, 2))));
+        cols[1] = _mm_add_ps(cols[1], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[1], other.cols[1], _MM_SHUFFLE(3, 3, 3, 3))));
+
+        cols[2] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(0, 0, 0, 0)));
+        cols[2] = _mm_add_ps(cols[2], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(1, 1, 1, 1))));
+        cols[2] = _mm_add_ps(cols[2], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(2, 2, 2, 2))));
+        cols[2] = _mm_add_ps(cols[2], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[2], other.cols[2], _MM_SHUFFLE(3, 3, 3, 3))));
+
+        cols[3] = _mm_mul_ps(temp.cols[0], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(0, 0, 0, 0)));
+        cols[3] = _mm_add_ps(cols[3], _mm_mul_ps(temp.cols[1], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(1, 1, 1, 1))));
+        cols[3] = _mm_add_ps(cols[3], _mm_mul_ps(temp.cols[2], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(2, 2, 2, 2))));
+        cols[3] = _mm_add_ps(cols[3], _mm_mul_ps(temp.cols[3], _mm_shuffle_ps(other.cols[3], other.cols[3], _MM_SHUFFLE(3, 3, 3, 3))));
+        #else
         m00 = temp.m00 * other.m00 + temp.m01 * other.m10 + temp.m02 * other.m20 + temp.m03 * other.m30;
         m10 = temp.m10 * other.m00 + temp.m11 * other.m10 + temp.m12 * other.m20 + temp.m13 * other.m30;
         m20 = temp.m20 * other.m00 + temp.m21 * other.m10 + temp.m22 * other.m20 + temp.m23 * other.m30;
@@ -403,10 +424,33 @@ namespace Deep {
         m13 = temp.m10 * other.m03 + temp.m11 * other.m13 + temp.m12 * other.m23 + temp.m13 * other.m33;
         m23 = temp.m20 * other.m03 + temp.m21 * other.m13 + temp.m22 * other.m23 + temp.m23 * other.m33;
         m33 = temp.m30 * other.m03 + temp.m31 * other.m13 + temp.m32 * other.m23 + temp.m33 * other.m33;
+        #endif
     }
 
     Mat4 operator* (const Mat4& a, const Mat4& b) {
         Mat4 c;
+
+        #ifdef DEEP_USE_SSE
+        c.cols[0] = _mm_mul_ps(a.cols[0], _mm_shuffle_ps(b.cols[0], b.cols[0], _MM_SHUFFLE(0, 0, 0, 0)));
+        c.cols[0] = _mm_add_ps(c.cols[0], _mm_mul_ps(a.cols[1], _mm_shuffle_ps(b.cols[0], b.cols[0], _MM_SHUFFLE(1, 1, 1, 1))));
+        c.cols[0] = _mm_add_ps(c.cols[0], _mm_mul_ps(a.cols[2], _mm_shuffle_ps(b.cols[0], b.cols[0], _MM_SHUFFLE(2, 2, 2, 2))));
+        c.cols[0] = _mm_add_ps(c.cols[0], _mm_mul_ps(a.cols[3], _mm_shuffle_ps(b.cols[0], b.cols[0], _MM_SHUFFLE(3, 3, 3, 3))));
+
+        c.cols[1] = _mm_mul_ps(a.cols[0], _mm_shuffle_ps(b.cols[1], b.cols[1], _MM_SHUFFLE(0, 0, 0, 0)));
+        c.cols[1] = _mm_add_ps(c.cols[1], _mm_mul_ps(a.cols[1], _mm_shuffle_ps(b.cols[1], b.cols[1], _MM_SHUFFLE(1, 1, 1, 1))));
+        c.cols[1] = _mm_add_ps(c.cols[1], _mm_mul_ps(a.cols[2], _mm_shuffle_ps(b.cols[1], b.cols[1], _MM_SHUFFLE(2, 2, 2, 2))));
+        c.cols[1] = _mm_add_ps(c.cols[1], _mm_mul_ps(a.cols[3], _mm_shuffle_ps(b.cols[1], b.cols[1], _MM_SHUFFLE(3, 3, 3, 3))));
+
+        c.cols[2] = _mm_mul_ps(a.cols[0], _mm_shuffle_ps(b.cols[2], b.cols[2], _MM_SHUFFLE(0, 0, 0, 0)));
+        c.cols[2] = _mm_add_ps(c.cols[2], _mm_mul_ps(a.cols[1], _mm_shuffle_ps(b.cols[2], b.cols[2], _MM_SHUFFLE(1, 1, 1, 1))));
+        c.cols[2] = _mm_add_ps(c.cols[2], _mm_mul_ps(a.cols[2], _mm_shuffle_ps(b.cols[2], b.cols[2], _MM_SHUFFLE(2, 2, 2, 2))));
+        c.cols[2] = _mm_add_ps(c.cols[2], _mm_mul_ps(a.cols[3], _mm_shuffle_ps(b.cols[2], b.cols[2], _MM_SHUFFLE(3, 3, 3, 3))));
+
+        c.cols[3] = _mm_mul_ps(a.cols[0], _mm_shuffle_ps(b.cols[3], b.cols[3], _MM_SHUFFLE(0, 0, 0, 0)));
+        c.cols[3] = _mm_add_ps(c.cols[3], _mm_mul_ps(a.cols[1], _mm_shuffle_ps(b.cols[3], b.cols[3], _MM_SHUFFLE(1, 1, 1, 1))));
+        c.cols[3] = _mm_add_ps(c.cols[3], _mm_mul_ps(a.cols[2], _mm_shuffle_ps(b.cols[3], b.cols[3], _MM_SHUFFLE(2, 2, 2, 2))));
+        c.cols[3] = _mm_add_ps(c.cols[3], _mm_mul_ps(a.cols[3], _mm_shuffle_ps(b.cols[3], b.cols[3], _MM_SHUFFLE(3, 3, 3, 3))));
+        #else
         c.m00 = a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20 + a.m03 * b.m30;
         c.m10 = a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20 + a.m13 * b.m30;
         c.m20 = a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20 + a.m23 * b.m30;
@@ -426,7 +470,8 @@ namespace Deep {
         c.m13 = a.m10 * b.m03 + a.m11 * b.m13 + a.m12 * b.m23 + a.m13 * b.m33;
         c.m23 = a.m20 * b.m03 + a.m21 * b.m13 + a.m22 * b.m23 + a.m23 * b.m33;
         c.m33 = a.m30 * b.m03 + a.m31 * b.m13 + a.m32 * b.m23 + a.m33 * b.m33;
+        #endif
 
         return c;
     }
-    }
+}
