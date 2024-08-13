@@ -425,6 +425,8 @@ namespace Deep {
         m23 = temp.m20 * other.m03 + temp.m21 * other.m13 + temp.m22 * other.m23 + temp.m23 * other.m33;
         m33 = temp.m30 * other.m03 + temp.m31 * other.m13 + temp.m32 * other.m23 + temp.m33 * other.m33;
         #endif
+
+        return *this;
     }
 
     Mat4 operator* (const Mat4& a, const Mat4& b) {
