@@ -27,35 +27,45 @@
 #endif
 
 #include <cmath>
-#include <cassert>
 
 #define PI 3.141592653589793f
 
 namespace Deep {
     // NOTE(randomuserhi): https://stackoverflow.com/questions/13721839/if-stdmax-returns-by-reference-as-it-must-might-that-lead-to-a-dangling-r
 
-    Deep_Inline const float32& Min(const float32& a, const float32& b) {
+    template<typename T>
+    Deep_Inline const T& Min(const T& a, const T& b) {
         return (b < a) ? b : a;
     }
 
-    Deep_Inline const float32& Max(const float32& a, const float32& b) {
+    template<typename T>
+    Deep_Inline const T& Max(const T& a, const T& b) {
         return (b > a) ? b : a;
     }
 
-    Deep_Inline const float32& Clamp(const float32& x, const float32& lower, const float32& upper) {
+    template<typename T>
+    Deep_Inline const T& Clamp(const T& x, const T& lower, const T& upper) {
         return Min(upper, Max(x, lower));
     }
 
-    Deep_Inline const float32& Clamp01(const float32& x) {
+    template<typename T>
+    Deep_Inline const T& Clamp01(const T& x) {
         return Clamp(x, 0.0f, 1.0f);
     }
 
-    Deep_Inline const float32 Sqrt(const float32& x) {
+    template<typename T>
+    Deep_Inline const T Sqrt(const T& x) {
         return std::sqrt(x);
     }
 
-    Deep_Inline const float32 Abs(const float32& x) {
+    template<typename T>
+    Deep_Inline const T Abs(const T& x) {
         return std::abs(x);
+    }
+
+    template <typename T>
+    Deep_Inline constexpr T Sign(const T& x) {
+        return x < 0 ? static_cast<T>(-1) : static_cast<T>(1);
     }
 }
 

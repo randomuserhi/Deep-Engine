@@ -102,6 +102,12 @@
     <ClInclude Include="Deep\NonCopyable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\Threading\JobSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Threading\Semaphore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECS.cpp">
@@ -143,6 +149,9 @@
     <ClCompile Include="Deep\Math\Vec4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Deep\Threading\JobSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Deep\Math\SSE_m128i.inl">
@@ -161,6 +170,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Deep\Sock.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Threading\Semaphore.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

@@ -13,7 +13,7 @@ namespace Deep {
     struct PacketWriter {
         PacketWriter() {
         }
-        PacketWriter(size_t size) {
+        explicit PacketWriter(size_t size) {
             buffer.reserve(size);
         }
 

@@ -43,6 +43,8 @@
     <ClInclude Include="Deep\Sock\IPv4.h" />
     <ClInclude Include="Deep\Sock\Sock_Windows.h" />
     <ClInclude Include="Deep\Threading.h" />
+    <ClInclude Include="Deep\Threading\JobSystem.h" />
+    <ClInclude Include="Deep\Threading\Semaphore.h" />
     <ClInclude Include="Deep\Threading\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +72,7 @@
     <ClCompile Include="Deep\Sock\Sock.cpp" />
     <ClCompile Include="Deep\Sock\Sock_Posix.cpp" />
     <ClCompile Include="Deep\Sock\Sock_Windows.cpp" />
+    <ClCompile Include="Deep\Threading\JobSystem.cpp" />
     <ClCompile Include="Deep\Threading\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +82,7 @@
     <None Include="Deep\Net\PacketWriter.inl" />
     <None Include="Deep\Sock.inl" />
     <None Include="Deep\Sock\IPv4.inl" />
+    <None Include="Deep\Threading\Semaphore.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -141,7 +145,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -163,7 +167,7 @@
       </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -183,7 +187,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -205,7 +209,7 @@
       </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

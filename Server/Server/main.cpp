@@ -9,7 +9,7 @@
 #include <thread>
 
 int main() {
-    size_t count = 1000000000;
+    size_t count = 500000000;
 
     Deep::Vec3* positions = new Deep::Vec3[count];
     Deep::Vec3* velocities = new Deep::Vec3[count];

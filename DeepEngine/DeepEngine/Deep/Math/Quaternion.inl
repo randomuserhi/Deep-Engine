@@ -50,7 +50,7 @@ namespace Deep {
                     (m.m20 - m.m02) * is
                 );
             } else {
-                assert(i == 2);
+                Deep_Assert(i == 2);
 
                 float s = sqrt(m.m22 - (m.m00 + m.m11) + 1);
                 float is = 0.5f / s;
@@ -100,7 +100,7 @@ namespace Deep {
     }
 
     Quat::Quat(Vec3 axis, float32 angle) {
-        assert(axis.IsNormalized()); // Must be normalized for the below equation
+        Deep_Assert(axis.IsNormalized()); // Must be normalized for the below equation
 
         // { x,y,z } = axis * sin(0.5f * inAngle)
         //   w       = cos(0.5f * inAngle)

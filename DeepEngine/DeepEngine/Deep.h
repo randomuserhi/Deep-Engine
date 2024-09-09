@@ -87,6 +87,12 @@
 #undef max
 #endif
 
+// Cache line size used to align to cache line
+// Can be defined prior header to set a custom cache line size
+#ifndef DEEP_CACHE_LINE_SIZE
+#define DEEP_CACHE_LINE_SIZE 64
+#endif
+
 /*
 * Vectorised Instructions
 */
@@ -130,3 +136,9 @@
 #endif
 
 #endif
+
+/*
+* Asserts
+*/
+#include <cassert>
+#define Deep_Assert(expression) assert(expression)

@@ -6,7 +6,6 @@
 
 #if defined(DEEP_PLATFORM_WINDOWS)
 
-#include <cassert>
 #include "Sock_Windows.h"
 
 namespace Deep {
@@ -118,7 +117,7 @@ namespace Deep {
         struct sockaddr_in address;
         address.sin_family = AF_INET;
         address.sin_addr.s_addr = INADDR_ANY;
-        assert(port < USHRT_MAX);
+        Deep_Assert(port < USHRT_MAX);
         address.sin_port = htons(port);
 
         if (bind(socketFD, (struct sockaddr*)&address, sizeof address) == SOCKET_ERROR) {
@@ -147,7 +146,7 @@ namespace Deep {
     }
 
     int32 UDPSocket::Send(const uint8* data, size_t dataSize) {
-        assert(dataSize < INT_MAX);
+        Deep_Assert(dataSize < INT_MAX);
 
         const SOCKET& socketFD = __impl__.socketFD;
         const int32 sentBytes = send(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0);
@@ -158,7 +157,7 @@ namespace Deep {
     }
 
     int32 UDPSocket::SendTo(const uint8* data, size_t dataSize, const IPv4 address) {
-        assert(dataSize < INT_MAX);
+        Deep_Assert(dataSize < INT_MAX);
 
         const SOCKET& socketFD = __impl__.socketFD;
 
@@ -171,7 +170,7 @@ namespace Deep {
     }
 
     int32 UDPSocket::Receive(uint8* buffer, const size_t maxBufferSize, size_t& bytesReceived, IPv4& fromAddress) {
-        assert(maxBufferSize < INT_MAX);
+        Deep_Assert(maxBufferSize < INT_MAX);
 
         const SOCKET& socketFD = __impl__.socketFD;
 

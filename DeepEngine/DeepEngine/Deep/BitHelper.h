@@ -33,8 +33,8 @@ namespace Deep {
     //                     int a constexpr
     template <class To, class From>
     Deep_Inline To BitCast(const From& value) {
-        static_assert(std::is_trivially_constructible_v<To>);
-        static_assert(sizeof(From) == sizeof(To));
+        static_assert(std::is_trivially_constructible_v<To>, "Is supposed to be a trivial type!");
+        static_assert(sizeof(From) == sizeof(To), "Invalid bit cast as types are not of same size.");
 
         union FromTo {
             To			mTo;
@@ -58,8 +58,22 @@ namespace Deep {
 
     Deep_Inline bool IsBigEndian() {
         uint x = 1;
-        uint8* c = (uint8*)&x;
-        return (uint8)*c == 0; // 0 if big endian, 1 if little endian
+        uint8* c = reinterpret_cast<uint8*>(&x);
+        return static_cast<uint8>(*c) == 0; // 0 if big endian, 1 if little endian
+    }
+
+    // Check if value is a power of 2
+    template <typename T>
+    constexpr bool IsPowerOf2(const T value) {
+        return (value & (value - 1)) == 0;
+    }
+
+    // Check if the given pointer is aligned to the specified alignment
+    template <typename T>
+    inline bool IsAligned(const T pointer, const uint64 alignment) {
+        static_assert(std::is_pointer<T>::value, "Expected type T to be a pointer.");
+        Deep_Assert(IsPowerOf2(alignment));
+        return (static_cast<uint64>(pointer) & (alignment - 1)) == 0;
     }
 
     Deep_Inline uint32 RotateLeft(const uint32 value, const int32 offset) {

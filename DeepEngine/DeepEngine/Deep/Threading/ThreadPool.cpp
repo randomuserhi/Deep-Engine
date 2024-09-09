@@ -22,7 +22,7 @@ namespace Deep {
 
                 lock.lock();
                 --busy;
-                cvCompleted.notify_one();
+                cvCompleted.notify_all();
             } else if (!running) {
                 break;
             }
