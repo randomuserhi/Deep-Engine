@@ -108,6 +108,12 @@
     <ClInclude Include="Deep\Threading\Semaphore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\Memory\FixedSizeFreeList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECS.cpp">
@@ -173,6 +179,12 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Deep\Threading\Semaphore.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Memory\FixedSizeFreeList.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Memory.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
