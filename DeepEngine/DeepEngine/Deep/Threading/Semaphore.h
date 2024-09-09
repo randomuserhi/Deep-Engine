@@ -29,6 +29,8 @@ namespace Deep {
     };
     #else
     // Local implementation of semaphore as on some systems default implementation is slow
+    //
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/Semaphore.h
     template<ptrdiff_t leastMaxValue>
     class Semaphore {
     public:

@@ -30,7 +30,7 @@ namespace Deep {
     #else
 
     // NOTE(randomuserhi): Can't be constexpr as the active member of union cannot be changed
-    //                     int a constexpr
+    //                     in a constexpr
     template <class To, class From>
     Deep_Inline To BitCast(const From& value) {
         static_assert(std::is_trivially_constructible_v<To>, "Is supposed to be a trivial type!");
@@ -50,12 +50,6 @@ namespace Deep {
 }
 
 namespace Deep {
-    // NOTE(randomuserhi): I technically should pack and unpack floating point types
-    //                     and encode integers to a known binary format as described by beej:
-    //                     https://beej.us/guide/bgnet/examples/ieee754.c
-    //                     https://www.beej.us/guide/bgnet/html/#:~:text=on%20for%20details!-,7.5%20Serialization%E2%80%94How%20to%20Pack%20Data,-It%E2%80%99s%20easy%20enough
-    //                     - However most systems this should be fine (just handling endianness)
-
     Deep_Inline bool IsBigEndian() {
         uint x = 1;
         uint8* c = reinterpret_cast<uint8*>(&x);
@@ -203,4 +197,4 @@ namespace Deep {
     Deep_Inline int64 ntoh(const int64 value) {
         return !IsBigEndian() ? value : ReverseEndianness(value);
     }
-}
+    }
