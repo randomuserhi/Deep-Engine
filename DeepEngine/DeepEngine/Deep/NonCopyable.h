@@ -2,6 +2,8 @@
 
 namespace Deep {
     // Inheriting this class makes the parent non-copyable 
+    //
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/NonCopyable.h
     class NonCopyable {
     public:
         NonCopyable() = default;

@@ -8,14 +8,15 @@
 #include <type_traits>
 
 namespace Deep {
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/tree/master/Jolt/Math
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Quat {
         // Constructors
         Quat() = default;
         Quat(const Quat& other) = default;
         Quat& operator= (const Quat& other) = default;
         Deep_Inline Quat(Vec4 vec);
-        Deep_Inline Quat(float32 x, float32 y, float32 z, float32 w);
-        Deep_Inline Quat(Vec3 axis, float32 angle);
+        explicit Deep_Inline Quat(float32 x, float32 y, float32 z, float32 w);
+        explicit Deep_Inline Quat(Vec3 axis, float32 angle);
 
         Deep_Inline Quat& Normalize();
         Deep_Inline [[nodiscard]] Quat normalized() const;

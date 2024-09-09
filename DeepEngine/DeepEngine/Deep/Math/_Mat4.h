@@ -6,6 +6,8 @@
 namespace Deep {
     // Matrix4x4
     // Notation is column followed by row, so m10 is column 1, row 0.
+    //
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/tree/master/Jolt/Math
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Mat4 {
         // Constructors
         Mat4() = default;

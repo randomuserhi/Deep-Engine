@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./Semaphore.h" // not needed btw
 #include "../Math.h"
 

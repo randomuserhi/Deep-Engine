@@ -2,6 +2,8 @@
 
 #include "../../Deep.h"
 
+// Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/tree/master/Jolt/Math
+
 namespace Deep {
     struct SSE_m128;
     struct SSE_m128i;

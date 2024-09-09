@@ -76,6 +76,29 @@ namespace Deep {
         return (static_cast<uint64>(pointer) & (alignment - 1)) == 0;
     }
 
+    // Compute number of trailing zero bits (how many low bits are zero)
+    inline uint NumTrailingZeros(uint32 inValue) {
+        #if defined(DEEP_CPU_X86)
+        #if defined(DEEP_USE_TZCNT)
+        return _tzcnt_u32(inValue);
+        #elif defined(DEEP_COMPILER_MSVC)
+        if (inValue == 0) {
+            return 32;
+        }
+        unsigned long result;
+        _BitScanForward(&result, inValue);
+        return result;
+        #else
+        if (inValue == 0) {
+            return 32;
+        }
+        return __builtin_ctz(inValue);
+        #endif
+        #else
+        #error Unsupported Architecture
+        #endif
+    }
+
     Deep_Inline uint32 RotateLeft(const uint32 value, const int32 offset) {
         return (value << offset) | (value >> (32 - offset));
     }
@@ -89,8 +112,7 @@ namespace Deep {
     }
 
     Deep_Inline uint32 ReverseEndianness(const uint32 value) {
-        return RotateRight(value & 0x00FF00FFu, 8)
-            + RotateLeft(value & 0xFF00FF00u, 8);
+        return RotateRight(value & 0x00FF00FFu, 8) + RotateLeft(value & 0xFF00FF00u, 8);
     }
 
     Deep_Inline uint64 ReverseEndianness(const uint64 value) {

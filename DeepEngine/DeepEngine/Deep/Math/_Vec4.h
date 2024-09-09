@@ -4,6 +4,7 @@
 #include <type_traits>
 
 namespace Deep {
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/tree/master/Jolt/Math
     struct [[nodiscard]] alignas(DEEP_VEC_ALIGNMENT) Vec4 {
         // Constructors
         Vec4() = default;
