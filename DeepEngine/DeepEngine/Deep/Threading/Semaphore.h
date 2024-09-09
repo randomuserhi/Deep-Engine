@@ -7,9 +7,13 @@
 #include <condition_variable>
 
 namespace Deep {
-    #if __cplusplus >= 202002L
+    // Local implementation of semaphore as on some systems default implementation is slow
+    //
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/Semaphore.h
     template<ptrdiff_t leastMaxValue>
     class Semaphore {
+        #if __cplusplus >= 202002L
+
     public:
         Semaphore() = default;
         ~Semaphore() = default;
@@ -26,13 +30,9 @@ namespace Deep {
         // If the count is negative we know that we are waiting on the actual semaphore
         alignas(DEEP_CACHE_LINE_SIZE) std::atomic<int32> count{ 0 };
         std::counting_semaphore<leastMaxValue> semaphore;
-    };
-    #else
-    // Local implementation of semaphore as on some systems default implementation is slow
-    //
-    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/Semaphore.h
-    template<ptrdiff_t leastMaxValue>
-    class Semaphore {
+
+        #else
+
     public:
         Semaphore();
         ~Semaphore();
@@ -58,8 +58,9 @@ namespace Deep {
         std::condition_variable waitVariable;
         int32 count = 0;
         #endif
+
+        #endif
     };
-    #endif
 }
 
 #include "./Semaphore.inl"

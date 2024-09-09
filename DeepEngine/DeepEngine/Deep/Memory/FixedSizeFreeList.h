@@ -7,7 +7,12 @@
 #include <mutex>
 
 namespace Deep {
-    // Lockless (As long as no new page allocation is required) implementation of a fixed size free list (https://en.wikipedia.org/wiki/Free_list)
+    // Implementation of a fixed size free list (https://en.wikipedia.org/wiki/Free_list)
+    // Fixed size means that it cannot create more items than the specified maxItems
+    // Supports lockless construction of items (unless a new page of items needs to be allocated)
+    // Supports batching items to destruct them all in a single atomic operation
+    // 
+    // NOTE:
     // Page size must be a power of 2 due to bit mask operations
     // 
     // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/FixedSizeFreeList.h
