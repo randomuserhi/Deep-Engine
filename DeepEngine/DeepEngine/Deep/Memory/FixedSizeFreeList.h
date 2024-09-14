@@ -38,6 +38,7 @@ namespace Deep {
         static const uint32 invalidItemIndex = 0xffffffff;
         static const int32 itemStorageSize = sizeof(ItemStorage);
 
+        // TODO(randomuserhi): Pull out of class if it can be used across templates
         struct Batch {
             uint32 firstItemIndex = invalidItemIndex;
             uint32 lastItemIndex = invalidItemIndex;
@@ -56,7 +57,7 @@ namespace Deep {
         uint32 pageShift;
         uint32 itemMask;
         uint32 numPages;
-        uint32 size;
+        uint32 numItems; // total number of items allocated (regardless of constructed or not)
         ItemStorage** pages = nullptr;
 
         alignas(DEEP_CACHE_LINE_SIZE) std::mutex pageMutex;

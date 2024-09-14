@@ -34,32 +34,32 @@ namespace Deep {
     // NOTE(randomuserhi): https://stackoverflow.com/questions/13721839/if-stdmax-returns-by-reference-as-it-must-might-that-lead-to-a-dangling-r
 
     template<typename T>
-    Deep_Inline const T& Min(const T& a, const T& b) {
+    Deep_Inline constexpr const T& Min(const T& a, const T& b) {
         return (b < a) ? b : a;
     }
 
     template<typename T>
-    Deep_Inline const T& Max(const T& a, const T& b) {
+    Deep_Inline constexpr const T& Max(const T& a, const T& b) {
         return (b > a) ? b : a;
     }
 
     template<typename T>
-    Deep_Inline const T& Clamp(const T& x, const T& lower, const T& upper) {
+    Deep_Inline constexpr const T& Clamp(const T& x, const T& lower, const T& upper) {
         return Min(upper, Max(x, lower));
     }
 
     template<typename T>
-    Deep_Inline const T& Clamp01(const T& x) {
+    Deep_Inline constexpr const T& Clamp01(const T& x) {
         return Clamp(x, 0.0f, 1.0f);
     }
 
     template<typename T>
-    Deep_Inline const T Sqrt(const T& x) {
+    Deep_Inline constexpr const T Sqrt(const T& x) {
         return std::sqrt(x);
     }
 
     template<typename T>
-    Deep_Inline const T Abs(const T& x) {
+    Deep_Inline constexpr const T Abs(const T& x) {
         return std::abs(x);
     }
 
