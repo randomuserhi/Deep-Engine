@@ -1,10 +1,10 @@
 #pragma once
 
-#include "./FixedSizeFreeList.h" // Not needed btw
-
 #include "../Math.h"
 #include "../Memory.h"
 #include "../BitHelper.h"
+
+#include <type_traits>
 
 namespace Deep {
     template<typename T>
@@ -20,17 +20,43 @@ namespace Deep {
         pageShift = NumTrailingZeros(pageSize);
         itemMask = pageSize - 1;
 
+        #ifdef DEEP_ENABLE_ASSERTS
+        numFreeItems = numPages * pageSize;
+        #endif
+
         pages = reinterpret_cast<ItemStorage**>(Malloc(numPages * sizeof(ItemStorage*)));
     }
 
     template<typename T>
-    const FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) const {
+    FixedSizeFreeList<T>::~FixedSizeFreeList() {
+        if (pages != nullptr) {
+            // Ensure all items are freed
+            #ifdef DEEP_ENABLE_ASSERTS
+            Deep_Assert(numFreeItems.load(std::memory_order_relaxed) == numPages * pageSize);
+            #endif
+
+            uint32 numPages = numItems / pageSize;
+            for (uint32 page = 0; page < numPages; ++page)
+                AlignedFree(pages[page]);
+            Free(pages);
+        }
+    }
+
+    template<typename T>
+    const typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) const {
+        Deep_Assert(index != invalidItemIndex);
         return pages[index >> pageShift][index & itemMask];
     }
 
     template<typename T>
-    FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) {
+    typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) {
+        Deep_Assert(index != invalidItemIndex);
         return pages[index >> pageShift][index & itemMask];
+    }
+
+    template<typename T>
+    const T& FixedSizeFreeList<T>::operator[](uint32 itemIndex) const {
+        return GetStorage(itemIndex).item;
     }
 
     // TODO(randomuserhi): Document and work out how this works
@@ -44,7 +70,7 @@ namespace Deep {
                 firstFree = firstFreeItemInNewPage.fetch_add(1, std::memory_order_relaxed);
                 if (firstFree >= numItems) {
                     // Allocate new page
-                    std::lock_guard lock(pageMutex);
+                    std::lock_guard<std::mutex> lock(pageMutex);
                     while (firstFree >= numItems) {
                         uint32 nextPage = numItems / pageSize;
                         if (nextPage == numPages) {
@@ -55,6 +81,9 @@ namespace Deep {
                     }
                 }
 
+                #ifdef DEEP_ENABLE_ASSERTS
+                numFreeItems.fetch_sub(1, std::memory_order_relaxed);
+                #endif
                 ItemStorage& storage = GetStorage(firstFree);
                 ::new (&storage.item) T(std::forward<Parameters>(parameters)...);
                 storage.nextFreeItem.store(firstFree, std::memory_order_release);
@@ -65,6 +94,9 @@ namespace Deep {
                 uint64 newFirstFreeItemAndTag = static_cast<uint64>(newFirstFree) + (static_cast<uint64>(allocTag.fetch_add(1, std::memory_order_relaxed)) << 32);
 
                 if (this->firstFreeItemAndTag.compare_exchange_weak(firstFreeItemAndTag, newFirstFreeItemAndTag, std::memory_order_release)) {
+                    #ifdef DEEP_ENABLE_ASSERTS
+                    numFreeItems.fetch_sub(1, std::memory_order_relaxed);
+                    #endif
                     ItemStorage& storage = GetStorage(firstFree);
                     ::new (&storage.item) T(std::forward<Parameters>(parameters)...);
                     storage.nextFreeItem.store(firstFree, std::memory_order_release);
@@ -75,7 +107,7 @@ namespace Deep {
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::DestructItem(uint32 itemIndex) {
+    void FixedSizeFreeList<T>::FreeItem(uint32 itemIndex) {
         Deep_Assert(itemIndex != invalidItemIndex);
         Deep_Assert(itemIndex < numItems);
 
@@ -93,24 +125,68 @@ namespace Deep {
 
             if (this->firstFreeItemAndTag.compare_exchange_weak(firstFreeItemAndTag, newFirstFreeItemAndTag, std::memory_order_release)) {
                 // Free successful
+                #ifdef DEEP_ENABLE_ASSERTS
+                numFreeItems.fetch_add(1, std::memory_order_relaxed);
+                #endif
                 return;
             }
         }
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::DestructItem(T* item) {
-        uint32 index = reinterpret_cast<ItemStorage*>(item)->nextFreeItem.load(std::memory_order_relaxed);
-        DestructItem(index);
+    void FixedSizeFreeList<T>::FreeItem(const T* item) {
+        uint32 index = reinterpret_cast<const ItemStorage*>(item)->nextFreeItem.load(std::memory_order_relaxed);
+        FreeItem(index);
     }
 
     template<typename T>
     void FixedSizeFreeList<T>::AddItemToBatch(Batch& batch, uint32 itemIndex) {
+        Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex); // Trying to add a object to the batch that is already in a free list
+        Deep_Assert(batch.size != static_cast<uint32>(-1)); // Trying to reuse a batch that has already been freed
 
+        // Link object in batch to free
+        if (batch.firstItemIndex == invalidItemIndex)
+            batch.firstItemIndex = itemIndex;
+        else
+            GetStorage(batch.lastItemIndex).nextFreeItem.store(itemIndex, std::memory_order_release);
+        batch.lastItemIndex = itemIndex;
+        ++batch.size;
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::DestructItemBatch(Batch& batch) {
+    void FixedSizeFreeList<T>::FreeItemBatch(Batch& batch) {
+        if (batch.firstItemIndex != invalidItemIndex) {
+            if
+                #if __cplusplus >= 201703L
+                constexpr
+                #endif 
+                (!std::is_trivially_destructible<T>()) {
+                uint32 itemIndex = batch.firstItemIndex;
+                do {
+                    ItemStorage& storage = GetStorage(itemIndex);
+                    storage.item.~T();
+                    itemIndex = storage.nextFreeItem.load(std::memory_order_relaxed);
+                } while (itemIndex != invalidItemIndex);
+            }
 
+            ItemStorage& storage = GetStorage(batch.lastItemIndex);
+            for (;;) {
+                uint64 firstFreeItemAndTag = this->firstFreeItemAndTag.load(std::memory_order_acquire);
+                uint32 firstFree = static_cast<uint32>(firstFreeItemAndTag);
+
+                storage.nextFreeItem.store(firstFree, std::memory_order_release);
+
+                uint64 newFirstFreeItemAndTag = static_cast<uint64>(batch.firstItemIndex) + (static_cast<uint64>(allocTag.fetch_add(1, std::memory_order_relaxed)) << 32);
+
+                if (this->firstFreeItemAndTag.compare_exchange_weak(firstFreeItemAndTag, newFirstFreeItemAndTag, std::memory_order_release)) {
+                    #ifdef DEEP_ENABLE_ASSERTS
+                    numFreeItems.fetch_add(batch.size, std::memory_order_relaxed);
+
+                    batch.size = static_cast<uint32>(-1);
+                    #endif
+                    return;
+                }
+            }
+        }
     }
 }

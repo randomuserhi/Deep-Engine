@@ -143,4 +143,8 @@
 * Asserts
 */
 #include <cassert>
+#if !defined(NDEBUG)
+#define DEEP_ENABLE_ASSERTS
+#endif
+// TODO(randomuserhi): Assert messages
 #define Deep_Assert(expression) assert(expression)

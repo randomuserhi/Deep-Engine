@@ -5,6 +5,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Math\Vec4.cpp" />
     <ClCompile Include="Math\Mat4.cpp" />
+    <ClCompile Include="Memory\FixedSizedFreeList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

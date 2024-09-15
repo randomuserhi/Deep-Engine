@@ -26,14 +26,15 @@ namespace Deep {
         static_assert(alignof(ItemStorage) == alignof(T), "ItemStorage is not aligned properly");
 
     public:
+        FixedSizeFreeList() = delete;
         explicit inline FixedSizeFreeList(uint32 maxItems, uint32 pageSize);
         inline ~FixedSizeFreeList();
 
         template <typename... Parameters>
         inline uint32 ConstructItem(Parameters &&... parameters);
 
-        inline void DestructItem(uint32 itemIndex);
-        inline void DestructItem(T* item);
+        inline void FreeItem(uint32 itemIndex);
+        inline void FreeItem(const T* item);
 
         static const uint32 invalidItemIndex = 0xffffffff;
         static const int32 itemStorageSize = sizeof(ItemStorage);
@@ -45,9 +46,13 @@ namespace Deep {
             uint32 size = 0;
         };
 
+        // Parameter `batch` is in-out (Signal that the parameter is changed by the function)
         inline void AddItemToBatch(Batch& batch, uint32 itemIndex);
 
-        inline void DestructItemBatch(Batch& batch);
+        // Parameter `batch` is in-out (Signal that the parameter is changed by the function)
+        inline void FreeItemBatch(Batch& batch);
+
+        inline const T& operator[](uint32 itemIndex) const;
 
     private:
         inline const ItemStorage& GetStorage(uint32 index) const;
@@ -62,8 +67,11 @@ namespace Deep {
 
         alignas(DEEP_CACHE_LINE_SIZE) std::mutex pageMutex;
 
+        #ifdef DEEP_ENABLE_ASSERTS
+        std::atomic<uint32> numFreeItems;
+        #endif
         std::atomic<uint32> allocTag; // https://en.wikipedia.org/wiki/Compare-and-swap https://en.wikipedia.org/wiki/ABA_problem#Tagged_state_reference
-        std::atomic<uint32> firstFreeItemAndTag;
+        std::atomic<uint64> firstFreeItemAndTag;
         std::atomic<uint32> firstFreeItemInNewPage;
     };
 }

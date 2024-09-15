@@ -30,7 +30,7 @@ namespace Deep {
         #endif
     }
 
-    void* AlignedFree(void* block) {
+    void AlignedFree(void* block) {
         #ifdef DEEP_PLATFORM_WINDOWS
         _aligned_free(block);
         #else
