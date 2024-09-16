@@ -13,6 +13,7 @@ namespace Deep {
         allocTag(1),
         firstFreeItemAndTag(invalidItemIndex) {
 
+        Deep_Assert(maxItems > 0, "Must be able to contain atleast 1 item.");
         Deep_Assert(pageSize > 0 && IsPowerOf2(pageSize), "Page Size must be non-zero and a power of 2.");
 
         numPages = (maxItems + pageSize - 1) / pageSize;
@@ -101,10 +102,10 @@ namespace Deep {
                     ::new (&storage.item) T(std::forward<Parameters>(parameters)...);
                     storage.nextFreeItem.store(firstFree, std::memory_order_release);
                     return firstFree;
-                }
             }
         }
     }
+}
 
     template<typename T>
     void FixedSizeFreeList<T>::FreeItem(uint32 itemIndex) {
@@ -185,8 +186,8 @@ namespace Deep {
                     batch.size = static_cast<uint32>(-1);
                     #endif
                     return;
-                }
             }
         }
+    }
     }
 }
