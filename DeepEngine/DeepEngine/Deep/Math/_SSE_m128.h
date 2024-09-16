@@ -83,7 +83,7 @@ namespace Deep {
 
         // Calculate the sin and cosin for each component and store the result
         // in `sin` and `cos` respectively
-        inline void SinCos(SSE_m128& sin, SSE_m128& cos);
+        inline void SinCos(SSE_m128& woSin, SSE_m128& woCos);
 
         union {
             Type _internal;

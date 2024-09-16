@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../../Deep.h"
+#if __cplusplus >= 202002L
 #include <semaphore>
+#endif
 #include <atomic>
 #include <mutex>
 #include <condition_variable>

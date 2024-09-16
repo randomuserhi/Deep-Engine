@@ -6,6 +6,8 @@
 
 #include <cstdint>
 
+// TODO(randomuserhi): Move information to style guide
+
  /// Rules on size_t 
  /// - Try to avoid implicit type conversions (if a type returns size_t, use size_t indexing etc...)
  ///   - If one is necessary, make it explicit -> for (int32 i = static_cast<int32>(size)-1; i >= 0; --i)

@@ -158,6 +158,9 @@
     <ClCompile Include="Deep\Threading\JobSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Deep\Deep.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Deep\Math\SSE_m128i.inl">

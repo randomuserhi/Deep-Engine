@@ -13,7 +13,7 @@ namespace Deep {
         allocTag(1),
         firstFreeItemAndTag(invalidItemIndex) {
 
-        Deep_Assert(pageSize > 0 && IsPowerOf2(pageSize));
+        Deep_Assert(pageSize > 0 && IsPowerOf2(pageSize), "Page Size must be non-zero and a power of 2.");
 
         numPages = (maxItems + pageSize - 1) / pageSize;
         this->pageSize = pageSize;
@@ -32,7 +32,7 @@ namespace Deep {
         if (pages != nullptr) {
             // Ensure all items are freed
             #ifdef DEEP_ENABLE_ASSERTS
-            Deep_Assert(numFreeItems.load(std::memory_order_relaxed) == numPages * pageSize);
+            Deep_Assert(numFreeItems.load(std::memory_order_relaxed) == numPages * pageSize, "Not all items were released before memory was deallocated.");
             #endif
 
             uint32 numPages = numItems / pageSize;
@@ -44,13 +44,13 @@ namespace Deep {
 
     template<typename T>
     const typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) const {
-        Deep_Assert(index != invalidItemIndex);
+        Deep_Assert(index != invalidItemIndex, "Invalid index.");
         return pages[index >> pageShift][index & itemMask];
     }
 
     template<typename T>
     typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) {
-        Deep_Assert(index != invalidItemIndex);
+        Deep_Assert(index != invalidItemIndex, "Invalid index.");
         return pages[index >> pageShift][index & itemMask];
     }
 
@@ -108,8 +108,8 @@ namespace Deep {
 
     template<typename T>
     void FixedSizeFreeList<T>::FreeItem(uint32 itemIndex) {
-        Deep_Assert(itemIndex != invalidItemIndex);
-        Deep_Assert(itemIndex < numItems);
+        Deep_Assert(itemIndex != invalidItemIndex, "Invalid index.");
+        Deep_Assert(itemIndex < numItems, "Index out of bounds.");
 
         ItemStorage& storage = GetStorage(itemIndex);
         storage.item.~T();
@@ -141,8 +141,8 @@ namespace Deep {
 
     template<typename T>
     void FixedSizeFreeList<T>::AddItemToBatch(Batch& batch, uint32 itemIndex) {
-        Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex); // Trying to add a object to the batch that is already in a free list
-        Deep_Assert(batch.size != static_cast<uint32>(-1)); // Trying to reuse a batch that has already been freed
+        Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex, "Item is already in free list."); // Trying to add a object to the batch that is already in a free list
+        Deep_Assert(batch.size != static_cast<uint32>(-1), "Batch has already been freed."); // Trying to reuse a batch that has already been freed
 
         // Link object in batch to free
         if (batch.firstItemIndex == invalidItemIndex)

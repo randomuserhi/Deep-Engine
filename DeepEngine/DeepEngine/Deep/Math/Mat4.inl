@@ -46,7 +46,7 @@ namespace Deep {
     }
 
     Mat4 Mat4::FromQuaternion(const Quat& q) {
-        Deep_Assert(q.IsNormalized());
+        Deep_Assert(q.IsNormalized(), "Quaternion should be normalized");
 
         // See: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation section 'Quaternion-derived rotation matrix'
         #ifdef DEEP_USE_SSE4_1

@@ -142,9 +142,32 @@
 /*
 * Asserts
 */
-#include <cassert>
-#if !defined(NDEBUG)
-#define DEEP_ENABLE_ASSERTS
+#ifndef Deep_Break
+#define Deep_Break __debugbreak()
 #endif
-// TODO(randomuserhi): Assert messages
-#define Deep_Assert(expression) assert(expression)
+
+#include <cassert>
+
+namespace Deep {
+    bool OnAssertFailImpl(const char* expression, const char* roFile, uint32 line, const char* message);
+    extern bool (*OnAssertFail) (const char* expression, const char* file, uint32 line, const char* message);
+    Deep_Inline bool AssertFailed(const char* expression, const char* file, uint32 line, const char* message) {
+        if (OnAssertFail == nullptr) return true;
+        else return OnAssertFail(expression, file, line, message);
+    }
+}
+
+#ifdef DEEP_ENABLE_ASSERTS
+#define Deep_Assert(expression, message) do { if (!(expression) && ::Deep::AssertFailed(#expression, __FILE__, static_cast<uint32>(__LINE__), message)) { Deep_Break; } } while (false)
+#else
+#define Deep_Assert(...) ((void)0)
+#endif
+
+// TODO(randomuserhi): Move style guide elsewhere -> include types in style guide
+/*
+* Style Guide
+*
+* - Function parameters that include the "rw" prefix annotate that the parameter is read-write and the function both reads to the parameter as well as writes to it. Commonly known as an in-out-param.
+* - Function parameters that include the "wo" prefix annotate that the parameter is write-only and the function only writes to the parameter. Commonly known as an out-param.
+* - Function parameters that do not start with a prefix are always read only.
+*/

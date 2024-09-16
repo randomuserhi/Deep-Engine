@@ -6,6 +6,10 @@
 
 #include "../Deep.h"
 
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+#include <immintrin.h>
+#endif
+
 // Bitcast support for different Cpp versions
 #if __cplusplus >= 202002L
 #include <bit>
@@ -66,7 +70,7 @@ namespace Deep {
     template <typename T>
     inline bool IsAligned(const T pointer, const uint64 alignment) {
         static_assert(std::is_pointer<T>::value, "Expected type T to be a pointer.");
-        Deep_Assert(IsPowerOf2(alignment));
+        Deep_Assert(IsPowerOf2(alignment), "Alignment should be a power of 2.");
         return (static_cast<uint64>(pointer) & (alignment - 1)) == 0;
     }
 
@@ -197,4 +201,4 @@ namespace Deep {
     Deep_Inline int64 ntoh(const int64 value) {
         return !IsBigEndian() ? value : ReverseEndianness(value);
     }
-    }
+}

@@ -50,6 +50,7 @@
     <ClInclude Include="Deep\Threading\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Deep\Deep.cpp" />
     <ClCompile Include="Deep\ECS\ECS.cpp" />
     <ClCompile Include="Deep\Math\Mat4.cpp" />
     <ClInclude Include="Deep\Math\Mat4.inl">

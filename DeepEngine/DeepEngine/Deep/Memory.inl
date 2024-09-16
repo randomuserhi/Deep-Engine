@@ -4,12 +4,12 @@
 
 namespace Deep {
     void* Malloc(size_t size) {
-        Deep_Assert(size > 0);
+        Deep_Assert(size > 0, "Size must be greater than 0.");
         return std::malloc(size);
     }
 
     void* Realloc(void* old, size_t size) {
-        Deep_Assert(size > 0);
+        Deep_Assert(size > 0, "Size must be greater than 0.");
         return std::realloc(old, size);
     }
 
@@ -18,7 +18,7 @@ namespace Deep {
     }
 
     void* AlignedMalloc(size_t size, size_t alignment) {
-        Deep_Assert(size > 0 && alignment > 0);
+        Deep_Assert(size > 0 && alignment > 0, "Size and alignment must be greater than 0.");
 
         #ifdef DEEP_PLATFORM_WINDOWS
         return _aligned_malloc(size, alignment);

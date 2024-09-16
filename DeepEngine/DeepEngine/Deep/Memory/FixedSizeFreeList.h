@@ -47,10 +47,10 @@ namespace Deep {
         };
 
         // Parameter `batch` is in-out (Signal that the parameter is changed by the function)
-        inline void AddItemToBatch(Batch& batch, uint32 itemIndex);
+        inline void AddItemToBatch(Batch& rwBatch, uint32 itemIndex);
 
         // Parameter `batch` is in-out (Signal that the parameter is changed by the function)
-        inline void FreeItemBatch(Batch& batch);
+        inline void FreeItemBatch(Batch& rwBatch);
 
         inline const T& operator[](uint32 itemIndex) const;
 

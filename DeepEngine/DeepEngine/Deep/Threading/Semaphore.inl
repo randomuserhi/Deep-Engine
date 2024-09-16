@@ -16,7 +16,7 @@ namespace Deep {
     #if __cplusplus >= 202002L
     template<ptrdiff_t leastMaxValue>
     void Semaphore<leastMaxValue>::Release(int32 update) {
-        Deep_Assert(Sign(update) == 1);
+        Deep_Assert(Sign(update) == 1, "Number to update must be a positive integer.");
 
         int32 oldCount = count.fetch_add(update);
         if (oldCount < 0) {
@@ -28,7 +28,7 @@ namespace Deep {
 
     template<ptrdiff_t leastMaxValue>
     void Semaphore<leastMaxValue>::Acquire(int32 update) {
-        Deep_Assert(Sign(update) == 1);
+        Deep_Assert(Sign(update) == 1, "Number to update must be a positive integer.");
 
         int32 oldCount = count.fetch_sub(update);
         int32 newCount = oldCount - update;
@@ -54,14 +54,14 @@ namespace Deep {
 
     template<ptrdiff_t leastMaxValue>
     void Semaphore<leastMaxValue>::Release(int32 update) {
-        Deep_Assert(Sign(update) == 1);
+        Deep_Assert(Sign(update) == 1, "Number to update must be a positive integer.");
 
         #ifdef DEEP_PLATFORM_WINDOWS
         int32 oldCount = count.fetch_add(update);
         if (oldCount < 0) {
             int newCount = oldCount + update;
             int numToRelease = Min(newCount, 0) - oldCount;
-            ::ReleaseSemaphore(mSemaphore, num_to_release, nullptr);
+            ::ReleaseSemaphore(semaphore, numToRelease, nullptr);
         }
         #else
         std::lock_guard<std::mutex> lock(mutex);
@@ -76,15 +76,15 @@ namespace Deep {
 
     template<ptrdiff_t leastMaxValue>
     void Semaphore<leastMaxValue>::Acquire(int32 update) {
-        Deep_Assert(Sign(update) == 1);
+        Deep_Assert(Sign(update) == 1, "Number to update must be a positive integer.");
 
         #ifdef DEEP_PLATFORM_WINDOWS
         int32 oldCount = count.fetch_sub(update);
         int32 newCount = oldCount - update;
         if (newCount < 0) {
             int numToAquire = Min(oldCount, 0) - newCount;
-            for (int i = 0; i < num_to_acquire; ++i)
-                ::WaitForSingleObject(mSemaphore, INFINITE);
+            for (int i = 0; i < numToAquire; ++i)
+                ::WaitForSingleObject(semaphore, INFINITE);
         }
         #else
         std::unique_lock<std::mutex> lock(mutex);
