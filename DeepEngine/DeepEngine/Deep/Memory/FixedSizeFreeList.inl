@@ -14,14 +14,26 @@ namespace Deep {
         firstFreeItemAndTag(invalidItemIndex) {
 
         Deep_Assert(maxItems > 0, "Must be able to contain atleast 1 item.");
-        Deep_Assert(pageSize > 0 && IsPowerOf2(pageSize), "Page Size must be non-zero and a power of 2.");
+        Deep_Assert(pageSize > 0 && IsPowerOf2(pageSize), "Page Size must be non-zero and a power of 2 due to bit operations.");
 
+        // Get the least number of pages required to store the maximum number of items
         numPages = (maxItems + pageSize - 1) / pageSize;
         this->pageSize = pageSize;
+
+        // Get the amount of shifting required to obtain the page index (high part)
         pageShift = NumTrailingZeros(pageSize);
-        itemMask = pageSize - 1;
+        itemMask = pageSize - 1; // Since we guarantee that pageSize is a power of 2, this generates a bit mask for the bits required to store the page index (low part)
+
+        // NOTE(randomuserhi): Its guaranteed that there are enough bits for both the page and item indices as the maximum number of items and max size of a page is the same.
+        //                     Consider if maxItems and pageSize was limited as a 3 bit integer and the index is also a 3 bit integer. If there are 4 items and a page size of 2
+        //                     then the number of pages needed is 2 and the number of indices per page is 2. In this case you need only 2 bits, 1 bit for the page index (0 or 1)
+        //                     and another bit for the item index (0 or 1).
+        //                     - The item mask is 2 - 1 = 001b (the first bit, low part) and the amount of shifting required is 1 (the second bit, high part).
+        //                     In the case of 4 items and a page size of 4, you need 1 page and 4 item indices. Thus 1 bit for the page index (0) and 2 bits for the item index (0, 1, 2, 3).
+        //                     - The item mask is 4 - 1 = 011b (the first 2 bit, low part) and the amount of shifting required is 2 (the second bit, high part).
 
         #ifdef DEEP_ENABLE_ASSERTS
+        // Keep track of number of free items in the pool
         numFreeItems = numPages * pageSize;
         #endif
 
@@ -36,9 +48,13 @@ namespace Deep {
             Deep_Assert(numFreeItems.load(std::memory_order_relaxed) == numPages * pageSize, "Not all items were released before memory was deallocated.");
             #endif
 
+            // Calculate number of allocated pages from number of allocated items
             uint32 numPages = numItems / pageSize;
+
+            // Free allocated pages
             for (uint32 page = 0; page < numPages; ++page)
                 AlignedFree(pages[page]);
+
             Free(pages);
         }
     }
@@ -102,10 +118,10 @@ namespace Deep {
                     ::new (&storage.item) T(std::forward<Parameters>(parameters)...);
                     storage.nextFreeItem.store(firstFree, std::memory_order_release);
                     return firstFree;
+                }
             }
         }
     }
-}
 
     template<typename T>
     void FixedSizeFreeList<T>::FreeItem(uint32 itemIndex) {
@@ -142,6 +158,13 @@ namespace Deep {
 
     template<typename T>
     void FixedSizeFreeList<T>::AddItemToBatch(Batch& batch, uint32 itemIndex) {
+        #ifdef DEEP_ENABLE_ASSERTS
+        if (batch.owner == nullptr) {
+            batch.owner = this;
+        }
+        Deep_Assert(batch.owner == this, "Cannot add an item that belongs to a different list.");
+        #endif
+
         Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex, "Item is already in free list."); // Trying to add a object to the batch that is already in a free list
         Deep_Assert(batch.size != static_cast<uint32>(-1), "Batch has already been freed."); // Trying to reuse a batch that has already been freed
 
@@ -186,8 +209,8 @@ namespace Deep {
                     batch.size = static_cast<uint32>(-1);
                     #endif
                     return;
+                }
             }
         }
-    }
     }
 }
