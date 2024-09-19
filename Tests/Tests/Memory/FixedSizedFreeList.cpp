@@ -8,6 +8,10 @@ struct Item {
     Item(int32 a) : a(a) {
 
     }
+
+    ~Item() {
+        std::cout << "Destructed - " << a << std::endl;
+    }
 };
 
 // TODO(randomuserhi): Split up - also test asserts
@@ -40,5 +44,5 @@ TEST(FixedSizedFreeList, Construct) {
     list.AddItemToBatch(batch, i1);
     list.AddItemToBatch(batch, i2);
     list.AddItemToBatch(batch, i3);
-    list.FreeItemBatch(batch);
+    list.FreeBatch(batch);
 }

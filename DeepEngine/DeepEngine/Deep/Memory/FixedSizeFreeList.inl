@@ -22,15 +22,26 @@ namespace Deep {
 
         // Get the amount of shifting required to obtain the page index (high part)
         pageShift = NumTrailingZeros(pageSize);
-        itemMask = pageSize - 1; // Since we guarantee that pageSize is a power of 2, this generates a bit mask for the bits required to store the page index (low part)
+        itemMask = pageSize - 1; // Since we guarantee that `pageSize` is a power of 2, this generates a bit mask for the bits required to store the page index (low part)
 
-        // NOTE(randomuserhi): Its guaranteed that there are enough bits for both the page and item indices as the maximum number of items and max size of a page is the same.
-        //                     Consider if maxItems and pageSize was limited as a 3 bit integer and the index is also a 3 bit integer. If there are 4 items and a page size of 2
-        //                     then the number of pages needed is 2 and the number of indices per page is 2. In this case you need only 2 bits, 1 bit for the page index (0 or 1)
-        //                     and another bit for the item index (0 or 1).
-        //                     - The item mask is 2 - 1 = 001b (the first bit, low part) and the amount of shifting required is 1 (the second bit, high part).
-        //                     In the case of 4 items and a page size of 4, you need 1 page and 4 item indices. Thus 1 bit for the page index (0) and 2 bits for the item index (0, 1, 2, 3).
-        //                     - The item mask is 4 - 1 = 011b (the first 2 bit, low part) and the amount of shifting required is 2 (the second bit, high part).
+        // NOTE(randomuserhi): The logic behind `pageShift` and `itemMask` is to abuse the fact that we limit `pageSize` to a power of 2 and binary counting to split
+        //                     a single incrementing index into 2 incrementing indices for 2 dimensional access `pages[page][item]`.
+        //                     
+        //                     Consider a 3 bit index:
+        //                       4 | 2 | 1
+        //                       ---------
+        //                       0   0   0
+        //                       0   0   1
+        //                       0   1   0
+        //                       0   1   1
+        //                       1   0   0
+        //                       1   0   1
+        //                       1   1   0
+        //                       1   1   1
+        //                      
+        //                     Since `pageSize` is always a power of 2, if the size of a page is 4 and we need 8 items (2 pages each with 4 items), then we can use the ]
+        //                     highest bit as the page index (0, 1 - 2 pages) and the lower 2 bits (00, 01, 10, 11 - 4 items) for the item index. Notice how by incrementing 
+        //                     a 3 bit index without accounting for pages, we get this 2 dimensional access for free.
 
         #ifdef DEEP_ENABLE_ASSERTS
         // Keep track of number of free items in the pool
@@ -76,14 +87,15 @@ namespace Deep {
         return GetStorage(itemIndex).item;
     }
 
-    // TODO(randomuserhi): Document and work out how this works
     template<typename T>
     template<typename... Parameters>
     uint32 FixedSizeFreeList<T>::ConstructItem(Parameters &&... parameters) {
         for (;;) {
             uint64 firstFreeItemAndTag = this->firstFreeItemAndTag.load(std::memory_order_acquire);
-            uint32 firstFree = static_cast<uint32>(firstFreeItemAndTag);
+            uint32 firstFree = static_cast<uint32>(firstFreeItemAndTag); // Grab the low 32 bits
             if (firstFree == invalidItemIndex) {
+                // Free list is empty, take an item from the last allocated page that has not been used before
+
                 firstFree = firstFreeItemInNewPage.fetch_add(1, std::memory_order_relaxed);
                 if (firstFree >= numItems) {
                     // Allocate new page
@@ -106,6 +118,8 @@ namespace Deep {
                 storage.nextFreeItem.store(firstFree, std::memory_order_release);
                 return firstFree;
             } else {
+                // Use the first item in the free list
+
                 uint32 newFirstFree = GetStorage(firstFree).nextFreeItem.load(std::memory_order_acquire);
 
                 uint64 newFirstFreeItemAndTag = static_cast<uint64>(newFirstFree) + (static_cast<uint64>(allocTag.fetch_add(1, std::memory_order_relaxed)) << 32);
@@ -131,7 +145,7 @@ namespace Deep {
         ItemStorage& storage = GetStorage(itemIndex);
         storage.item.~T();
 
-        // Add item back to free list
+        // Add item back to free list, inserting it at the front
         for (;;) {
             uint64 firstFreeItemAndTag = this->firstFreeItemAndTag.load(std::memory_order_acquire);
             uint32 firstFree = static_cast<uint32>(firstFreeItemAndTag);
@@ -165,32 +179,33 @@ namespace Deep {
         Deep_Assert(batch.owner == this, "Cannot add an item that belongs to a different list.");
         #endif
 
-        Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex, "Item is already in free list."); // Trying to add a object to the batch that is already in a free list
-        Deep_Assert(batch.size != static_cast<uint32>(-1), "Batch has already been freed."); // Trying to reuse a batch that has already been freed
+        Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex, "Item has already been destructed and is already in the free list.");
+        Deep_Assert(batch.size != static_cast<uint32>(-1), "Batch has already been freed.");
 
-        // Link object in batch to free
-        if (batch.firstItemIndex == invalidItemIndex)
+        // Link object in batch to free, adding it to the end of the linked list
+        if (batch.firstItemIndex == invalidItemIndex) {
             batch.firstItemIndex = itemIndex;
-        else
+        } else {
             GetStorage(batch.lastItemIndex).nextFreeItem.store(itemIndex, std::memory_order_release);
+        }
         batch.lastItemIndex = itemIndex;
         ++batch.size;
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::FreeItemBatch(Batch& batch) {
+    void FixedSizeFreeList<T>::FreeBatch(Batch& batch) {
         if (batch.firstItemIndex != invalidItemIndex) {
             if
                 #if __cplusplus >= 201703L
                 constexpr
                 #endif 
                 (!std::is_trivially_destructible<T>()) {
-                uint32 itemIndex = batch.firstItemIndex;
-                do {
+                // Loop and destruct each item
+                for (uint32 itemIndex = batch.firstItemIndex, size = batch.size; size != 0; --size) {
                     ItemStorage& storage = GetStorage(itemIndex);
                     storage.item.~T();
                     itemIndex = storage.nextFreeItem.load(std::memory_order_relaxed);
-                } while (itemIndex != invalidItemIndex);
+                }
             }
 
             ItemStorage& storage = GetStorage(batch.lastItemIndex);

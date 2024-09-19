@@ -12,18 +12,18 @@ namespace Deep {
     // Supports lockless construction of items (unless a new page of items needs to be allocated)
     // Supports batching items to destruct them all in a single atomic operation
     // 
-    // The item index is a 32 bit value split into 2 parts (low and high). The high part of the index
-    // represents the page index and the low part represents the item index within said page.
-    // The number of bits in the high and low part are determined by the maximum number of items
-    // the list can contain alongside the number of items per page. This can be done as the size
-    // of each page is limited to being a power of 2.
-    // 
     // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/FixedSizeFreeList.h
     template<typename T>
     class FixedSizeFreeList : NonCopyable {
     private:
         struct ItemStorage {
+            friend class FixedSizeFreeList<T>;
+
+        private:
             T item;
+
+            // When the item is freed (or in the process of being freed as a batch) this will contain the index to the next free item (The free list)
+            // When an item is in use it will contain the item's index, such that when freed via `T*`, the index is known to properly handle it
             std::atomic<uint32> nextFreeItem;
         };
         static_assert(alignof(ItemStorage) == alignof(T), "ItemStorage is not aligned properly");
@@ -39,6 +39,11 @@ namespace Deep {
 
         // Lockless destruct an item and return it to free pool
         inline void FreeItem(uint32 itemIndex);
+
+        // Lockless destruct an item and return it to free pool
+        // NOTE(randomuserhi): Undefined behaviour if called on an item that is part of a batch which is yet to be destructed
+        //                     as the `nextFreeItem` value for this item will no longer be its index, but the next in the batch 
+        //                     linked list.
         inline void FreeItem(const T* item);
 
         static const uint32 invalidItemIndex = 0xffffffff;
@@ -46,7 +51,11 @@ namespace Deep {
 
         // Represents a batch of items to destruct
         struct Batch {
+            friend class FixedSizeFreeList<T>;
+
+        private:
             #ifdef DEEP_ENABLE_ASSERTS
+            // NOTE(randomuserhi): Until the first item is added, the batch does not belong to a particular list
             void* owner = nullptr;
             #endif
             uint32 firstItemIndex = invalidItemIndex;
@@ -58,7 +67,7 @@ namespace Deep {
         inline void AddItemToBatch(Batch& rwBatch, uint32 itemIndex);
 
         // Lockless destruct a batch of items
-        inline void FreeItemBatch(Batch& rwBatch);
+        inline void FreeBatch(Batch& rwBatch);
 
         // Get an item by index
         Deep_Inline const T& operator[](uint32 itemIndex) const;
@@ -74,13 +83,14 @@ namespace Deep {
         // Number of bits to shift item index to the right to get page number (High part of index)
         uint32 pageShift;
 
-        // Bit mask to apply to an item index to get page number (Low part of index)
+        // Bit mask to apply to an item index to get item number (Low part of index)
         uint32 itemMask;
 
         // Number of usable pages
         uint32 numPages;
 
-        // Total number of items allocated (regardless of constructed or not)
+        // Current number of items allocated in memory, should be a multiple of `pageSize`
+        // NOTE(randomuserhi): Not the number of items constructed via `ConstructItem`
         uint32 numItems;
 
         // Array of pages and items
@@ -101,10 +111,11 @@ namespace Deep {
         // ABA - https://en.wikipedia.org/wiki/ABA_problem#Tagged_state_reference
         std::atomic<uint32> allocTag;
 
-        // TODO(randomuserhi)
+        // Head of the free list
+        // NOTE(randomuserhi): The low 32 bits represent the item index and the high 32 bits is the current allocTag for CAS and avoiding ABA
         std::atomic<uint64> firstFreeItemAndTag;
 
-        // TODO(randomuserhi)
+        // The item index of the first free item in the last allocated page 
         std::atomic<uint32> firstFreeItemInNewPage;
     };
 }
