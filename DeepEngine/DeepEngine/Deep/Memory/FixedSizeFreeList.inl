@@ -143,6 +143,7 @@ namespace Deep {
         Deep_Assert(itemIndex < numItems, "Index out of bounds.");
 
         ItemStorage& storage = GetStorage(itemIndex);
+        Deep_Assert(storage.nextFreeItem == itemIndex, "Item cannot be freed as it is already free or part of a batch to be freed.");
         storage.item.~T();
 
         // Add item back to free list, inserting it at the front
@@ -167,6 +168,7 @@ namespace Deep {
     template<typename T>
     void FixedSizeFreeList<T>::FreeItem(const T* item) {
         uint32 index = reinterpret_cast<const ItemStorage*>(item)->nextFreeItem.load(std::memory_order_relaxed);
+        Deep_Assert(item == &GetStorage(index).item, "Item cannot be freed as it is either invalid, already free or part of a batch to be freed.");
         FreeItem(index);
     }
 
@@ -179,8 +181,12 @@ namespace Deep {
         Deep_Assert(batch.owner == this, "Cannot add an item that belongs to a different list.");
         #endif
 
-        Deep_Assert(GetStorage(itemIndex).nextFreeItem.load(std::memory_order_relaxed) == itemIndex, "Item has already been destructed and is already in the free list.");
         Deep_Assert(batch.size != static_cast<uint32>(-1), "Batch has already been freed.");
+
+        // Reset next index to invalid
+        std::atomic<uint32>& nextFreeItem = GetStorage(itemIndex).nextFreeItem;
+        Deep_Assert(nextFreeItem.load(std::memory_order_relaxed) == itemIndex, "Item has already been destructed and is already in the free list.");
+        nextFreeItem.store(invalidItemIndex, std::memory_order_release);
 
         // Link object in batch to free, adding it to the end of the linked list
         if (batch.firstItemIndex == invalidItemIndex) {
@@ -201,11 +207,12 @@ namespace Deep {
                 #endif 
                 (!std::is_trivially_destructible<T>()) {
                 // Loop and destruct each item
-                for (uint32 itemIndex = batch.firstItemIndex, size = batch.size; size != 0; --size) {
+                uint32 itemIndex = batch.firstItemIndex;
+                do {
                     ItemStorage& storage = GetStorage(itemIndex);
                     storage.item.~T();
                     itemIndex = storage.nextFreeItem.load(std::memory_order_relaxed);
-                }
+                } while (itemIndex != invalidItemIndex);
             }
 
             ItemStorage& storage = GetStorage(batch.lastItemIndex);
@@ -227,5 +234,5 @@ namespace Deep {
                 }
             }
         }
-    }
+}
 }
