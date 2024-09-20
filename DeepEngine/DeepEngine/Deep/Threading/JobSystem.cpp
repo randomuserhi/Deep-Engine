@@ -9,9 +9,7 @@
 //DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
 
 namespace Deep {
-
-}
-
-namespace Deep {
-
+    JobSystem::JobSystem(size_t maxThreads, uint32 maxJobs) :
+        jobs(maxJobs, maxJobs) {
+    }
 }

@@ -42,7 +42,7 @@ namespace Deep {
 
         // Lockless destruct an item and return it to free pool
         // NOTE(randomuserhi): Undefined behaviour if called on an item that is part of a batch which is yet to be destructed
-        //                     as the `nextFreeItem` value for this item will no longer be its index, but the next in the batch 
+        //                     as the `nextFreeItem` value for this item will no longer be its index, but the next item in the batch 
         //                     linked list.
         inline void FreeItem(const T* item);
 
@@ -64,9 +64,15 @@ namespace Deep {
         };
 
         // Adds an item to a batch to destruct later
+        // NOTE(randomuserhi): This operation is not thread-safe in regards to `rwBatch`. 
+        //                     If `rwBatch` is changed by another thread as this operation runs, 
+        //                     it results in undefined behaviour.
         inline void AddItemToBatch(Batch& rwBatch, uint32 itemIndex);
 
         // Lockless destruct a batch of items
+        // NOTE(randomuserhi): This operation is not thread-safe in regards to `rwBatch`. 
+        //                     If `rwBatch` is changed by another thread as this operation runs, 
+        //                     it results in undefined behaviour.
         inline void FreeBatch(Batch& rwBatch);
 
         // Get an item by index

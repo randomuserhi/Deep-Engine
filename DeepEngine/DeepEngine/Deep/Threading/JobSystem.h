@@ -8,6 +8,7 @@
 #include "../NonCopyable.h"
 #include "../BitHelper.h"
 #include "./semaphore.h"
+#include "../Memory/FixedSizeFreeList.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -35,19 +36,25 @@
 #endif
 
 namespace Deep {
+    class Job {
+
+    };
+
+    class JobHandle {
+
+    };
+
     class JobSystem : NonCopyable {
     public:
         using JobFunction = std::function<void()>;
 
-        explicit JobSystem(size_t numThreads);
+        explicit JobSystem(size_t numThreads, uint32 maxJobs);
         ~JobSystem();
 
     private:
         Semaphore<DEEP_JOB_SYSTEM_SEMAPHORE_LEAST_MAX_VALUE> semaphore;
         std::atomic<bool> running = true;
-    };
 
-    class JobHandle {
-
+        FixedSizeFreeList<Job> jobs;
     };
 }
