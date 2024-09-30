@@ -18,43 +18,72 @@
 #include <thread>
 
 /// TODO:
-/// [ ] JobSystem(size_t numThreads)
-/// [ ] JobHandle job = JobSystem.Enqueue(std::function<void()> job) -> enqueues a job returning a handle
-/// [ ] job.Completed() -> returns if job has completed
-/// [ ] job.Wait() -> blocks current thread until the job completes
-/// [ ] JobHandle job = JobSystem.After(JobHandle target, std::function<void()> job) -> creates a job that executes after the target job is completed
-/// [ ] job.Then(std::function<void()> job) -> creates a job that executes after the current job is completed (Calls the above function)
-/// [ ] JobHandle all = JobSystem.All(JobHandle job1, JobHandle job2, ...) -> creates a job that completes when all passed jobs are completed
-/// [ ] Efficient allocation of semaphore leastMaxValue instead of just INT_MAX
-/// [ ] Jobs can lockless create jobs and queue them as well
+/// [x] JobSystem(size_t numThreads)
+/// [ ] JobHandle job = JobSystem.CreateJob(std::function<void()> job, uint32 numDependencies)
+/// [ ] job.Acquire(1)
+/// [ ] job.Release(1)
+/// [ ] JobSystem.Enqueue(job);
+/// [ ] Barrier barrier = JobSystem.CreateBarrier();
+/// [ ] barrier.WaitAll()
+/// [ ] JobSystem.Wait(job) -> inline creates a barrier and calls barrier.WaitAll()
+///
+/// DETAILS:
+/// [ ] Job Queue -> lockless
+/// [ ] JobHandle reference
+/// [ ] ThreadMain implementation (check job queue)
 /// 
 /// Things to Note
 /// - Construction of condition_variable and mutex being slow
-
-#ifndef DEEP_JOB_SYSTEM_SEMAPHORE_LEAST_MAX_VALUE
-#define DEEP_JOB_SYSTEM_SEMAPHORE_LEAST_MAX_VALUE INT_MAX
-#endif
+/// - Creating a barrier in a Job will consume a thread until that barrier is released
 
 namespace Deep {
-    class Job {
-
-    };
-
-    class JobHandle {
-
-    };
-
     class JobSystem : NonCopyable {
     public:
         using JobFunction = std::function<void()>;
 
+    private:
+        class Job {
+        public:
+            Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies);
+
+        private:
+            // Job system that owns this job
+            const JobSystem* jobSystem;
+
+            // Function the job executes
+            JobFunction jobFunction;
+
+            // Number of dependencies left before this job can execute
+            std::atomic<uint32> numDependencies;
+        };
+
+    public:
+        class JobHandle {
+            // TODO(randomuserhi): ...
+        };
+
+        // Constructors
         explicit JobSystem(size_t numThreads, uint32 maxJobs);
         ~JobSystem();
 
+        JobHandle CreateJob(JobFunction jobFunction, uint32 numDependencies);
+        void Enqueue(JobHandle job);
+
     private:
-        Semaphore<DEEP_JOB_SYSTEM_SEMAPHORE_LEAST_MAX_VALUE> semaphore;
-        std::atomic<bool> running = true;
+        void StartThreads();
+        void StopThreads();
+        void ThreadMain(size_t id);
+
+        Semaphore<INT_MAX> semaphore;
 
         FixedSizeFreeList<Job> jobs;
+
+        std::thread* threads = nullptr;
+
+        size_t numThreads;
+
+        std::atomic<bool> running = true;
     };
+
+    using JobHandle = JobSystem::JobHandle;
 }

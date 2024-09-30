@@ -289,7 +289,7 @@ namespace Deep {
         #endif
     }
 
-    void SSE_m128::SinCos(SSE_m128& sin, SSE_m128& cos) {
+    void SSE_m128::SinCos(SSE_m128& woSin, SSE_m128& woCos) {
         // Implementation based on sinf.c from the cephes library, combines sinf and cosf in a single function, changes octants to quadrants and vectorizes it
         // Original implementation by Stephen L. Moshier (See: http://www.moshier.net/)
 
@@ -346,7 +346,7 @@ namespace Deep {
         SSE_m128i cos_sign = SSE_m128i::Xor(bit1, bit2);
 
         // Correct the signs
-        sin = SSE_m128::Xor(s, sinSign.ReinterpretAsFloat());
-        cos = SSE_m128::Xor(c, cos_sign.ReinterpretAsFloat());
+        woSin = SSE_m128::Xor(s, sinSign.ReinterpretAsFloat());
+        woCos = SSE_m128::Xor(c, cos_sign.ReinterpretAsFloat());
     }
 }
