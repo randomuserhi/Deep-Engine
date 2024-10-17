@@ -53,6 +53,9 @@ namespace Deep {
             // Function the job executes
             JobFunction jobFunction;
 
+            // Number of references to this job. Used for reference counting to automatically free the job.
+            std::atomic<uint32> referenceCount;
+
             // Number of dependencies left before this job can execute
             std::atomic<uint32> numDependencies;
         };
@@ -60,6 +63,9 @@ namespace Deep {
     public:
         class JobHandle {
             // TODO(randomuserhi): ...
+
+        private:
+            Job* job;
         };
 
         // Constructors
