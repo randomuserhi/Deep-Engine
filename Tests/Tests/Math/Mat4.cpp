@@ -31,7 +31,7 @@ TEST(Mat4, Equality) {
         0, 0, 0, 1
     };
 
-    EXPECT_FALSE(c == d);
+    EXPECT_NE(c, d);
 }
 
 TEST(Mat4, Multiplication) {
