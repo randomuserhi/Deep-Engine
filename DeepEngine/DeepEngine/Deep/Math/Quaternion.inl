@@ -6,10 +6,13 @@
 
 namespace Deep {
     Quat::Quat(float32 x, float32 y, float32 z, float32 w)
-        : vec{ x, y, z, w } {
+        : vec(x, y, z, w) {
+    };
+    Quat::Quat(SSE_m128 sse_m128)
+        : sse_m128(sse_m128) {
     };
     Quat::Quat(Vec4 vec)
-        : vec{ vec } {
+        : vec(vec) {
     };
 
     Quat Quat::FromMat4(Mat4Arg m) {
@@ -100,7 +103,7 @@ namespace Deep {
     }
 
     Quat::Quat(Vec3 axis, float32 angle) {
-        Deep_Assert(axis.IsNormalized(), "Axis must be normalized."); // Must be normalized for the below equation
+        Deep_Assert(axis.IsNormalized(), "Axis must be normalized.");
 
         // { x,y,z } = axis * sin(0.5f * inAngle)
         //   w       = cos(0.5f * inAngle)
@@ -163,7 +166,7 @@ namespace Deep {
 
     Quat& Quat::operator*= (QuatArg other) {
         #ifdef DEEP_USE_SSE4_1
-        // Taken from: https://stackoverflow.com/questions/18542894/how-to-multiply-two-quaternions-with-minimal-instructions
+        // Taken from: http://momchil-velikov.blogspot.nl/2013/10/fast-sse-quternion-multiplication.html
         __m128 abcd = sse_m128;
         __m128 xyzw = other.sse_m128;
 
@@ -226,13 +229,21 @@ namespace Deep {
         return *this;
     }
 
-    Quat operator* (QuatArg a, QuatArg b) {
-        return a.vec * b.vec;
+    Quat operator* (Quat a, QuatArg b) {
+        return a *= b;
     }
 
-    // TODO(randomuserhi): Can be optimised to not use a `toMat4` call
     Vec3 operator* (QuatArg q, Vec3Arg v) {
-        Mat4 m = q.ToMat4();
-        return m * v;
+        Deep_Assert(q.IsNormalized(), "Quaternion must be normalized.");
+
+        // Rotating a vector by a quaternion is done by: p' = q * p * q^-1 (q^-1 = conjugated(q) for a unit quaternion)
+        return Vec3((q * Vec4(v, 0.0f) * q.conjugated()).sse_m128);
+    }
+
+    Vec3 Quat::InverseRotate(QuatArg q, Vec3Arg v) {
+        Deep_Assert(q.IsNormalized(), "Quaternion must be normalized.");
+
+        // Rotating a vector by a quaternion is done by: p' = q * p * q^-1 (q^-1 = conjugated(q) for a unit quaternion)
+        return Vec3((q.conjugated() * Vec4(v, 0.0f) * q).sse_m128);
     }
 }

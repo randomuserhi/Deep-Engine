@@ -12,6 +12,28 @@ namespace Deep {
     }
     #endif
 
+    #ifdef DEEP_USE_SSE4_1
+    Vec3::Vec3(Vec4Arg v) : sse_m128(v.sse_m128) {
+    }
+    #else
+    Vec3::Vec3(Vec4Arg v) {
+        this->x = v.x;
+        this->y = v.y;
+        this->z = v.z;
+    }
+    #endif
+
+    #ifdef DEEP_USE_SSE4_1
+    Vec3::Vec3(SSE_m128 sse_m128) : sse_m128(sse_m128) {
+    }
+    #else
+    Vec3::Vec3(SSE_m128 sse_m128) {
+        this->x = sse_m128.x;
+        this->y = sse_m128.y;
+        this->z = sse_m128.z;
+    }
+    #endif
+
     Vec3& Vec3::Normalize() {
         #ifdef DEEP_USE_SSE4_1
         sse_m128 = _mm_div_ps(sse_m128, _mm_sqrt_ps(_mm_dp_ps(sse_m128, sse_m128, 0x7f)));

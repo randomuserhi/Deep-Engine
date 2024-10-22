@@ -70,29 +70,29 @@ namespace Deep {
 
         // Component wise Add
         Deep_Inline SSE_m128i& operator+= (SSE_m128iArg other);
-        friend Deep_Inline SSE_m128i operator+ (SSE_m128iArg a, SSE_m128iArg b);
+        friend Deep_Inline SSE_m128i operator+ (SSE_m128i a, SSE_m128iArg b);
 
         // Component wise Sub
         Deep_Inline SSE_m128i& operator-= (SSE_m128iArg other);
-        friend Deep_Inline SSE_m128i operator- (SSE_m128iArg a, SSE_m128iArg b);
+        friend Deep_Inline SSE_m128i operator- (SSE_m128i a, SSE_m128iArg b);
         friend Deep_Inline SSE_m128i operator- (SSE_m128iArg a);
 
         // Component wise Mul
         Deep_Inline SSE_m128i& operator*= (SSE_m128iArg other);
-        friend Deep_Inline SSE_m128i operator* (SSE_m128iArg a, SSE_m128iArg b);
+        friend Deep_Inline SSE_m128i operator* (SSE_m128i a, SSE_m128iArg b);
 
         // Component wise Div
         Deep_Inline SSE_m128i& operator/= (SSE_m128iArg other);
-        friend Deep_Inline SSE_m128i operator/ (SSE_m128iArg a, SSE_m128iArg b);
+        friend Deep_Inline SSE_m128i operator/ (SSE_m128i a, SSE_m128iArg b);
 
         // Mul components with float
         Deep_Inline SSE_m128i& operator*= (int32 other);
-        friend Deep_Inline SSE_m128i operator* (SSE_m128iArg v, int32 a);
+        friend Deep_Inline SSE_m128i operator* (SSE_m128i v, int32 a);
         friend Deep_Inline SSE_m128i operator* (int32 a, SSE_m128iArg v);
 
         // Div components with float
         Deep_Inline SSE_m128i& operator/= (int32 other);
-        friend Deep_Inline SSE_m128i operator/ (SSE_m128iArg v, int32 a);
+        friend Deep_Inline SSE_m128i operator/ (SSE_m128i v, int32 a);
         friend Deep_Inline SSE_m128i operator/ (int32 a, SSE_m128iArg v);
 
         union {

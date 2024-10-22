@@ -24,6 +24,7 @@
     <ClInclude Include="Deep\ECS.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
     <ClInclude Include="Deep\Math.h" />
+    <ClInclude Include="Deep\Math\Constants.h" />
     <ClInclude Include="Deep\Math\_SSE_m128.h" />
     <ClInclude Include="Deep\Math\_SSE_m128i.h" />
     <ClInclude Include="Deep\Math\_Mat4.h" />

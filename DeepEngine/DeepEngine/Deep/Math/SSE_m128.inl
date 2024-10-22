@@ -100,17 +100,8 @@ namespace Deep {
         return *this;
     }
 
-    SSE_m128 operator+ (SSE_m128Arg a, SSE_m128Arg b) {
-        #ifdef DEEP_USE_SSE4_1
-        return _mm_add_ps(a, b);
-        #else
-        return SSE_m128{
-            a.x + b.x,
-            a.y + b.y,
-            a.z + b.z,
-            a.w + b.w
-        };
-        #endif
+    SSE_m128 operator+ (SSE_m128 a, SSE_m128Arg b) {
+        return a += b;
     }
 
     SSE_m128& SSE_m128::operator-= (SSE_m128Arg other) {
@@ -125,17 +116,8 @@ namespace Deep {
         return *this;
     }
 
-    SSE_m128 operator- (SSE_m128Arg a, SSE_m128Arg b) {
-        #ifdef DEEP_USE_SSE4_1
-        return _mm_sub_ps(a, b);
-        #else
-        return SSE_m128{
-            a.x - b.x,
-            a.y - b.y,
-            a.z - b.z,
-            a.w - b.w
-        };
-        #endif
+    SSE_m128 operator- (SSE_m128 a, SSE_m128Arg b) {
+        return a -= b;
     }
 
     SSE_m128 operator- (SSE_m128Arg a) {
@@ -163,17 +145,8 @@ namespace Deep {
         #endif
         return *this;
     }
-    SSE_m128 operator* (SSE_m128Arg a, SSE_m128Arg b) {
-        #ifdef DEEP_USE_SSE4_1
-        return _mm_mul_ps(a, b);
-        #else
-        return SSE_m128{
-            a.x * b.x,
-            a.y * b.y,
-            a.z * b.z,
-            a.w * b.w
-        };
-        #endif
+    SSE_m128 operator* (SSE_m128 a, SSE_m128Arg b) {
+        return a *= b;
     }
 
     SSE_m128& SSE_m128::operator*= (float32 other) {
@@ -188,17 +161,8 @@ namespace Deep {
         return *this;
     }
 
-    SSE_m128 operator* (SSE_m128Arg v, float32 a) {
-        #ifdef DEEP_USE_SSE4_1
-        return _mm_mul_ps(v, _mm_set1_ps(a));
-        #else
-        return SSE_m128{
-            v.x * a,
-            v.y * a,
-            v.z * a,
-            v.w * a
-        };
-        #endif
+    SSE_m128 operator* (SSE_m128 v, float32 a) {
+        return v *= a;
     }
 
     SSE_m128 operator* (float32 a, SSE_m128Arg v) {
@@ -225,17 +189,8 @@ namespace Deep {
         #endif
         return *this;
     }
-    SSE_m128 operator/ (SSE_m128Arg a, SSE_m128Arg b) {
-        #ifdef DEEP_USE_SSE4_1
-        return _mm_div_ps(a, b);
-        #else
-        return SSE_m128{
-            a.x / b.x,
-            a.y / b.y,
-            a.z / b.z,
-            a.w / b.w
-        };
-        #endif
+    SSE_m128 operator/ (SSE_m128 a, SSE_m128Arg b) {
+        return a /= b;
     }
 
     SSE_m128& SSE_m128::operator/= (float32 other) {
@@ -250,17 +205,8 @@ namespace Deep {
         return *this;
     }
 
-    SSE_m128 operator/ (SSE_m128Arg v, float32 a) {
-        #ifdef DEEP_USE_SSE4_1
-        return _mm_div_ps(v, _mm_set1_ps(a));
-        #else
-        return SSE_m128{
-            v.x / a,
-            v.y / a,
-            v.z / a,
-            v.w / a
-        };
-        #endif
+    SSE_m128 operator/ (SSE_m128 v, float32 a) {
+        return v /= a;
     }
 
     SSE_m128 operator/ (float32 a, SSE_m128Arg v) {

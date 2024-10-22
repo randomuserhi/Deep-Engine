@@ -11,6 +11,8 @@ namespace Deep {
         Vec4(const Vec4& other) = default;
         Vec4& operator= (const Vec4& other) = default;
         Deep_Inline Vec4(float32 x, float32 y, float32 z, float32 w);
+        explicit Deep_Inline Vec4(SSE_m128 sse_m128);
+        explicit Deep_Inline Vec4(Vec3Arg v, float32 w);
 
         Deep_Inline Vec4& Normalize();
         Deep_Inline [[nodiscard]] Vec4 normalized() const;

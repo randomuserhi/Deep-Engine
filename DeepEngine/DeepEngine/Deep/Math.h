@@ -5,8 +5,8 @@
  * This is because this engine is optimised with float32. Higher precision is not supported.
  */
 
-// NOTE(randomuserhi): Math uses Left-Hand coordinate system so quaternions rotate counter-clockwise -> 
-//                     https://gamedev.stackexchange.com/questions/87612/quaternion-rotation-clockwise-or-counter-clockwise
+ // NOTE(randomuserhi): Math uses Left-Hand coordinate system so quaternions rotate counter-clockwise -> 
+ //                     https://gamedev.stackexchange.com/questions/87612/quaternion-rotation-clockwise-or-counter-clockwise
 
 #pragma once
 
@@ -27,8 +27,6 @@
 #endif
 
 #include <cmath>
-
-#define PI 3.141592653589793f
 
 namespace Deep {
     // NOTE(randomuserhi): https://stackoverflow.com/questions/13721839/if-stdmax-returns-by-reference-as-it-must-might-that-lead-to-a-dangling-r
@@ -67,7 +65,26 @@ namespace Deep {
     Deep_Inline constexpr T Sign(const T& x) {
         return x < 0 ? static_cast<T>(-1) : static_cast<T>(1);
     }
+
+    template <typename T>
+    Deep_Inline constexpr T Sin(const T& x) {
+        return std::sin(x);
+    }
+
+    template <typename T>
+    Deep_Inline constexpr T Cos(const T& x) {
+        return std::cos(x);
+    }
+
+    template<typename T>
+    Deep_Inline constexpr bool isClose(const T& a, const T& b, const T& rtol = 1e-05f, const T& atol = 1e-06f) {
+        // NOTE(randomuserhi): https://numpy.org/devdocs/reference/generated/numpy.isclose.html, uses `a` instead `b` as relative point
+        // NOTE(randomuserhi): Does not account for NaN
+        return Abs(a - b) <= (atol + rtol * Abs(a));
+    }
 }
+
+#include "./Math/Constants.h"
 
 // NOTE(randomuserhi): Below import order is important as there are cyclic references that have to be declared first, prior implementation.
 //                     For this reason, individual math components cannot be imported on their own.

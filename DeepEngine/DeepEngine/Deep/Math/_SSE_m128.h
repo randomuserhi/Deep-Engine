@@ -56,29 +56,29 @@ namespace Deep {
 
         // Component wise Add
         Deep_Inline SSE_m128& operator+= (SSE_m128Arg other);
-        friend Deep_Inline SSE_m128 operator+ (SSE_m128Arg a, SSE_m128Arg b);
+        friend Deep_Inline SSE_m128 operator+ (SSE_m128 a, SSE_m128Arg b);
 
         // Component wise Sub
         Deep_Inline SSE_m128& operator-= (SSE_m128Arg other);
-        friend Deep_Inline SSE_m128 operator- (SSE_m128Arg a, SSE_m128Arg b);
+        friend Deep_Inline SSE_m128 operator- (SSE_m128 a, SSE_m128Arg b);
         friend Deep_Inline SSE_m128 operator- (SSE_m128Arg a);
 
         // Component wise Mul
         Deep_Inline SSE_m128& operator*= (SSE_m128Arg other);
-        friend Deep_Inline SSE_m128 operator* (SSE_m128Arg a, SSE_m128Arg b);
+        friend Deep_Inline SSE_m128 operator* (SSE_m128 a, SSE_m128Arg b);
 
         // Component wise Div
         Deep_Inline SSE_m128& operator/= (SSE_m128Arg other);
-        friend Deep_Inline SSE_m128 operator/ (SSE_m128Arg a, SSE_m128Arg b);
+        friend Deep_Inline SSE_m128 operator/ (SSE_m128 a, SSE_m128Arg b);
 
         // Mul components with float
         Deep_Inline SSE_m128& operator*= (float32 other);
-        friend Deep_Inline SSE_m128 operator* (SSE_m128Arg v, float32 a);
+        friend Deep_Inline SSE_m128 operator* (SSE_m128 v, float32 a);
         friend Deep_Inline SSE_m128 operator* (float32 a, SSE_m128Arg v);
 
         // Div components with float
         Deep_Inline SSE_m128& operator/= (float32 other);
-        friend Deep_Inline SSE_m128 operator/ (SSE_m128Arg v, float32 a);
+        friend Deep_Inline SSE_m128 operator/ (SSE_m128 v, float32 a);
         friend Deep_Inline SSE_m128 operator/ (float32 a, SSE_m128Arg v);
 
         // Calculate the sin and cosin for each component and store the result

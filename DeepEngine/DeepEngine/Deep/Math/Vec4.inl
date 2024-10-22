@@ -13,6 +13,20 @@ namespace Deep {
     }
     #endif
 
+    Vec4::Vec4(SSE_m128 sse_m128) : sse_m128(sse_m128) {
+    }
+
+    Vec4::Vec4(Vec3Arg v, float32 w) {
+        #ifdef DEEP_USE_SSE4_1
+        sse_m128 = _mm_blend_ps(v.sse_m128, _mm_set1_ps(w), 8);
+        #else
+        this->x = v.x;
+        this->y = v.y;
+        this->z = v.z;
+        this->w = w;
+        #endif
+    }
+
     Vec4& Vec4::Normalize() {
         #ifdef DEEP_USE_SSE4_1
         sse_m128 = _mm_div_ps(sse_m128, _mm_sqrt_ps(_mm_dp_ps(sse_m128, sse_m128, 0xff)));
@@ -141,4 +155,4 @@ namespace Deep {
         result.sse_m128 = a / v.sse_m128;
         return result;
     }
-    }
+}
