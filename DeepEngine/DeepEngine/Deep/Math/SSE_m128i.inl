@@ -55,10 +55,12 @@ namespace Deep {
         #ifdef DEEP_USE_SSE
         return _mm_movemask_ps(_mm_castsi128_ps(_internal));
         #else
-        return (Deep::BitCast<uint32>(x) >> 31u)
-            | ((Deep::BitCast<uint32>(y) >> 31u) << 1)
-            | ((Deep::BitCast<uint32>(z) >> 31u) << 2u)
-            | ((Deep::BitCast<uint32>(w) >> 31u) << 3u);
+        // NOTE(randomuserhi): Casting int32 to uint32 is well defined to be no-op as if implemented with twos-complement, https://stackoverflow.com/a/59601196
+        //                     So no need for a bitcast
+        return (static_cast<uint32>(x) >> 31u)
+            | ((static_cast<uint32>(y) >> 31u) << 1)
+            | ((static_cast<uint32>(z) >> 31u) << 2u)
+            | ((static_cast<uint32>(w) >> 31u) << 3u);
         #endif
     }
 
@@ -93,10 +95,10 @@ namespace Deep {
         return _mm_cmpeq_epi32(a, b);
         #else
         return SSE_m128i{
-            a.x == b.x ? (int32)0xffffffff : 0,
-            a.y == b.y ? (int32)0xffffffff : 0,
-            a.z == b.z ? (int32)0xffffffff : 0,
-            a.w == b.w ? (int32)0xffffffff : 0
+            a.x == b.x ? static_cast<int32>(0xffffffff) : 0,
+            a.y == b.y ? static_cast<int32>(0xffffffff) : 0,
+            a.z == b.z ? static_cast<int32>(0xffffffff) : 0,
+            a.w == b.w ? static_cast<int32>(0xffffffff) : 0
         };
         #endif
     }
@@ -115,7 +117,7 @@ namespace Deep {
             w << Count
         };
         #endif
-}
+    }
 
     template <const uint Count>
     SSE_m128i SSE_m128i::LogicalShiftRight() const {
