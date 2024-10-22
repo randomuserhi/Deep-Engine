@@ -10,7 +10,7 @@
 #include <immintrin.h>
 #endif
 
-// Bitcast support for different Cpp versions
+ // Bitcast support for different Cpp versions
 #if __cplusplus >= 202002L
 #include <bit>
 #elif defined(DEEP_COMPILER_MSVC)
@@ -75,25 +75,54 @@ namespace Deep {
     }
 
     // Compute number of trailing zero bits (how many low bits are zero)
-    inline uint NumTrailingZeros(uint32 inValue) {
+    inline uint NumTrailingZeros(uint32 value) {
         #if defined(DEEP_CPU_X86)
         #if defined(DEEP_USE_TZCNT)
-        return _tzcnt_u32(inValue);
+        return _tzcnt_u32(value);
         #elif defined(DEEP_COMPILER_MSVC)
-        if (inValue == 0) {
+        if (value == 0) {
             return 32;
         }
         unsigned long result;
-        _BitScanForward(&result, inValue);
+        _BitScanForward(&result, value);
         return result;
         #else
-        if (inValue == 0) {
+        if (value == 0) {
             return 32;
         }
-        return __builtin_ctz(inValue);
+        return __builtin_ctz(value);
         #endif
         #else
-        #error Unsupported Architecture
+        #if __cplusplus >= 202002L
+        return std::countr_zero(value);
+        #else
+        // NOTE(randomuserhi): Taken from https://stackoverflow.com/a/45225089
+        if (value == 0) {
+            return 32;
+        }
+
+        uint32 n = 0;
+        /* mask the 16 low order bits, add 16 and shift them out if they are all 0 */
+        if ((value & 0x0000FFFF) == 0) {
+            n += 16; value >>= 16;
+        }
+        /* mask the 8 low order bits, add 8 and shift them out if they are all 0 */
+        if ((value & 0x000000FF) == 0) {
+            n += 8; value >>= 8;
+        }
+        /* mask the 4 low order bits, add 4 and shift them out if they are all 0 */
+        if ((value & 0x0000000F) == 0) {
+            n += 4; value >>= 4;
+        }
+        /* mask the 2 low order bits, add 2 and shift them out if they are all 0 */
+        if ((value & 0x00000003) == 0) {
+            n += 2; value >>= 2;
+        }
+        /* mask the low order bit and add 1 if it is 0 */
+        n += (value & 1) ^ 1;
+
+        return n;
+        #endif
         #endif
     }
 

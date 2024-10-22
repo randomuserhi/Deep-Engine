@@ -2,13 +2,13 @@
 
 #include "../../Deep.h"
 
+#include "../NonCopyable.h"
 #include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <queue>
 #include <thread>
-#include "../NonCopyable.h"
 
 // TODO(randomuserhi): Refactor => needs to support proper task distribution (ensure all cores are utilized fully)
 // TODO(randomuserhi): Thread affinity ?? => seems platform dependent
@@ -53,6 +53,6 @@ namespace Deep {
 
         void Join();
 
-        const size_t numThreads;
+        const int32 numThreads;
     };
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./Semaphore.h" // not needed btw
 #include "../Math.h"
+#include "./Semaphore.h" // not needed btw
 
 #ifdef DEEP_PLATFORM_WINDOWS
 #include <windows.h>

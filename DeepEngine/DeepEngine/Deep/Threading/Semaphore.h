@@ -31,7 +31,7 @@ namespace Deep {
         // We increment count for every release, to acquire we decrement the count
         // If the count is negative we know that we are waiting on the actual semaphore
         alignas(DEEP_CACHE_LINE_SIZE) std::atomic<int32> count{ 0 };
-        std::counting_semaphore<leastMaxValue> semaphore;
+        std::counting_semaphore<leastMaxValue> semaphore{ 0 };
 
         #else
 

@@ -4,13 +4,14 @@
 
 #include "./JobSystem.h"
 
-// TODO(randomuserhi): Thread affinity ?? => seems platform dependent
-//#include <windows.h>
-//DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
+ // TODO(randomuserhi): Thread affinity ?? => seems platform dependent
+ //#include <windows.h>
+ //DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
 
 namespace Deep {
-    JobSystem::JobSystem(size_t numThreads, uint32 maxJobs) :
+    JobSystem::JobSystem(int32 numThreads, uint32 maxJobs) :
         jobs(maxJobs, maxJobs), numThreads(numThreads) {
+        Deep_Assert(numThreads >= 0, "Number of threads must be >= 0.");
 
         StartThreads();
     }

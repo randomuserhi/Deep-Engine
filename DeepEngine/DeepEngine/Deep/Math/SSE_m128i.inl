@@ -55,7 +55,10 @@ namespace Deep {
         #ifdef DEEP_USE_SSE
         return _mm_movemask_ps(_mm_castsi128_ps(_internal));
         #else
-        return (x >> 31) | ((y >> 31) << 1) | ((z >> 31) << 2) | ((w >> 31) << 3);
+        return (Deep::BitCast<uint32>(x) >> 31u)
+            | ((Deep::BitCast<uint32>(y) >> 31u) << 1)
+            | ((Deep::BitCast<uint32>(z) >> 31u) << 2u)
+            | ((Deep::BitCast<uint32>(w) >> 31u) << 3u);
         #endif
     }
 
@@ -112,7 +115,7 @@ namespace Deep {
             w << Count
         };
         #endif
-    }
+}
 
     template <const uint Count>
     SSE_m128i SSE_m128i::LogicalShiftRight() const {

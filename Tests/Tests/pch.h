@@ -11,3 +11,6 @@
 
 // Enable asserts
 #define DEEP_ENABLE_ASSERTS
+
+// Disable SIMD
+//#define DEEP_DONT_USE_SIMD_INTRINSICS

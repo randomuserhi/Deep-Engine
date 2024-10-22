@@ -2,6 +2,18 @@
 #include "Deep.h"
 #include "Deep/Math.h"
 
+// TODO(randomuserhi): Move BitHelper tests elsewhere...
+#include "Deep/BitHelper.h"
+#include <bitset>
+
+TEST(BitHelper, NumberTrailingZeros) {
+    EXPECT_EQ(Deep::NumTrailingZeros(0u), 32u);
+    EXPECT_EQ(Deep::NumTrailingZeros(1u), 0u);
+    EXPECT_EQ(Deep::NumTrailingZeros(2u), 1u);
+    EXPECT_EQ(Deep::NumTrailingZeros(4u), 2u);
+    EXPECT_EQ(Deep::NumTrailingZeros(0xFFFFFFFFu), 0u);
+}
+
 TEST(Mat4, Equality) {
     const Deep::Mat4 a{
         1, 0, 0, 0,
@@ -54,5 +66,5 @@ TEST(Mat4, Multiplication) {
         0, 0, 4, 0
     };
 
-    EXPECT_TRUE((a * b) == c);
+    EXPECT_EQ((a * b), c);
 }

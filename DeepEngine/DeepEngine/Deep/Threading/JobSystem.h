@@ -5,10 +5,10 @@
 #pragma once
 
 #include "../../Deep.h"
-#include "../NonCopyable.h"
 #include "../BitHelper.h"
-#include "./semaphore.h"
 #include "../Memory/FixedSizeFreeList.h"
+#include "../NonCopyable.h"
+#include "./semaphore.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -17,24 +17,24 @@
 #include <queue>
 #include <thread>
 
-/// TODO:
-/// [x] JobSystem(size_t numThreads)
-/// [ ] JobHandle job = JobSystem.CreateJob(std::function<void()> job, uint32 numDependencies)
-/// [ ] job.Acquire(1)
-/// [ ] job.Release(1)
-/// [ ] JobSystem.Enqueue(job);
-/// [ ] Barrier barrier = JobSystem.CreateBarrier();
-/// [ ] barrier.WaitAll()
-/// [ ] JobSystem.Wait(job) -> inline creates a barrier and calls barrier.WaitAll()
-///
-/// DETAILS:
-/// [ ] Job Queue -> lockless
-/// [ ] JobHandle reference
-/// [ ] ThreadMain implementation (check job queue)
-/// 
-/// Things to Note
-/// - Construction of condition_variable and mutex being slow
-/// - Creating a barrier in a Job will consume a thread until that barrier is released
+ /// TODO:
+ /// [x] JobSystem(size_t numThreads)
+ /// [ ] JobHandle job = JobSystem.CreateJob(std::function<void()> job, uint32 numDependencies)
+ /// [ ] job.Acquire(1)
+ /// [ ] job.Release(1)
+ /// [ ] JobSystem.Enqueue(job);
+ /// [ ] Barrier barrier = JobSystem.CreateBarrier();
+ /// [ ] barrier.WaitAll()
+ /// [ ] JobSystem.Wait(job) -> inline creates a barrier and calls barrier.WaitAll()
+ ///
+ /// DETAILS:
+ /// [ ] Job Queue -> lockless
+ /// [ ] JobHandle reference
+ /// [ ] ThreadMain implementation (check job queue)
+ /// 
+ /// Things to Note
+ /// - Construction of condition_variable and mutex being slow
+ /// - Creating a barrier in a Job will consume a thread until that barrier is released
 
 namespace Deep {
     class JobSystem : NonCopyable {
@@ -69,7 +69,7 @@ namespace Deep {
         };
 
         // Constructors
-        explicit JobSystem(size_t numThreads, uint32 maxJobs);
+        explicit JobSystem(int32 numThreads, uint32 maxJobs);
         ~JobSystem();
 
         JobHandle CreateJob(JobFunction jobFunction, uint32 numDependencies);
