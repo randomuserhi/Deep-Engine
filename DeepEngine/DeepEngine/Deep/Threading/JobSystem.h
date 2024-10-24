@@ -46,6 +46,12 @@ namespace Deep {
         public:
             Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies);
 
+            // Acquire a reference to this job
+            void Acquire();
+
+            // Release a reference to this job
+            void Release();
+
         private:
             // Job system that owns this job
             const JobSystem* jobSystem;
@@ -53,7 +59,7 @@ namespace Deep {
             // Function the job executes
             JobFunction jobFunction;
 
-            // Number of references to this job. Used for reference counting to automatically free the job.
+            // Number of references to this job. Used for reference counting to free the job.
             std::atomic<uint32> referenceCount;
 
             // Number of dependencies left before this job can execute
@@ -62,10 +68,42 @@ namespace Deep {
 
     public:
         class JobHandle {
+        public:
+            JobHandle() = default;
+            JobHandle(Job* job);
+            JobHandle(const JobHandle& handle);
+            JobHandle(JobHandle&& handle) noexcept;
+
+            // Assignment operators
+            Deep_Inline JobHandle& operator= (Job* job);
+            Deep_Inline JobHandle& operator= (const JobHandle& handle);
+            Deep_Inline JobHandle& operator= (JobHandle&& handle) noexcept;
+
+            // Casting operators
+            Deep_Inline operator Job* () const;
+
+            // Pointer access
+            Deep_Inline Job* operator-> () const;
+            Deep_Inline Job& operator * () const;
+
+            // Comparison
+            Deep_Inline bool operator== (const Job* b) const;
+            Deep_Inline friend bool operator== (JobHandle& a, JobHandle& b);
+            Deep_Inline bool operator!= (const Job* b) const;
+            Deep_Inline friend bool operator!= (JobHandle& a, JobHandle& b);
+
+            Deep_Inline Job* GetPtr() const;
+
             // TODO(randomuserhi): ...
 
         private:
-            Job* job;
+            // Wrapper for job->Acquire
+            Deep_Inline void Acquire();
+
+            // Wrapper for job->Release
+            Deep_Inline void Release();
+
+            Job* job = nullptr;
         };
 
         // Constructors
@@ -93,3 +131,5 @@ namespace Deep {
 
     using JobHandle = JobSystem::JobHandle;
 }
+
+#include "./JobSystem.inl"

@@ -8,6 +8,7 @@
  //#include <windows.h>
  //DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
 
+// Class JobSystem
 namespace Deep {
     JobSystem::JobSystem(int32 numThreads, uint32 maxJobs) :
         jobs(maxJobs, maxJobs), numThreads(numThreads) {
@@ -68,9 +69,28 @@ namespace Deep {
     }
 }
 
+// Class Job
 namespace Deep {
     JobSystem::Job::Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies) :
         jobSystem(jobSystem), jobFunction(jobFunction), numDependencies(numDependencies) {
 
+    }
+}
+
+// Class JobHandle
+namespace Deep {
+    JobSystem::JobHandle::JobHandle(JobSystem::Job* job) :
+        job(job) {
+        Acquire();
+    }
+
+    JobSystem::JobHandle::JobHandle(const JobSystem::JobHandle& handle) :
+        job(handle.job) {
+        Acquire();
+    }
+
+    JobSystem::JobHandle::JobHandle(JobSystem::JobHandle&& handle) noexcept :
+        job(handle.job) {
+        handle.job = nullptr;
     }
 }
