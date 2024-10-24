@@ -76,21 +76,3 @@ namespace Deep {
 
     }
 }
-
-// Class JobHandle
-namespace Deep {
-    JobSystem::JobHandle::JobHandle(JobSystem::Job* job) :
-        job(job) {
-        Acquire();
-    }
-
-    JobSystem::JobHandle::JobHandle(const JobSystem::JobHandle& handle) :
-        job(handle.job) {
-        Acquire();
-    }
-
-    JobSystem::JobHandle::JobHandle(JobSystem::JobHandle&& handle) noexcept :
-        job(handle.job) {
-        handle.job = nullptr;
-    }
-}

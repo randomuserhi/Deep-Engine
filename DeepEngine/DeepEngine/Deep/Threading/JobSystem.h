@@ -47,14 +47,20 @@ namespace Deep {
             Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies);
 
             // Acquire a reference to this job
-            void Acquire();
+            Deep_Inline void Acquire();
 
             // Release a reference to this job
-            void Release();
+            Deep_Inline void Release();
+
+            // Add a dependency
+            Deep_Inline void AddDependency(uint32 count);
+
+            // Remove a dependency
+            Deep_Inline bool RemoveDependency(uint32 count);
 
         private:
             // Job system that owns this job
-            const JobSystem* jobSystem;
+            JobSystem* const jobSystem;
 
             // Function the job executes
             JobFunction jobFunction;
@@ -69,10 +75,10 @@ namespace Deep {
     public:
         class JobHandle {
         public:
-            JobHandle() = default;
-            JobHandle(Job* job);
-            JobHandle(const JobHandle& handle);
-            JobHandle(JobHandle&& handle) noexcept;
+            Deep_Inline JobHandle() = default;
+            Deep_Inline JobHandle(Job* job);
+            Deep_Inline JobHandle(const JobHandle& handle);
+            Deep_Inline JobHandle(JobHandle&& handle) noexcept;
 
             // Assignment operators
             Deep_Inline JobHandle& operator= (Job* job);
@@ -93,6 +99,9 @@ namespace Deep {
             Deep_Inline friend bool operator!= (JobHandle& a, JobHandle& b);
 
             Deep_Inline Job* GetPtr() const;
+
+            Deep_Inline void AddDependency(uint32 count) const;
+            Deep_Inline void RemoveDependency(uint32 count) const;
 
             // TODO(randomuserhi): ...
 
@@ -118,13 +127,15 @@ namespace Deep {
         void StopThreads();
         void ThreadMain(size_t id);
 
+        Deep_Inline void FreeJob(Job* job);
+
         Semaphore<INT_MAX> semaphore;
 
         FixedSizeFreeList<Job> jobs;
 
         std::thread* threads = nullptr;
 
-        size_t numThreads;
+        const size_t numThreads;
 
         std::atomic<bool> running = true;
     };

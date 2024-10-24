@@ -2,8 +2,69 @@
 
 #include "./JobSystem.h" // TODO(randomuserhi): Remove 
 
+// Class JobSystem
+namespace Deep {
+    void JobSystem::FreeJob(JobSystem::Job* job) {
+        jobs.FreeItem(job);
+    }
+}
+
+// Class Job
+namespace Deep {
+    void JobSystem::Job::Acquire() {
+        referenceCount.fetch_add(1, std::memory_order_relaxed);
+    }
+
+    void JobSystem::Job::Release() {
+        // TODO(randomuserhi): Learn why the release semantics are this way...
+
+        // Releasing a reference must use release semantics...
+        if (referenceCount.fetch_sub(1, std::memory_order_release) == 1) {
+            // ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before freeing the job
+            std::atomic_thread_fence(std::memory_order_acquire);
+            jobSystem->FreeJob(this);
+        }
+
+        // NOTE(randomuserhi): For TSAN no atomic_thread_fence can be used, so the below alternative is required
+        // TODO(randomuserhi): TSAN #define flag
+        /*
+        if (referenceCount.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+            jobSystem->jobs.FreeItem(this);
+        }
+        */
+    }
+
+    void JobSystem::Job::AddDependency(uint32 count) {
+        // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
+        numDependencies.fetch_add(count, std::memory_order_relaxed);
+    }
+
+    bool JobSystem::Job::RemoveDependency(uint32 count) {
+        uint32 oldCount = numDependencies.fetch_sub(count, std::memory_order_release);
+        // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
+        uint32 newCount = oldCount - count;
+        Deep_Assert(oldCount > newCount, "Test wrap around, this is a logic error.");
+        return newCount == 0;
+    }
+}
+
 // Class JobHandle
 namespace Deep {
+    JobSystem::JobHandle::JobHandle(JobSystem::Job* job) :
+        job(job) {
+        Acquire();
+    }
+
+    JobSystem::JobHandle::JobHandle(const JobSystem::JobHandle& handle) :
+        job(handle.job) {
+        Acquire();
+    }
+
+    JobSystem::JobHandle::JobHandle(JobSystem::JobHandle&& handle) noexcept :
+        job(handle.job) {
+        handle.job = nullptr;
+    }
+
     void JobSystem::JobHandle::Acquire() {
         if (job != nullptr) {
             job->Acquire();
@@ -61,5 +122,13 @@ namespace Deep {
 
     JobSystem::Job* JobSystem::JobHandle::GetPtr() const {
         return job;
+    }
+
+    void JobSystem::JobHandle::AddDependency(uint32 count = 1) const {
+        job->AddDependency(count);
+    }
+
+    void JobSystem::JobHandle::RemoveDependency(uint32 count = 1) const {
+        job->RemoveDependency(count);
     }
 }
