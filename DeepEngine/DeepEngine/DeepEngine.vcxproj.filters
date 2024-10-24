@@ -193,5 +193,8 @@
     <None Include="Deep\Memory.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="Deep\Threading\JobSystem.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

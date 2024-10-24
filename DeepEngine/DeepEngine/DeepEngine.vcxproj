@@ -88,6 +88,7 @@
     <None Include="Deep\Sock.inl" />
     <None Include="Deep\Sock\IPv4.inl" />
     <None Include="Deep\Memory\FixedSizeFreeList.inl" />
+    <None Include="Deep\Threading\JobSystem.inl" />
     <None Include="Deep\Threading\Semaphore.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
