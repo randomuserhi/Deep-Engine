@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../BitHelper.h"
 #include "../Math.h"
 #include "../Memory.h"
-#include "../BitHelper.h"
 
 #include <type_traits>
 
@@ -83,7 +83,7 @@ namespace Deep {
     }
 
     template<typename T>
-    const T& FixedSizeFreeList<T>::operator[](uint32 itemIndex) const {
+    T& FixedSizeFreeList<T>::operator[](uint32 itemIndex) const {
         return GetStorage(itemIndex).item;
     }
 
@@ -234,5 +234,5 @@ namespace Deep {
                 }
             }
         }
-}
+    }
 }

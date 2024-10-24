@@ -63,9 +63,17 @@ namespace Deep {
             // If we can't, then stall
             std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
-        const Job* job = &jobs[index];
+        Job* const job = &jobs[index];
 
-        // TODO(randomuserhi): Create and return handle
+        // Create handle
+        JobHandle handle{ job };
+
+        // If there are no dependencies, queue the job now
+        if (numDependencies == 0) {
+            // TODO(randomuserhi): Queue job
+        }
+
+        return handle;
     }
 }
 

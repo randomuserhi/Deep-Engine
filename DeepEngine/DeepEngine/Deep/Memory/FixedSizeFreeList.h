@@ -76,7 +76,7 @@ namespace Deep {
         inline void FreeBatch(Batch& rwBatch);
 
         // Get an item by index
-        Deep_Inline const T& operator[](uint32 itemIndex) const;
+        Deep_Inline T& operator[](uint32 itemIndex) const;
 
     private:
         // Get item storage via index
