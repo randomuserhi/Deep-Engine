@@ -12,7 +12,7 @@
 namespace Deep {
     JobSystem::JobSystem(int32 numThreads, uint32 maxJobs) :
         jobs(maxJobs, maxJobs), numThreads(numThreads) {
-        Deep_Assert(numThreads >= 0, "Number of threads must be >= 0.");
+        Deep_Assert(Sign(numThreads) == 1, "Number of threads must be positive.");
 
         StartThreads();
     }
@@ -26,8 +26,8 @@ namespace Deep {
 
         running = true;
         threads = reinterpret_cast<std::thread*>(Malloc(numThreads * sizeof(std::thread)));
-        for (size_t i = 0; i < numThreads; ++i) {
-            ::new (threads) std::thread([this, i] { ThreadMain(i); });
+        for (int32 i = 0; i < numThreads; ++i) {
+            ::new (threads + i) std::thread([this, i] { ThreadMain(i); });
         }
     }
 
@@ -37,7 +37,7 @@ namespace Deep {
         running = false;
         semaphore.Release(numThreads);
 
-        for (size_t i = 0; i < numThreads; ++i) {
+        for (int32 i = 0; i < numThreads; ++i) {
             std::thread& thread = threads[i];
             if (thread.joinable()) {
                 thread.join();
@@ -47,7 +47,7 @@ namespace Deep {
         Free(threads);
     }
 
-    void JobSystem::ThreadMain(size_t id) {
+    void JobSystem::ThreadMain(int32 id) {
 
     }
 
@@ -65,15 +65,7 @@ namespace Deep {
         }
         Job* const job = &jobs[index];
 
-        // Create handle
-        JobHandle handle{ job };
-
-        // If there are no dependencies, queue the job now
-        if (numDependencies == 0) {
-            // TODO(randomuserhi): Queue job
-        }
-
-        return handle;
+        return JobHandle{ job };
     }
 }
 

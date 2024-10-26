@@ -71,13 +71,7 @@ namespace Deep {
     }
 
     template<typename T>
-    const typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) const {
-        Deep_Assert(index != invalidItemIndex, "Invalid index.");
-        return pages[index >> pageShift][index & itemMask];
-    }
-
-    template<typename T>
-    typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) {
+    typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) const {
         Deep_Assert(index != invalidItemIndex, "Invalid index.");
         return pages[index >> pageShift][index & itemMask];
     }
@@ -134,8 +128,8 @@ namespace Deep {
                     return firstFree;
                 }
             }
-        }
-    }
+                }
+            }
 
     template<typename T>
     void FixedSizeFreeList<T>::FreeItem(uint32 itemIndex) {
@@ -212,8 +206,8 @@ namespace Deep {
                     ItemStorage& storage = GetStorage(itemIndex);
                     storage.item.~T();
                     itemIndex = storage.nextFreeItem.load(std::memory_order_relaxed);
-                } while (itemIndex != invalidItemIndex);
-            }
+            } while (itemIndex != invalidItemIndex);
+        }
 
             ItemStorage& storage = GetStorage(batch.lastItemIndex);
             for (;;) {

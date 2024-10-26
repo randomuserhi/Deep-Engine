@@ -125,7 +125,7 @@ namespace Deep {
     private:
         void StartThreads();
         void StopThreads();
-        void ThreadMain(size_t id);
+        void ThreadMain(int32 id);
 
         Deep_Inline void FreeJob(Job* job);
 
@@ -135,7 +135,7 @@ namespace Deep {
 
         std::thread* threads = nullptr;
 
-        const size_t numThreads;
+        const int32 numThreads;
 
         std::atomic<bool> running = true;
     };

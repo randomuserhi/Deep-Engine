@@ -80,8 +80,7 @@ namespace Deep {
 
     private:
         // Get item storage via index
-        inline const ItemStorage& GetStorage(uint32 index) const;
-        inline ItemStorage& GetStorage(uint32 index);
+        inline ItemStorage& GetStorage(uint32 index) const;
 
         // Number of items per page
         uint32 pageSize;
