@@ -20,12 +20,12 @@
  /// TODO:
  /// [x] JobSystem(size_t numThreads)
  /// [ ] JobHandle job = JobSystem.CreateJob(std::function<void()> job, uint32 numDependencies)
- /// [ ] job.Acquire(1)
- /// [ ] job.Release(1)
+ /// [ ] job.AddDependency(1)
+ /// [ ] job.RemoveDependency(1)
  /// [ ] JobSystem.Enqueue(job);
+ /// [ ] JobSystem.WailAll()
  /// [ ] Barrier barrier = JobSystem.CreateBarrier();
  /// [ ] barrier.WaitAll()
- /// [ ] JobSystem.Wait(job) -> inline creates a barrier and calls barrier.WaitAll()
  ///
  /// DETAILS:
  /// [ ] Job Queue -> lockless
@@ -129,13 +129,24 @@ namespace Deep {
 
         Deep_Inline void FreeJob(Job* job);
 
-        Semaphore<INT_MAX> semaphore;
-
         FixedSizeFreeList<Job> jobs;
 
         std::thread* threads = nullptr;
 
         const int32 numThreads;
+
+        // Job queue
+        static constexpr uint32 queueLength = 1024;
+        static_assert(IsPowerOf2(queueLength), "Queue length must be a power of 2 due to bit operations.");
+        std::atomic<Job*> queue[queueLength];
+
+        // Per executing thread, the head of the job queue
+        std::atomic<uint>* heads = nullptr;
+
+        // Tail (write end) of the job queue
+        alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint> tail = 0;
+
+        Semaphore<INT_MAX> semaphore;
 
         std::atomic<bool> running = true;
     };

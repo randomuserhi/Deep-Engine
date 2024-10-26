@@ -58,8 +58,8 @@ namespace Deep {
         #ifdef DEEP_PLATFORM_WINDOWS
         int32 oldCount = count.fetch_add(update);
         if (oldCount < 0) {
-            int newCount = oldCount + update;
-            int numToRelease = Min(newCount, 0) - oldCount;
+            int32 newCount = oldCount + update;
+            int32 numToRelease = Min(newCount, 0) - oldCount;
             ::ReleaseSemaphore(semaphore, numToRelease, nullptr);
         }
         #else
@@ -81,8 +81,8 @@ namespace Deep {
         int32 oldCount = count.fetch_sub(update);
         int32 newCount = oldCount - update;
         if (newCount < 0) {
-            int numToAquire = Min(oldCount, 0) - newCount;
-            for (int i = 0; i < numToAquire; ++i)
+            int32 numToAquire = Min(oldCount, 0) - newCount;
+            for (int32 i = 0; i < numToAquire; ++i)
                 ::WaitForSingleObject(semaphore, INFINITE);
         }
         #else
@@ -92,4 +92,4 @@ namespace Deep {
         #endif
     }
     #endif
-    }
+}

@@ -25,6 +25,14 @@ namespace Deep {
         if (threads != nullptr || numThreads == 0) return;
 
         running = true;
+
+        // Allocate heads for job queue per thread
+        heads = reinterpret_cast<std::atomic<uint>*>(Malloc(sizeof(std::atomic<uint>) * numThreads));
+        for (int i = 0; i < numThreads; ++i) {
+            heads[i] = 0;
+        }
+
+        // Allocate and start threads
         threads = reinterpret_cast<std::thread*>(Malloc(numThreads * sizeof(std::thread)));
         for (int32 i = 0; i < numThreads; ++i) {
             ::new (threads + i) std::thread([this, i] { ThreadMain(i); });
@@ -34,9 +42,11 @@ namespace Deep {
     void JobSystem::StopThreads() {
         if (threads == nullptr) return;
 
+        // Signal threads to stop and wake them up
         running = false;
         semaphore.Release(numThreads);
 
+        // Wait for all threads to finish
         for (int32 i = 0; i < numThreads; ++i) {
             std::thread& thread = threads[i];
             if (thread.joinable()) {
@@ -44,7 +54,15 @@ namespace Deep {
             }
         }
 
+        // Free Threads
         Free(threads);
+
+        // TODO(randomuserhi): Ensure that there are no lingering jobs in the queue, release them all without executing
+
+        // Destroy queue heads and reset tail
+        Free(heads);
+        heads = nullptr;
+        tail = 0;
     }
 
     void JobSystem::ThreadMain(int32 id) {
@@ -65,6 +83,7 @@ namespace Deep {
         }
         Job* const job = &jobs[index];
 
+        // Return reference to job
         return JobHandle{ job };
     }
 }
