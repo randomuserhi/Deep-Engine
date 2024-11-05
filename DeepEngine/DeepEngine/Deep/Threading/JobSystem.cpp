@@ -69,7 +69,7 @@ namespace Deep {
 
     }
 
-    JobHandle JobSystem::CreateJob(JobFunction jobFunction, uint32 numDependencies) {
+    JobSystem::JobHandle JobSystem::CreateJob(JobFunction jobFunction, uint32 numDependencies) {
         // Loop until we can construct a job in the free list
         uint32 index;
         for (;;) {
@@ -83,8 +83,8 @@ namespace Deep {
         }
         Job* const job = &jobs[index];
 
-        // Return reference to job
-        return JobHandle{ job };
+        // Return handle
+        return JobSystem::JobHandle{ job };
     }
 }
 

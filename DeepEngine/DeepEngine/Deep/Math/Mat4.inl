@@ -110,6 +110,7 @@ namespace Deep {
     Mat4 Mat4::inversed() const {
         #ifdef DEEP_USE_SSE
         // Algorithm from: http://download.intel.com/design/PentiumIII/sml/24504301.pdf
+        // Mirror: https://peertje.daanberg.net/drivers/intel/download.intel.com/design/PentiumIII/sml/24504301.pdf
         // Streaming SIMD Extensions - Inverse of 4x4 Matrix
         // Adapted to load data using _mm_shuffle_ps instead of loading from memory
         // Replaced _mm_rcp_ps with _mm_div_ps for better accuracy
