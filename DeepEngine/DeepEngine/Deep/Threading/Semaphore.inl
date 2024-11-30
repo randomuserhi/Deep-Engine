@@ -88,7 +88,7 @@ namespace Deep {
         #else
         std::unique_lock<std::mutex> lock(mutex);
         count -= update;
-        waitVariable.wait(lock, [this]() { return count >= 0; });
+        waitVariable.wait(lock, [this]() { return count >= 0; }); // TODO(randomuserhi): Check that condition should be >= 0 rather than > 0
         #endif
     }
     #endif
