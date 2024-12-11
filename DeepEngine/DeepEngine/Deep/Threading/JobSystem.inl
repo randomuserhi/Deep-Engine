@@ -46,6 +46,12 @@ namespace Deep {
         Deep_Assert(oldCount > newCount, "Test wrap around, this is a logic error (Removed more dependencies than there are).");
         return newCount == 0;
     }
+
+    void JobSystem::Job::Execute() {
+        // TODO(randomuserhi): ...
+
+        jobFunction();
+    }
 }
 
 // Class JobHandle

@@ -23,7 +23,7 @@
  /// [ ] job.AddDependency(1)
  /// [ ] job.RemoveDependency(1)
  /// [ ] JobSystem.Enqueue(job);
- /// [ ] JobSystem.WailAll()
+ /// [ ] JobSystem.WaitAll()
  /// [ ] Barrier barrier = JobSystem.CreateBarrier();
  /// [ ] barrier.WaitAll()
  ///
@@ -57,6 +57,9 @@ namespace Deep {
 
             // Remove a dependency
             Deep_Inline bool RemoveDependency(uint32 count);
+
+            // Execute jobFunction
+            inline void Execute();
 
         private:
             // Job system that owns this job

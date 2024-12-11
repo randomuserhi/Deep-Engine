@@ -57,7 +57,15 @@ namespace Deep {
         // Free Threads
         Free(threads);
 
-        // TODO(randomuserhi): Ensure that there are no lingering jobs in the queue, release them all without executing
+        // TODO(randomuserhi): Document...
+        // Ensure that there are no lingering jobs in the queue, release them all
+        for (uint32 head = 0; head != tail; ++head) {
+            Job* job_ptr = queue[head & (queueLength - 1)].exchange(nullptr);
+            if (job_ptr != nullptr) {
+                job_ptr->Execute();
+                job_ptr->Release();
+            }
+        }
 
         // Destroy queue heads and reset tail
         Free(heads);
@@ -66,7 +74,27 @@ namespace Deep {
     }
 
     void JobSystem::ThreadMain(int32 id) {
+        // TODO(randomuserhi): Document
+        std::atomic<uint32>& head = heads[id];
 
+        while (running) {
+            semaphore.Acquire();
+
+            while (head != tail) {
+                std::atomic<JobSystem::Job*>& job = queue[head & (queueLength - 1)];
+                if (job.load() != nullptr) {
+                    JobSystem::Job* jobPtr = job.exchange(nullptr);
+                    if (jobPtr != nullptr) {
+                        jobPtr->Execute();
+                        jobPtr->Release(); // TODO(randomuserhi): Not sure if this should release now
+                                           //                     Supposedly, if the job is released
+                                           //                     it is no longer in the queue, even
+                                           //                     if the job did not execute.
+                    }
+                }
+                ++head;
+            }
+        }
     }
 
     JobSystem::JobHandle JobSystem::CreateJob(JobFunction jobFunction, uint32 numDependencies) {
