@@ -53,6 +53,7 @@ namespace Deep {
 
     void JobSystem::Job::Execute() {
         // TODO(randomuserhi): Check executing state (dont run job if it already executed / executing) -> assert only?
+        //                      - Maybe don't check if executed to allow jobs to be re-run (reused)
         //                     Check number of dependencies == 0 -> assert only?
 
         jobFunction();
