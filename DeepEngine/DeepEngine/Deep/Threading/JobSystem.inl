@@ -34,6 +34,11 @@ namespace Deep {
         */
     }
 
+    void JobSystem::Job::SetDependencies(uint32 count) {
+        // TODO(randomuserhi): Checks for if dependencies are set while a job is already running or is finished etc...
+        numDependencies.store(count, std::memory_order_relaxed);
+    }
+
     void JobSystem::Job::AddDependency(uint32 count) {
         // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
         numDependencies.fetch_add(count, std::memory_order_relaxed);

@@ -23,7 +23,6 @@
  /// [ ] job.AddDependency(1)
  /// [ ] job.RemoveDependency(1)
  /// [ ] JobSystem.Enqueue(job);
- /// [ ] JobSystem.WaitAll()
  /// [ ] Barrier barrier = JobSystem.CreateBarrier();
  /// [ ] barrier.WaitAll()
  ///
@@ -51,6 +50,9 @@ namespace Deep {
 
             // Release a reference to this job
             Deep_Inline void Release();
+
+            // Set dependencies
+            Deep_Inline void SetDependencies(uint32 count);
 
             // Add a dependency
             Deep_Inline void AddDependency(uint32 count);
@@ -122,7 +124,7 @@ namespace Deep {
         explicit JobSystem(int32 numThreads, uint32 maxJobs);
         ~JobSystem();
 
-        JobHandle CreateJob(JobFunction jobFunction, uint32 numDependencies);
+        JobHandle CreateJob(JobFunction jobFunction, uint32 numDependencies = 0);
         void Enqueue(Job* job);
 
     private:
