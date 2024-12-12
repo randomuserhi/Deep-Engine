@@ -23,9 +23,8 @@
  /// [ ] job.AddDependency(1)
  /// [ ] job.RemoveDependency(1)
  /// [ ] JobSystem.Enqueue(job);
- /// [ ] JobSystem.WaitAll()
  /// [ ] Barrier barrier = JobSystem.CreateBarrier();
- /// [ ] barrier.WaitAll()
+ /// [ ] barrier.Wait()
  ///
  /// DETAILS:
  /// [ ] Job Queue -> lockless
