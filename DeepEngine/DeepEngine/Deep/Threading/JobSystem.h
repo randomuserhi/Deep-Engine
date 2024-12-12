@@ -55,11 +55,11 @@ namespace Deep {
             // Add a dependency
             Deep_Inline void AddDependency(uint32 count);
 
-            // Remove a dependency
-            Deep_Inline bool RemoveDependency(uint32 count);
+            // Remove a dependency and queues the job when count == 0
+            Deep_Inline void RemoveDependency(uint32 count);
 
             // Execute jobFunction
-            inline void Execute();
+            Deep_Inline void Execute();
 
         private:
             // Job system that owns this job
@@ -123,7 +123,7 @@ namespace Deep {
         ~JobSystem();
 
         JobHandle CreateJob(JobFunction jobFunction, uint32 numDependencies);
-        void Enqueue(JobHandle job);
+        void Enqueue(Job* job);
 
     private:
         void StartThreads();

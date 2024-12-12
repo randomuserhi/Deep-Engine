@@ -39,16 +39,22 @@ namespace Deep {
         numDependencies.fetch_add(count, std::memory_order_relaxed);
     }
 
-    bool JobSystem::Job::RemoveDependency(uint32 count) {
+    void JobSystem::Job::RemoveDependency(uint32 count) {
         uint32 oldCount = numDependencies.fetch_sub(count, std::memory_order_release);
         // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
         uint32 newCount = oldCount - count;
         Deep_Assert(oldCount > newCount, "Test wrap around, this is a logic error (Removed more dependencies than there are).");
-        return newCount == 0;
+
+        // Queue the job if dependencies == 0
+        if (newCount == 0) {
+            jobSystem->Enqueue(this);
+        }
     }
 
     void JobSystem::Job::Execute() {
-        // TODO(randomuserhi): ...
+        // TODO(randomuserhi): Check executing state (dont run job if it already executed / executing) -> assert only?
+        //                      - Maybe don't check if executed to allow jobs to be re-run (reused)
+        //                     Check number of dependencies == 0 -> assert only?
 
         jobFunction();
     }
