@@ -108,8 +108,6 @@ namespace Deep {
             Deep_Inline void AddDependency(uint32 count) const;
             Deep_Inline void RemoveDependency(uint32 count) const;
 
-            // TODO(randomuserhi): ...
-
         private:
             // Wrapper for job->Acquire
             Deep_Inline void Acquire();
@@ -124,15 +122,22 @@ namespace Deep {
         explicit JobSystem(int32 numThreads, uint32 maxJobs);
         ~JobSystem();
 
-        JobHandle CreateJob(JobFunction jobFunction, uint32 numDependencies = 0);
-        void Enqueue(Job* job);
+        // Creates a job and queues it
+        JobHandle Enqueue(JobFunction jobFunction, uint32 numDependencies = 0);
 
     private:
         void StartThreads();
         void StopThreads();
         void ThreadMain(int32 id);
 
+        // Free a job back into free list
         Deep_Inline void FreeJob(Job* job);
+
+        // Get the head that has processed the least jobs
+        Deep_Inline uint32 GetMinHead();
+
+        // Internally add a job to the job queue
+        void QueueJob(Job* job);
 
         FixedSizeFreeList<Job> jobs;
 

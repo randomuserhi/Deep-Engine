@@ -52,7 +52,7 @@ namespace Deep {
 
         // Queue the job if dependencies == 0
         if (newCount == 0) {
-            jobSystem->Enqueue(this);
+            jobSystem->QueueJob(this);
         }
     }
 

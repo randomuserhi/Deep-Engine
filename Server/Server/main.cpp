@@ -9,7 +9,9 @@
 #include <thread>
 
 int main() {
-    size_t count = 500000000;
+    Deep::JobSystem jobSystem{ 16, 2048 };
+
+    size_t count = 16;
 
     Deep::Vec3* positions = new Deep::Vec3[count];
     Deep::Vec3* velocities = new Deep::Vec3[count];
@@ -22,8 +24,12 @@ int main() {
     auto start = std::chrono::system_clock::now();
 
     for (size_t i = 0; i < count; ++i) {
-        positions[i] += velocities[i];
+        jobSystem.Enqueue([i, &positions, &velocities]() {
+            positions[i] += velocities[i];
+            });
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     auto end = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
