@@ -33,8 +33,8 @@ namespace Deep {
         static Deep_Inline Quat FromMat4(Mat4Arg m);
 
         // Equality
-        friend Deep_Inline bool operator!=(QuatArg a, QuatArg b);
-        friend Deep_Inline bool operator==(QuatArg a, QuatArg b);
+        friend bool operator!=(QuatArg a, QuatArg b);
+        friend bool operator==(QuatArg a, QuatArg b);
 
         // Add quaternions
         Deep_Inline Quat& operator+= (QuatArg other);

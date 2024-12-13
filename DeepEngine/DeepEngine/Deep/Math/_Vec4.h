@@ -24,8 +24,8 @@ namespace Deep {
         static Deep_Inline [[nodiscard]] float32 Dot(Vec4Arg a, Vec4Arg b);
 
         // Equality
-        friend Deep_Inline bool operator!= (Vec4Arg a, Vec4Arg b);
-        friend Deep_Inline bool operator== (Vec4Arg a, Vec4Arg b);
+        friend bool operator!= (Vec4Arg a, Vec4Arg b);
+        friend bool operator== (Vec4Arg a, Vec4Arg b);
 
         // Add vectors
         Deep_Inline Vec4& operator+= (Vec4Arg other);

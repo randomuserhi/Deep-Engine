@@ -113,10 +113,10 @@ namespace Deep {
         sse_m128 = SSE_m128::Select(axis.sse_m128 * s, c, SSE_m128i{ 0, 0, 0, (int32)0xffffffff });
     }
 
-    bool operator!=(QuatArg a, QuatArg b) {
+    Deep_Inline bool operator!=(QuatArg a, QuatArg b) {
         return a.vec != b.vec;
     }
-    bool operator==(QuatArg a, QuatArg b) {
+    Deep_Inline bool operator==(QuatArg a, QuatArg b) {
         return !(a != b);
     }
 

@@ -67,10 +67,10 @@ namespace Deep {
         #endif
     }
 
-    bool operator!=(Vec4Arg a, Vec4Arg b) {
+    Deep_Inline bool operator!=(Vec4Arg a, Vec4Arg b) {
         return a.sse_m128 != b.sse_m128;
     }
-    bool operator==(Vec4Arg a, Vec4Arg b) {
+    Deep_Inline bool operator==(Vec4Arg a, Vec4Arg b) {
         return !(a != b);
     }
 

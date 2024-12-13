@@ -73,14 +73,14 @@ namespace Deep {
         #endif
     }
 
-    bool operator!=(Vec3Arg a, Vec3Arg b) {
+    Deep_Inline bool operator!=(Vec3Arg a, Vec3Arg b) {
         #ifdef DEEP_USE_SSE4_1
         return (SSE_m128::Equals(a.sse_m128, b.sse_m128).ToBooleanBitMask() & 0b111) != 0b111;
         #else
         return a.x != b.x || a.y != b.y || a.z != b.z;
         #endif
     }
-    bool operator==(Vec3Arg a, Vec3Arg b) {
+    Deep_Inline bool operator==(Vec3Arg a, Vec3Arg b) {
         return !(a != b);
     }
 

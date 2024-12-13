@@ -148,14 +148,14 @@ namespace Deep {
         #endif
     }
 
-    bool operator!=(SSE_m128iArg a, SSE_m128iArg b) {
+    Deep_Inline bool operator!=(SSE_m128iArg a, SSE_m128iArg b) {
         #ifdef DEEP_USE_SSE4_1
         return SSE_m128i::Equals(a, b).ToBooleanBitMask() != 0b1111;
         #else
         return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
         #endif
     }
-    bool operator==(SSE_m128iArg a, SSE_m128iArg b) {
+    Deep_Inline bool operator==(SSE_m128iArg a, SSE_m128iArg b) {
         return !(a != b);
     }
 

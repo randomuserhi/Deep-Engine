@@ -91,7 +91,7 @@ namespace Deep {
             Deep_Inline JobHandle& operator= (JobHandle&& handle) noexcept;
 
             // Casting operators
-            Deep_Inline operator Job* () const;
+            Deep_Inline operator JobSystem::Job* () const;
 
             // Pointer access
             Deep_Inline Job* operator-> () const;
@@ -99,9 +99,9 @@ namespace Deep {
 
             // Comparison
             Deep_Inline bool operator== (const Job* b) const;
-            Deep_Inline friend bool operator== (JobHandle& a, JobHandle& b);
+            friend bool operator== (JobHandle& a, JobHandle& b);
             Deep_Inline bool operator!= (const Job* b) const;
-            Deep_Inline friend bool operator!= (JobHandle& a, JobHandle& b);
+            friend bool operator!= (JobHandle& a, JobHandle& b);
 
             Deep_Inline Job* GetPtr() const;
 

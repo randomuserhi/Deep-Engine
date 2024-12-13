@@ -33,8 +33,8 @@ namespace Deep {
         Deep_Inline [[nodiscard]] Mat4 inversed() const;
 
         // Equality
-        friend Deep_Inline bool operator!=(Mat4Arg a, Mat4Arg b);
-        friend Deep_Inline bool operator==(Mat4Arg a, Mat4Arg b);
+        friend bool operator!=(Mat4Arg a, Mat4Arg b);
+        friend bool operator==(Mat4Arg a, Mat4Arg b);
 
         // Mul Matrix4x4s
         friend Deep_Inline Mat4 operator* (Mat4Arg a, Mat4Arg b);

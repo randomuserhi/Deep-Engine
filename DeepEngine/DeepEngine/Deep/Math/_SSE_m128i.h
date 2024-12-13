@@ -65,8 +65,8 @@ namespace Deep {
         static Deep_Inline SSE_m128i Select(SSE_m128iArg a, SSE_m128iArg b, SSE_m128iArg control);
 
         // Equality
-        friend Deep_Inline bool operator!=(SSE_m128iArg a, SSE_m128iArg b);
-        friend Deep_Inline bool operator==(SSE_m128iArg a, SSE_m128iArg b);
+        friend bool operator!=(SSE_m128iArg a, SSE_m128iArg b);
+        friend bool operator==(SSE_m128iArg a, SSE_m128iArg b);
 
         // Component wise Add
         Deep_Inline SSE_m128i& operator+= (SSE_m128iArg other);

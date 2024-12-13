@@ -229,13 +229,13 @@ namespace Deep {
         #endif
     }
 
-    bool operator!=(Mat4Arg a, Mat4Arg b) {
+    Deep_Inline bool operator!=(Mat4Arg a, Mat4Arg b) {
         return SSE_m128i::And(
             SSE_m128i::And(SSE_m128::Equals(a.cols[0], b.cols[0]), SSE_m128::Equals(a.cols[1], b.cols[1])),
             SSE_m128i::And(SSE_m128::Equals(a.cols[2], b.cols[2]), SSE_m128::Equals(a.cols[3], b.cols[3]))
         ).ToBooleanBitMask() != 0b1111;
     }
-    bool operator==(Mat4Arg a, Mat4Arg b) {
+    Deep_Inline bool operator==(Mat4Arg a, Mat4Arg b) {
         return !(a != b);
     }
 

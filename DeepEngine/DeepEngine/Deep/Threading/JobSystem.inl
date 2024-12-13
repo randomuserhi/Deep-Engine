@@ -124,16 +124,16 @@ namespace Deep {
         return *job;
     }
 
-    bool JobSystem::JobHandle::operator== (const JobSystem::Job* b) const {
+    bool JobSystem::JobHandle::operator== (const Job* b) const {
         return job == b;
     }
-    bool operator== (JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
+    Deep_Inline bool operator== (JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
         return a.job == b.job;
     }
     bool JobSystem::JobHandle::operator!= (const JobSystem::Job* b) const {
         return !(*this == b);
     }
-    bool operator!= (JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
+    Deep_Inline bool operator!= (JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
         return !(a == b);
     }
 
