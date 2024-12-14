@@ -1,4 +1,7 @@
 #include <iostream>
+
+#define DEEP_ENABLE_ASSERTS
+
 #include "Deep.h"
 #include "Deep/Net.h"
 #include "Deep/Math.h"
@@ -23,11 +26,14 @@ int main() {
 
     auto start = std::chrono::system_clock::now();
 
+    Deep::JobHandle prev;
     for (size_t i = 0; i < count; ++i) {
-        jobSystem.Enqueue([i, &positions, &velocities]() {
+        prev = jobSystem.Enqueue([i, prev, &positions, &velocities]() {
             positions[i] += velocities[i];
-            });
+            if (i != 0) prev.RemoveDependency();
+        }, 1);
     }
+    prev.RemoveDependency();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 

@@ -110,7 +110,7 @@ namespace Deep {
 
         // Queue the job if it has no dependencies
         if (numDependencies == 0) {
-            QueueJob(job);
+            QueueJobInternal(job);
         }
 
         // Return handle
@@ -125,7 +125,7 @@ namespace Deep {
         return head;
     }
 
-    void JobSystem::QueueJob(JobSystem::Job* job) {
+    void JobSystem::QueueJobInternal(JobSystem::Job* job) {
         // TODO(randomuserhi): Check job belongs to this job system -> assert only?
         //                     Check job has not already been executed -> maybe not to allow re-runs of the same job...
         //                     Check job is not already executing -> assert only?

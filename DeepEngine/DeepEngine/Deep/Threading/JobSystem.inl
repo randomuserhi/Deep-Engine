@@ -52,7 +52,7 @@ namespace Deep {
 
         // Queue the job if dependencies == 0
         if (newCount == 0) {
-            jobSystem->QueueJob(this);
+            jobSystem->QueueJobInternal(this);
         }
     }
 
@@ -82,6 +82,10 @@ namespace Deep {
         handle.job = nullptr;
     }
 
+    JobSystem::JobHandle::~JobHandle() {
+        Release();
+    }
+
     void JobSystem::JobHandle::Acquire() {
         if (job != nullptr) {
             job->Acquire();
@@ -95,21 +99,30 @@ namespace Deep {
     }
 
     JobSystem::JobHandle& JobSystem::JobHandle::operator= (JobSystem::Job* job) {
-        Release();
-        this->job = job;
-        Acquire();
+        if (this->job != job) {
+            Release();
+            this->job = job;
+            Acquire();
+        }
+        return *this;
     }
 
     JobSystem::JobHandle& JobSystem::JobHandle::operator= (const JobSystem::JobHandle& handle) {
-        Release();
-        job = handle.job;
-        Acquire();
+        if (job != handle.job) {
+            Release();
+            job = handle.job;
+            Acquire();
+        }
+        return *this;
     }
 
     JobSystem::JobHandle& JobSystem::JobHandle::operator= (JobSystem::JobHandle&& handle) noexcept {
-        Release();
-        job = handle.job;
-        handle.job = nullptr;
+        if (job != handle.job) {
+            Release();
+            job = handle.job;
+            handle.job = nullptr;
+        }
+        return *this;
     }
 
     JobSystem::JobHandle::operator JobSystem::Job* () const {
@@ -117,10 +130,12 @@ namespace Deep {
     }
 
     JobSystem::Job* JobSystem::JobHandle::operator-> () const {
+        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         return job;
     }
 
     JobSystem::Job& JobSystem::JobHandle::operator* () const {
+        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         return *job;
     }
 
@@ -142,10 +157,12 @@ namespace Deep {
     }
 
     void JobSystem::JobHandle::AddDependency(uint32 count = 1) const {
+        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         job->AddDependency(count);
     }
 
     void JobSystem::JobHandle::RemoveDependency(uint32 count = 1) const {
+        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         job->RemoveDependency(count);
     }
 }

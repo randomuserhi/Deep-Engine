@@ -19,12 +19,11 @@
 
  /// TODO:
  /// [x] JobSystem(size_t numThreads)
- /// [ ] JobHandle job = JobSystem.CreateJob(std::function<void()> job, uint32 numDependencies)
+ /// [x] JobHandle job = JobSystem.Enqueue(std::function<void()> job, uint32 numDependencies)
  /// [ ] job.AddDependency(1)
  /// [ ] job.RemoveDependency(1)
- /// [ ] JobSystem.Enqueue(job);
  /// [ ] Barrier barrier = JobSystem.CreateBarrier();
- /// [ ] barrier.WaitAll()
+ /// [ ] barrier.Wait()
  ///
  /// DETAILS:
  /// [ ] Job Queue -> lockless
@@ -84,6 +83,7 @@ namespace Deep {
             Deep_Inline JobHandle(Job* job);
             Deep_Inline JobHandle(const JobHandle& handle);
             Deep_Inline JobHandle(JobHandle&& handle) noexcept;
+            Deep_Inline ~JobHandle();
 
             // Assignment operators
             Deep_Inline JobHandle& operator= (Job* job);
@@ -109,10 +109,10 @@ namespace Deep {
             Deep_Inline void RemoveDependency(uint32 count) const;
 
         private:
-            // Wrapper for job->Acquire
+            // Wrapper for job->Acquire, noop on nullptr
             Deep_Inline void Acquire();
 
-            // Wrapper for job->Release
+            // Wrapper for job->Release, noop on nullptr
             Deep_Inline void Release();
 
             Job* job = nullptr;
@@ -137,7 +137,7 @@ namespace Deep {
         Deep_Inline uint32 GetMinHead();
 
         // Internally add a job to the job queue
-        void QueueJob(Job* job);
+        void QueueJobInternal(Job* job);
 
         FixedSizeFreeList<Job> jobs;
 
