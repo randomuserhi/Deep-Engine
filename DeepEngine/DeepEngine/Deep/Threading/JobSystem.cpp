@@ -127,7 +127,7 @@ namespace Deep {
 
     void JobSystem::QueueJobInternal(JobSystem::Job* job) {
         // TODO(randomuserhi): Check job belongs to this job system -> assert only?
-        //                     Check job has not already been executed -> maybe not to allow re-runs of the same job...
+        //                     Check job has not already been executed -> assert only?
         //                     Check job is not already executing -> assert only?
         //                     Check job has 0 dependencies -> assert only?
         //                     Check we have worker threads and that the job system is running -> assert only?
