@@ -2,10 +2,10 @@
 
 #define DEEP_ENABLE_ASSERTS
 
-#include "Deep.h"
-#include "Deep/Net.h"
-#include "Deep/Math.h"
-#include "Deep/Threading.h"
+#include <Deep.h>
+#include <Deep/Net.h>
+#include <Deep/Math.h>
+#include <Deep/Threading.h>
 
 // https://stackoverflow.com/a/62047818/9642458
 #include <chrono>
@@ -28,10 +28,12 @@ int main() {
 
     Deep::JobHandle prev;
     for (size_t i = 0; i < count; ++i) {
-        prev = jobSystem.Enqueue([i, prev, &positions, &velocities]() {
-            positions[i] += velocities[i];
-            if (i != 0) prev.RemoveDependency();
-        }, 1);
+        prev = jobSystem.Enqueue(
+            [i, prev, &positions, &velocities]() {
+                positions[i] += velocities[i];
+                if (i != 0) prev.RemoveDependency();
+            },
+            1);
     }
     prev.RemoveDependency();
 
@@ -42,45 +44,45 @@ int main() {
     std::cout << elapsed.count() << "ms\n";
 
     for (size_t i = 0; i < 5; ++i) {
-        std::cout << positions[i].x << std::endl;
+        std::cout << positions[i].x << "\n";
     }
     std::cout << "...\n";
     for (size_t i = count - 6; i < count; ++i) {
-        std::cout << positions[i].x << std::endl;
+        std::cout << positions[i].x << "\n";
     }
 
-    /*std::cout << "Hello World!" << std::endl;
+    /*std::cout << "Hello World!" << "\n";
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
     socket.Open();
     int32 res = socket.Connect(Deep::IPv4(127, 0, 0, 1, 23152));
     Deep::IPv4 address;
     socket.GetPeerName(address);
-    std::cout << static_cast<uint32>(address.a)
-        << ":" << static_cast<uint32>(address.b)
-        << ":" << static_cast<uint32>(address.c)
-        << ":" << static_cast<uint32>(address.d)
-        << ":" << address.port << std::endl;
+    std::cout << static_cast<uint32>(address.a) //
+        << ":" << static_cast<uint32>(address.b) //
+        << ":" << static_cast<uint32>(address.c) //
+        << ":" << static_cast<uint32>(address.d) //
+        << ":" << address.port << "\n";
 
     const uint8 data[] = "That's crazy";
 
-    std::cout << sizeof data << std::endl;
+    std::cout << sizeof data << "\n";
 
     Deep::Vec3 up{ 0, 1, 0 };
     Deep::Vec3 axis{ 0, 0, 1 };
     Deep::Quat rotateLeft{ axis, PI / 2.0f };
     Deep::Vec3 right = rotateLeft * up;
-    std::cout << rotateLeft.w
-        << "," << rotateLeft.x
-        << "," << rotateLeft.y
-        << "," << rotateLeft.z
-        << std::endl;
-    std::cout << right.x
-        << "," << right.y
-        << "," << right.z
-        << std::endl;
+    std::cout << rotateLeft.w //
+        << "," << rotateLeft.x //
+        << "," << rotateLeft.y //
+        << "," << rotateLeft.z //
+        << "\n";
+    std::cout << right.x //
+        << "," << right.y //
+        << "," << right.z //
+        << "\n";
 
-    std::cout << std::endl;
+    std::cout << "\n";
 
     while (true) {
         Deep::PacketWriter packet;

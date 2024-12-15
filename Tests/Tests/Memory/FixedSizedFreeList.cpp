@@ -1,12 +1,12 @@
 #include "../pch.h"
-#include "Deep.h"
-#include "Deep/Memory/FixedSizeFreeList.h"
+#include <Deep.h>
+#include <Deep/Memory/FixedSizeFreeList.h>
 
 struct TestItem {
     static int32 destructorCalls;
 
-    TestItem(int32 value) : value(value) {
-    }
+    TestItem(int32 value) :
+        value(value) {}
 
     ~TestItem() {
         ++destructorCalls;

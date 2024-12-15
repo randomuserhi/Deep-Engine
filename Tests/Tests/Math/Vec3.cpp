@@ -1,6 +1,6 @@
 #include "../pch.h"
-#include "Deep.h"
-#include "Deep/Math.h"
+#include <Deep.h>
+#include <Deep/Math.h>
 
 TEST(Vec3, Equality) {
     const Deep::Vec3 a{ 1, 2, 3 };

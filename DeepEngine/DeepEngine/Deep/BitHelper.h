@@ -10,48 +10,48 @@
 #include <immintrin.h>
 #endif
 
- // Bitcast support for different Cpp versions
+// Bitcast support for different Cpp versions
 #if __cplusplus >= 202002L
 #include <bit>
 #elif defined(DEEP_COMPILER_MSVC)
 #include <type_traits>
 #endif
 namespace Deep {
-    #if __cplusplus >= 202002L
+#if __cplusplus >= 202002L
 
-    template <class To, class From>
+    template<class To, class From>
     constexpr Deep_Inline To BitCast(const From& value) {
         return std::bit_cast<To>(value);
     }
 
-    #elif defined(DEEP_COMPILER_MSVC)
+#elif defined(DEEP_COMPILER_MSVC)
 
-    template <class To, class From>
+    template<class To, class From>
     constexpr Deep_Inline To BitCast(const From& value) {
         return std::_Bit_cast<To>(value);
     }
 
-    #else
+#else
 
     // NOTE(randomuserhi): Can't be constexpr as the active member of union cannot be changed
     //                     in a constexpr
-    template <class To, class From>
+    template<class To, class From>
     Deep_Inline To BitCast(const From& value) {
         static_assert(std::is_trivially_constructible_v<To>, "Is supposed to be a trivial type!");
         static_assert(sizeof(From) == sizeof(To), "Invalid bit cast as types are not of same size.");
 
         union FromTo {
-            To			mTo;
-            From		mFrom;
+            To to;
+            From from;
         };
 
         FromTo convert;
-        convert.mFrom = value;
-        return convert.mTo;
+        convert.from = value;
+        return convert.to;
     }
 
-    #endif
-}
+#endif
+} // namespace Deep
 
 namespace Deep {
     Deep_Inline bool IsBigEndian() {
@@ -61,13 +61,13 @@ namespace Deep {
     }
 
     // Check if value is a power of 2
-    template <typename T>
+    template<typename T>
     constexpr bool IsPowerOf2(const T value) {
         return (value & (value - 1)) == 0;
     }
 
     // Check if the given pointer is aligned to the specified alignment
-    template <typename T>
+    template<typename T>
     inline bool IsAligned(const T pointer, const uint64 alignment) {
         static_assert(std::is_pointer<T>::value, "Expected type T to be a pointer.");
         Deep_Assert(IsPowerOf2(alignment), "Alignment should be a power of 2.");
@@ -76,26 +76,26 @@ namespace Deep {
 
     // Compute number of trailing zero bits (how many low bits are zero)
     inline uint NumTrailingZeros(uint32 value) {
-        #if defined(DEEP_CPU_X86)
-        #if defined(DEEP_USE_TZCNT)
+#if defined(DEEP_CPU_X86)
+#if defined(DEEP_USE_TZCNT)
         return _tzcnt_u32(value);
-        #elif defined(DEEP_COMPILER_MSVC)
+#elif defined(DEEP_COMPILER_MSVC)
         if (value == 0) {
             return 32;
         }
         unsigned long result;
         _BitScanForward(&result, value);
         return result;
-        #else
+#else
         if (value == 0) {
             return 32;
         }
         return __builtin_ctz(value);
-        #endif
-        #else
-        #if __cplusplus >= 202002L
+#endif
+#else
+#if __cplusplus >= 202002L
         return std::countr_zero(value);
-        #else
+#else
         // NOTE(randomuserhi): Taken from https://stackoverflow.com/a/45225089
         if (value == 0) {
             return 32;
@@ -104,26 +104,30 @@ namespace Deep {
         uint32 n = 0;
         /* mask the 16 low order bits, add 16 and shift them out if they are all 0 */
         if ((value & 0x0000FFFF) == 0) {
-            n += 16; value >>= 16;
+            n += 16;
+            value >>= 16;
         }
         /* mask the 8 low order bits, add 8 and shift them out if they are all 0 */
         if ((value & 0x000000FF) == 0) {
-            n += 8; value >>= 8;
+            n += 8;
+            value >>= 8;
         }
         /* mask the 4 low order bits, add 4 and shift them out if they are all 0 */
         if ((value & 0x0000000F) == 0) {
-            n += 4; value >>= 4;
+            n += 4;
+            value >>= 4;
         }
         /* mask the 2 low order bits, add 2 and shift them out if they are all 0 */
         if ((value & 0x00000003) == 0) {
-            n += 2; value >>= 2;
+            n += 2;
+            value >>= 2;
         }
         /* mask the low order bit and add 1 if it is 0 */
         n += (value & 1) ^ 1;
 
         return n;
-        #endif
-        #endif
+#endif
+#endif
     }
 
     Deep_Inline uint32 RotateLeft(const uint32 value, const int32 offset) {
@@ -144,7 +148,7 @@ namespace Deep {
 
     Deep_Inline uint64 ReverseEndianness(const uint64 value) {
         return (static_cast<uint64>(ReverseEndianness(static_cast<uint32>(value))) << 32)
-            + static_cast<uint64>(ReverseEndianness(static_cast<uint32>(value >> 32)));
+               + static_cast<uint64>(ReverseEndianness(static_cast<uint32>(value >> 32)));
     }
 
     Deep_Inline int16 ReverseEndianness(const int16 value) {
@@ -166,17 +170,24 @@ namespace Deep {
         return Deep::BitCast<const float32>(x);
     }
 
-    Deep_Inline float32 HalfToFloat(const uint16 x) { // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
-        const uint32 e = (x & 0x7C00) >> 10; // exponent
-        const uint32 m = (x & 0x03FF) << 13; // mantissa
-        const uint32 v = AsUInt((float32)m) >> 23; // evil log2 bit hack to count leading zeros in denormalized format
-        return AsFloat((x & 0x8000) << 16 | (e != 0) * ((e + 112) << 23 | m) | ((e == 0) & (m != 0)) * ((v - 37) << 23 | ((m << (150 - v)) & 0x007FE000))); // sign : normalized : denormalized
+    Deep_Inline float32 HalfToFloat(const uint16 x) { // IEEE-754 16-bit floating-point format (without infinity): 1-5-10,
+                                                      // exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+        const uint32 e = (x & 0x7C00) >> 10;          // exponent
+        const uint32 m = (x & 0x03FF) << 13;          // mantissa
+        const uint32 v = AsUInt((float32)m) >> 23;    // evil log2 bit hack to count leading zeros in denormalized format
+        return AsFloat((x & 0x8000) << 16 | (e != 0) * ((e + 112) << 23 | m)
+                       | ((e == 0) & (m != 0))
+                             * ((v - 37) << 23 | ((m << (150 - v)) & 0x007FE000))); // sign : normalized : denormalized
     }
-    Deep_Inline float16 FloatToHalf(const float32 x) { // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
-        const uint32 b = AsUInt(x) + 0x00001000; // round-to-nearest-even: add last bit after truncated mantissa
-        const uint32 e = (b & 0x7F800000) >> 23; // exponent
-        const uint32 m = b & 0x007FFFFF; // mantissa; in line below: 0x007FF000 = 0x00800000-0x00001000 = decimal indicator flag - initial rounding
-        return (b & 0x80000000) >> 16 | (e > 112) * ((((e - 112) << 10) & 0x7C00) | m >> 13) | ((e < 113) & (e > 101)) * ((((0x007FF000 + m) >> (125 - e)) + 1) >> 1) | (e > 143) * 0x7FFF; // sign : normalized : denormalized : saturate
+    Deep_Inline float16 FloatToHalf(const float32 x) { // IEEE-754 16-bit floating-point format (without infinity): 1-5-10,
+                                                       // exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+        const uint32 b = AsUInt(x) + 0x00001000;       // round-to-nearest-even: add last bit after truncated mantissa
+        const uint32 e = (b & 0x7F800000) >> 23;       // exponent
+        const uint32 m = b & 0x007FFFFF; // mantissa; in line below: 0x007FF000 = 0x00800000-0x00001000 = decimal indicator
+                                         // flag - initial rounding
+        return (b & 0x80000000) >> 16 | (e > 112) * ((((e - 112) << 10) & 0x7C00) | m >> 13)
+               | ((e < 113) & (e > 101)) * ((((0x007FF000 + m) >> (125 - e)) + 1) >> 1)
+               | (e > 143) * 0x7FFF; // sign : normalized : denormalized : saturate
     }
 
     // Host to Network conversion methods
@@ -230,4 +241,4 @@ namespace Deep {
     Deep_Inline int64 ntoh(const int64 value) {
         return !IsBigEndian() ? value : ReverseEndianness(value);
     }
-}
+} // namespace Deep

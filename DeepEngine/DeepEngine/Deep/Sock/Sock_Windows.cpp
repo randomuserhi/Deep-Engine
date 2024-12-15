@@ -9,9 +9,9 @@
 #include "Sock_Windows.h"
 
 namespace Deep {
-    //https://stackoverflow.com/a/17925300/9642458 => Although not allowed by the standard, target compilers
-    // support accessing inactive member of union.
-    // Additionally, the use of a union also ensures alignment.
+    // https://stackoverflow.com/a/17925300/9642458 => Although not allowed by the standard, target compilers
+    //  support accessing inactive member of union.
+    //  Additionally, the use of a union also ensures alignment.
     union SocketAddr {
         sockaddr sa;
         sockaddr_in sa_in;
@@ -54,23 +54,20 @@ namespace Deep {
 
     int32 ShutdownSockets() {
         const int result = WSACleanup();
-        return result == SOCKET_ERROR ? DEEP_SOCKET_ERROR
-            : DEEP_SOCKET_NOERROR;
+        return result == SOCKET_ERROR ? DEEP_SOCKET_ERROR : DEEP_SOCKET_NOERROR;
     }
 
     int32 UDPSocket::GetSockName(IPv4& address) {
         SocketAddr sockAddr;
         socklen_t assignedAddressLen = sizeof sockAddr;
-        if (getsockname(__impl__.socketFD, &sockAddr.sa, &assignedAddressLen) != NO_ERROR)
-            return DEEP_SOCKET_ERROR;
+        if (getsockname(__impl__.socketFD, &sockAddr.sa, &assignedAddressLen) != NO_ERROR) return DEEP_SOCKET_ERROR;
         return FromSocketAddr(sockAddr, address);
     }
 
     int32 UDPSocket::GetPeerName(IPv4& address) {
         SocketAddr sockAddr;
         socklen_t assignedAddressLen = sizeof sockAddr;
-        if (getpeername(__impl__.socketFD, &sockAddr.sa, &assignedAddressLen) != NO_ERROR)
-            return DEEP_SOCKET_ERROR;
+        if (getpeername(__impl__.socketFD, &sockAddr.sa, &assignedAddressLen) != NO_ERROR) return DEEP_SOCKET_ERROR;
         return FromSocketAddr(sockAddr, address);
     }
 
@@ -87,8 +84,8 @@ namespace Deep {
             return DEEP_SOCKET_ERROR;
         }
 
-        //Need to be aware of https://stackoverflow.com/questions/34242622/windows-udp-sockets-recvfrom-fails-with-error-10054
-        #define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
+// Need to be aware of https://stackoverflow.com/questions/34242622/windows-udp-sockets-recvfrom-fails-with-error-10054
+#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
         bool bNewBehavior = false;
         DWORD dwBytesReturned = 0;
         WSAIoctl(socketFD, SIO_UDP_CONNRESET, &bNewBehavior, sizeof bNewBehavior, NULL, 0, &dwBytesReturned, NULL, NULL);
@@ -124,7 +121,7 @@ namespace Deep {
             return DEEP_SOCKET_ERROR;
         }
 
-        //Set socket to be non-blocking
+        // Set socket to be non-blocking
         DWORD nonBlocking = 1;
         if (ioctlsocket(socketFD, FIONBIO, &nonBlocking) != 0) {
             // Failed to set socket to non-blocking
@@ -162,7 +159,8 @@ namespace Deep {
         const SOCKET& socketFD = __impl__.socketFD;
 
         const SocketAddr sockAddr = ToSocketAddr(address);
-        const int32 sentBytes = sendto(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0, &sockAddr.sa, sizeof sockAddr);
+        const int32 sentBytes = sendto(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0,
+                                       &sockAddr.sa, sizeof sockAddr);
         if (sentBytes == SOCKET_ERROR) {
             return DEEP_SOCKET_ERROR;
         }
@@ -177,7 +175,8 @@ namespace Deep {
         SocketAddr fromSockAddr = ToSocketAddr(fromAddress);
         socklen_t fromLength = sizeof fromSockAddr;
 
-        bytesReceived = recvfrom(socketFD, reinterpret_cast<char*>(buffer), static_cast<int>(maxBufferSize), 0, &fromSockAddr.sa, &fromLength);
+        bytesReceived = recvfrom(socketFD, reinterpret_cast<char*>(buffer), static_cast<int>(maxBufferSize), 0,
+                                 &fromSockAddr.sa, &fromLength);
 
         if (bytesReceived < 0) {
             return DEEP_SOCKET_ERROR;
@@ -185,6 +184,6 @@ namespace Deep {
 
         return DEEP_SOCKET_NOERROR;
     }
-}
+} // namespace Deep
 
 #endif

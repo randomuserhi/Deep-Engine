@@ -11,8 +11,8 @@
 
 namespace Deep {
     struct PacketReader {
-        PacketReader(const uint8* data) : data(data), head(data) {
-        }
+        PacketReader(const uint8* data) :
+            data(data), head(data) {}
 
         Deep_Inline uint8 ReadByte();
 
@@ -38,6 +38,6 @@ namespace Deep {
     private:
         const uint8* const data;
     };
-}
+} // namespace Deep
 
 #include "./PacketReader.inl"

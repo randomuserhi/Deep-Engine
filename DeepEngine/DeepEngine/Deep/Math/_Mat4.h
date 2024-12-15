@@ -12,19 +12,15 @@ namespace Deep {
         // Constructors
         Mat4() = default;
         Mat4(const Mat4& other) = default;
-        Mat4& operator= (const Mat4& other) = default;
-        Deep_Inline Mat4(
-            SSE_m128 col0, SSE_m128 col1, SSE_m128 col2, SSE_m128 col3
-        );
-        Deep_Inline Mat4(
-            float32 m00, float32 m01, float32 m02, float32 m03,
-            float32 m10, float32 m11, float32 m12, float32 m13,
-            float32 m20, float32 m21, float32 m22, float32 m23,
-            float32 m30, float32 m31, float32 m32, float32 m33
-        );
-        Deep_Inline Mat4(
-            Vec4 col0, Vec4 col1, Vec4 col2, Vec4 col3
-        );
+        Mat4& operator=(const Mat4& other) = default;
+        Deep_Inline Mat4(SSE_m128 col0, SSE_m128 col1, SSE_m128 col2, SSE_m128 col3);
+        Deep_Inline Mat4(                                       //
+            float32 m00, float32 m01, float32 m02, float32 m03, //
+            float32 m10, float32 m11, float32 m12, float32 m13, //
+            float32 m20, float32 m21, float32 m22, float32 m23, //
+            float32 m30, float32 m31, float32 m32, float32 m33  //
+        );                                                      //
+        Deep_Inline Mat4(Vec4 col0, Vec4 col1, Vec4 col2, Vec4 col3);
 
         Deep_Inline Mat4& Transpose();
         Deep_Inline [[nodiscard]] Mat4 transposed() const;
@@ -37,11 +33,11 @@ namespace Deep {
         friend bool operator==(Mat4Arg a, Mat4Arg b);
 
         // Mul Matrix4x4s
-        friend Deep_Inline Mat4 operator* (Mat4Arg a, Mat4Arg b);
+        friend Deep_Inline Mat4 operator*(Mat4Arg a, Mat4Arg b);
 
         // Multiply Matrix4x4 and Vectors
-        friend Deep_Inline Vec3 operator* (Mat4Arg m, Vec3Arg v); // NOTE(randomuserhi): Assumes Vec4 with w = 1
-        friend Deep_Inline Vec4 operator* (Mat4Arg m, Vec4Arg v);
+        friend Deep_Inline Vec3 operator*(Mat4Arg m, Vec3Arg v); // NOTE(randomuserhi): Assumes Vec4 with w = 1
+        friend Deep_Inline Vec4 operator*(Mat4Arg m, Vec4Arg v);
 
         static Deep_Inline [[nodiscard]] Mat4 FromQuaternion(const Quat& quaternion);
 
@@ -81,4 +77,4 @@ namespace Deep {
     };
 
     static_assert(std::is_trivial<Mat4>(), "Is supposed to be a trivial type!");
-}
+} // namespace Deep

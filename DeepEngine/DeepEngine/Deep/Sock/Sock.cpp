@@ -4,6 +4,4 @@
 
 #include "../Sock.h"
 
-namespace Deep {
-
-}
+namespace Deep {}

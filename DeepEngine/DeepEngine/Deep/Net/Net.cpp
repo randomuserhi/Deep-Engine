@@ -4,5 +4,4 @@
 
 #include "../Net.h"
 
-namespace Deep {
-}
+namespace Deep {}

@@ -5,8 +5,8 @@
 #pragma once
 
 /*
-* Compiler Macros
-*/
+ * Compiler Macros
+ */
 
 #if defined(__clang__)
 #define DEEP_COMPILER_CLANG
@@ -20,8 +20,8 @@
 #endif
 
 /*
-* Platform Macros
-*/
+ * Platform Macros
+ */
 
 #if defined(_WIN32)
 #define DEEP_PLATFORM_WINDOWS
@@ -35,8 +35,8 @@
 #endif
 
 /*
-* Deep Utilities
-*/
+ * Deep Utilities
+ */
 
 #include "./Deep/Deep_Types.h"
 
@@ -82,7 +82,8 @@
 #endif
 
 #ifdef DEEP_COMPILER_MSVC
-// NOTE(randomuserhi): Undef MSVC pre-processor macros: https://stackoverflow.com/questions/21483038/undefining-min-and-max-macros
+// NOTE(randomuserhi): Undef MSVC pre-processor macros:
+// https://stackoverflow.com/questions/21483038/undefining-min-and-max-macros
 #undef min
 #undef max
 #endif
@@ -94,8 +95,8 @@
 #endif
 
 /*
-* Vectorised Instructions
-*/
+ * Vectorised Instructions
+ */
 
 #if !defined(DEEP_DONT_USE_SIMD_INTRINSICS)
 
@@ -140,8 +141,8 @@
 #endif
 
 /*
-* Asserts
-*/
+ * Asserts
+ */
 #ifndef Deep_Break
 #define Deep_Break __debugbreak()
 #endif
@@ -150,24 +151,34 @@
 
 namespace Deep {
     bool OnAssertFailImpl(const char* expression, const char* roFile, uint32 line, const char* message);
-    extern bool (*OnAssertFail) (const char* expression, const char* file, uint32 line, const char* message);
+    extern bool (*OnAssertFail)(const char* expression, const char* file, uint32 line, const char* message);
     Deep_Inline bool AssertFailed(const char* expression, const char* file, uint32 line, const char* message) {
-        if (OnAssertFail == nullptr) return true;
-        else return OnAssertFail(expression, file, line, message);
+        if (OnAssertFail == nullptr) {
+            return true;
+        } else {
+            return OnAssertFail(expression, file, line, message);
+        }
     }
-}
+} // namespace Deep
 
 #ifdef DEEP_ENABLE_ASSERTS
-#define Deep_Assert(expression, message) do { if (!(expression) && ::Deep::AssertFailed(#expression, __FILE__, static_cast<uint32>(__LINE__), message)) { Deep_Break; } } while (false)
+#define Deep_Assert(expression, message)                                                                                    \
+    do {                                                                                                                    \
+        if (!(expression) && ::Deep::AssertFailed(#expression, __FILE__, static_cast<uint32>(__LINE__), message)) {         \
+            Deep_Break;                                                                                                     \
+        }                                                                                                                   \
+    } while (false)
 #else
 #define Deep_Assert(...) ((void)0)
 #endif
 
 // TODO(randomuserhi): Move style guide elsewhere -> include types in style guide
 /*
-* Style Guide
-*
-* - Function parameters that include the "rw" prefix annotate that the parameter is read-write and the function both reads to the parameter as well as writes to it. Commonly known as an in-out-param.
-* - Function parameters that include the "wo" prefix annotate that the parameter is write-only and the function only writes to the parameter. Commonly known as an out-param.
-* - Function parameters that do not start with a prefix are always read only.
-*/
+ * Style Guide
+ *
+ * - Function parameters that include the "rw" prefix annotate that the parameter is read-write and the function both reads
+ * to the parameter as well as writes to it. Commonly known as an in-out-param.
+ * - Function parameters that include the "wo" prefix annotate that the parameter is write-only and the function only writes
+ * to the parameter. Commonly known as an out-param.
+ * - Function parameters that do not start with a prefix are always read only.
+ */

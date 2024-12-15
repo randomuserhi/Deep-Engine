@@ -8,11 +8,11 @@ namespace Deep {
         return buffer.size();
     }
 
-    // TODO(randomuserhi): Important read, 
+    // TODO(randomuserhi): Important read,
     //                     https://stackoverflow.com/questions/3022552/is-there-any-standard-htonl-like-function-for-64-bits-integers-in-c
 
     // TODO(randomuserhi): My netcode uses little-endian view across network as most architectures are little-endian.
-    //                     Therefore I need my own implementation of htons and htonl for converting big-endian hosts to 
+    //                     Therefore I need my own implementation of htons and htonl for converting big-endian hosts to
     //                     little endian.
 
     void PacketWriter::Write(uint8 byte) {
@@ -73,4 +73,4 @@ namespace Deep {
         WriteHalf(value.y);
         WriteHalf(value.z);
     }
-}
+} // namespace Deep

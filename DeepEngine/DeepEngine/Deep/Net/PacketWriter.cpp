@@ -140,4 +140,4 @@ namespace Deep {
             break;
         }
     }
-}
+} // namespace Deep

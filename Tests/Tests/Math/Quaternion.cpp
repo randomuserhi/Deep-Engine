@@ -1,6 +1,6 @@
 #include "../pch.h"
-#include "Deep.h"
-#include "Deep/Math.h"
+#include <Deep.h>
+#include <Deep/Math.h>
 
 TEST(Quaternion, Equality) {
     const Deep::Quat a{ 0.0f, 0.0f, 0.0f, 1.0f };

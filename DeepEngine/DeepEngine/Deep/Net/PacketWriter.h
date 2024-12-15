@@ -11,8 +11,7 @@
 
 namespace Deep {
     struct PacketWriter {
-        PacketWriter() {
-        }
+        PacketWriter() {}
         explicit PacketWriter(size_t size) {
             buffer.reserve(size);
         }
@@ -38,6 +37,6 @@ namespace Deep {
     private:
         std::vector<uint8> buffer;
     };
-}
+} // namespace Deep
 
 #include "./PacketWriter.inl"

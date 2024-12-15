@@ -4,9 +4,9 @@
 
 #include "./JobSystem.h"
 
- // TODO(randomuserhi): Thread affinity ?? => seems platform dependent
- //#include <windows.h>
- //DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
+// TODO(randomuserhi): Thread affinity ?? => seems platform dependent
+// #include <windows.h>
+// DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
 
 // Class JobSystem
 namespace Deep {
@@ -141,7 +141,8 @@ namespace Deep {
         uint32 head = GetMinHead();
 
         // Wake up a thread
-        // NOTE(randomuserhi): We read the head outside of the loop since it involves iterating over all threads and we only need to update
+        // NOTE(randomuserhi): We read the head outside of the loop since it involves iterating over all threads and we only
+        // need to update
         //                     it if there's not enough space in the queue.
         semaphore.Release();
 
@@ -149,16 +150,19 @@ namespace Deep {
             // Check if there is space in the queue
             uint oldValue = tail;
             if (oldValue - head >= queueLength) {
-                // We calculated the head outside of the loop, update head (and we also need to update tail to prevent it from passing head)
+                // We calculated the head outside of the loop, update head (and we also need to update tail to prevent it
+                // from passing head)
                 head = GetMinHead();
                 oldValue = tail;
 
                 // Second check if there's space in the queue
                 if (oldValue - head >= queueLength) {
-                    // Wake up all threads in order to ensure that they can clear any nullptrs they may not have processed yet
+                    // Wake up all threads in order to ensure that they can clear any nullptrs they may not have processed
+                    // yet
                     semaphore.Release(numThreads);
 
-                    // Stall a little (we have to wait for other threads to update their head pointer in order for us to be able to continue)
+                    // Stall a little (we have to wait for other threads to update their head pointer in order for us to be
+                    // able to continue)
                     std::this_thread::sleep_for(std::chrono::microseconds(100));
                     continue;
                 }
@@ -173,19 +177,16 @@ namespace Deep {
             tail.compare_exchange_strong(oldValue, oldValue + 1);
 
             // If we successfully added our job we're done
-            if (success)
-                break;
+            if (success) break;
         }
 
         // Wake up a thread to process the job
         semaphore.Release();
     }
-}
+} // namespace Deep
 
 // Class Job
 namespace Deep {
     JobSystem::Job::Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies) :
-        jobSystem(jobSystem), jobFunction(jobFunction), numDependencies(numDependencies) {
-
-    }
-}
+        jobSystem(jobSystem), jobFunction(jobFunction), numDependencies(numDependencies) {}
+} // namespace Deep

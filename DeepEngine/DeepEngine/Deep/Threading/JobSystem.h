@@ -17,22 +17,22 @@
 #include <queue>
 #include <thread>
 
- /// TODO:
- /// [x] JobSystem(size_t numThreads)
- /// [x] JobHandle job = JobSystem.Enqueue(std::function<void()> job, uint32 numDependencies)
- /// [ ] job.AddDependency(1)
- /// [ ] job.RemoveDependency(1)
- /// [ ] Barrier barrier = JobSystem.CreateBarrier();
- /// [ ] barrier.Wait()
- ///
- /// DETAILS:
- /// [ ] Job Queue -> lockless
- /// [ ] JobHandle reference
- /// [ ] ThreadMain implementation (check job queue)
- /// 
- /// Things to Note
- /// - Construction of condition_variable and mutex being slow
- /// - Creating a barrier in a Job will consume a thread until that barrier is released
+/// TODO:
+/// [x] JobSystem(size_t numThreads)
+/// [x] JobHandle job = JobSystem.Enqueue(std::function<void()> job, uint32 numDependencies)
+/// [ ] job.AddDependency(1)
+/// [ ] job.RemoveDependency(1)
+/// [ ] Barrier barrier = JobSystem.CreateBarrier();
+/// [ ] barrier.Wait()
+///
+/// DETAILS:
+/// [ ] Job Queue -> lockless
+/// [ ] JobHandle reference
+/// [ ] ThreadMain implementation (check job queue)
+///
+/// Things to Note
+/// - Construction of condition_variable and mutex being slow
+/// - Creating a barrier in a Job will consume a thread until that barrier is released
 
 namespace Deep {
     class JobSystem : NonCopyable {
@@ -86,22 +86,22 @@ namespace Deep {
             Deep_Inline ~JobHandle();
 
             // Assignment operators
-            Deep_Inline JobHandle& operator= (Job* job);
-            Deep_Inline JobHandle& operator= (const JobHandle& handle);
-            Deep_Inline JobHandle& operator= (JobHandle&& handle) noexcept;
+            Deep_Inline JobHandle& operator=(Job* job);
+            Deep_Inline JobHandle& operator=(const JobHandle& handle);
+            Deep_Inline JobHandle& operator=(JobHandle&& handle) noexcept;
 
             // Casting operators
-            Deep_Inline operator JobSystem::Job* () const;
+            Deep_Inline operator JobSystem::Job*() const;
 
             // Pointer access
-            Deep_Inline Job* operator-> () const;
-            Deep_Inline Job& operator * () const;
+            Deep_Inline Job* operator->() const;
+            Deep_Inline Job& operator*() const;
 
             // Comparison
-            Deep_Inline bool operator== (const Job* b) const;
-            friend bool operator== (JobHandle& a, JobHandle& b);
-            Deep_Inline bool operator!= (const Job* b) const;
-            friend bool operator!= (JobHandle& a, JobHandle& b);
+            Deep_Inline bool operator==(const Job* b) const;
+            friend bool operator==(JobHandle& a, JobHandle& b);
+            Deep_Inline bool operator!=(const Job* b) const;
+            friend bool operator!=(JobHandle& a, JobHandle& b);
 
             Deep_Inline Job* GetPtr() const;
 
@@ -162,6 +162,6 @@ namespace Deep {
     };
 
     using JobHandle = JobSystem::JobHandle;
-}
+} // namespace Deep
 
 #include "./JobSystem.inl"

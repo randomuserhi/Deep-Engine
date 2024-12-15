@@ -20,21 +20,21 @@ namespace Deep {
     void* AlignedMalloc(size_t size, size_t alignment) {
         Deep_Assert(size > 0 && alignment > 0, "Size and alignment must be greater than 0.");
 
-        #ifdef DEEP_PLATFORM_WINDOWS
+#ifdef DEEP_PLATFORM_WINDOWS
         return _aligned_malloc(size, alignment);
-        #else
+#else
         void* block = nullptr;
         // NOTE(randomuserhi): Suppress -Wunused-result
         posix_memalign(&block, alignment, size);
         return block;
-        #endif
+#endif
     }
 
     void AlignedFree(void* block) {
-        #ifdef DEEP_PLATFORM_WINDOWS
+#ifdef DEEP_PLATFORM_WINDOWS
         _aligned_free(block);
-        #else
+#else
         free(block);
-        #endif
+#endif
     }
-}
+} // namespace Deep

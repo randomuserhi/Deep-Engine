@@ -10,5 +10,4 @@
 #include "./Net/Packet.h"
 #include "./Sock.h" // TODO(randomuserhi): Move elsewhere...
 
-namespace Deep {
-}
+namespace Deep {}

@@ -17,12 +17,13 @@ namespace Deep {
         concurrent_unordered_map<uint64, uint8> archetypes;
         // root
     };
-}
+} // namespace Deep
 
 // API Specification
 // - Custom allocator -> arena allocator (https://dev.to/aboss123/advanced-c-arena-allocation-3580)
 // - Runtime support -> registering components at runtime (modding support)
-// - Compile support -> when creating entities, runtime does not need to traverse archetype tree as constexpr evaluates it at compile time
+// - Compile support -> when creating entities, runtime does not need to traverse archetype tree as constexpr evaluates it at
+// compile time
 // - Access entities in a thread safe manner
 // - Very fast query operation to get set of entities by archetype
 // - Attach empty archetypes (tags) to entities

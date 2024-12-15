@@ -13,7 +13,7 @@
 // TODO(randomuserhi): Refactor => needs to support proper task distribution (ensure all cores are utilized fully)
 // TODO(randomuserhi): Thread affinity ?? => seems platform dependent
 
-//#include <windows.h>
+// #include <windows.h>
 
 namespace Deep {
     class ThreadPool : NonCopyable {
@@ -31,10 +31,11 @@ namespace Deep {
         std::vector<std::thread> pool;
 
     public:
-        ThreadPool(size_t numThreads) : running(true), numThreads(numThreads), busy(0) {
+        ThreadPool(size_t numThreads) :
+            running(true), numThreads(numThreads), busy(0) {
             for (size_t i = 0; i < numThreads; ++i) {
                 pool.emplace_back(std::thread(&ThreadPool::Worker, this));
-                //DWORD_PTR dw = SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
+                // DWORD_PTR dw = SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
             }
         }
         ~ThreadPool() {
@@ -55,4 +56,4 @@ namespace Deep {
 
         const int32 numThreads;
     };
-}
+} // namespace Deep

@@ -15,8 +15,9 @@ namespace Deep {
     struct Mat4;
 
     // Types to use for passing arguments to functions.
-    // These types represent the fastest way to pass a given type as a read-only argument. (E.g passing Mat4 by reference will be faster than by value)
-    // 
+    // These types represent the fastest way to pass a given type as a read-only argument. (E.g passing Mat4 by reference
+    // will be faster than by value)
+    //
     // If you need specific access patterns do not use these types.
 
     using SSE_m128Arg = const SSE_m128;
@@ -26,4 +27,4 @@ namespace Deep {
     using Vec4Arg = const Vec4;
     using QuatArg = const Quat;
     using Mat4Arg = const Mat4&;
-}
+} // namespace Deep

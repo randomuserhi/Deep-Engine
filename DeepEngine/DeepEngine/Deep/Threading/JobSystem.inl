@@ -1,13 +1,13 @@
 #pragma once
 
-#include "./JobSystem.h" // TODO(randomuserhi): Remove 
+#include "./JobSystem.h" // TODO(randomuserhi): Remove
 
 // Class JobSystem
 namespace Deep {
     void JobSystem::FreeJob(JobSystem::Job* job) {
         jobs.FreeItem(job);
     }
-}
+} // namespace Deep
 
 // Class Job
 namespace Deep {
@@ -20,7 +20,8 @@ namespace Deep {
 
         // Releasing a reference must use release semantics...
         if (referenceCount.fetch_sub(1, std::memory_order_release) == 1) {
-            // ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before freeing the job
+            // ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before
+            // freeing the job
             std::atomic_thread_fence(std::memory_order_acquire);
             jobSystem->FreeJob(this);
         }
@@ -48,7 +49,8 @@ namespace Deep {
         uint32 oldCount = numDependencies.fetch_sub(count, std::memory_order_release);
         // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
         uint32 newCount = oldCount - count;
-        Deep_Assert(oldCount > newCount, "Test wrap around, this is a logic error (Removed more dependencies than there are).");
+        Deep_Assert(oldCount > newCount,
+                    "Test wrap around, this is a logic error (Removed more dependencies than there are).");
 
         // Queue the job if dependencies == 0
         if (newCount == 0) {
@@ -62,7 +64,7 @@ namespace Deep {
 
         jobFunction();
     }
-}
+} // namespace Deep
 
 // Class JobHandle
 namespace Deep {
@@ -97,7 +99,7 @@ namespace Deep {
         }
     }
 
-    JobSystem::JobHandle& JobSystem::JobHandle::operator= (JobSystem::Job* job) {
+    JobSystem::JobHandle& JobSystem::JobHandle::operator=(JobSystem::Job* job) {
         if (this->job != job) {
             Release();
             this->job = job;
@@ -106,7 +108,7 @@ namespace Deep {
         return *this;
     }
 
-    JobSystem::JobHandle& JobSystem::JobHandle::operator= (const JobSystem::JobHandle& handle) {
+    JobSystem::JobHandle& JobSystem::JobHandle::operator=(const JobSystem::JobHandle& handle) {
         if (job != handle.job) {
             Release();
             job = handle.job;
@@ -115,7 +117,7 @@ namespace Deep {
         return *this;
     }
 
-    JobSystem::JobHandle& JobSystem::JobHandle::operator= (JobSystem::JobHandle&& handle) noexcept {
+    JobSystem::JobHandle& JobSystem::JobHandle::operator=(JobSystem::JobHandle&& handle) noexcept {
         if (job != handle.job) {
             Release();
             job = handle.job;
@@ -124,30 +126,30 @@ namespace Deep {
         return *this;
     }
 
-    JobSystem::JobHandle::operator JobSystem::Job* () const {
+    JobSystem::JobHandle::operator JobSystem::Job*() const {
         return job;
     }
 
-    JobSystem::Job* JobSystem::JobHandle::operator-> () const {
+    JobSystem::Job* JobSystem::JobHandle::operator->() const {
         Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         return job;
     }
 
-    JobSystem::Job& JobSystem::JobHandle::operator* () const {
+    JobSystem::Job& JobSystem::JobHandle::operator*() const {
         Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         return *job;
     }
 
-    bool JobSystem::JobHandle::operator== (const Job* b) const {
+    bool JobSystem::JobHandle::operator==(const Job* b) const {
         return job == b;
     }
-    Deep_Inline bool operator== (JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
+    Deep_Inline bool operator==(JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
         return a.job == b.job;
     }
-    bool JobSystem::JobHandle::operator!= (const JobSystem::Job* b) const {
+    bool JobSystem::JobHandle::operator!=(const JobSystem::Job* b) const {
         return !(*this == b);
     }
-    Deep_Inline bool operator!= (JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
+    Deep_Inline bool operator!=(JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
         return !(a == b);
     }
 
@@ -164,4 +166,4 @@ namespace Deep {
         Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         job->RemoveDependency(count);
     }
-}
+} // namespace Deep

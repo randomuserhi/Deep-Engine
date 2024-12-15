@@ -5,7 +5,5 @@
 #pragma once
 
 namespace Deep {
-    class ArenaAllocator {
-
-    };
-}
+    class ArenaAllocator {};
+} // namespace Deep

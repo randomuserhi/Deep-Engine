@@ -4,10 +4,11 @@
 
 namespace Deep {
     bool OnAssertFailImpl(const char* expression, const char* file, uint32 line, const char* message) {
-        std::cout << file << ":" << line << " Assertion Failed (" << expression << ") " << (message != nullptr ? message : "") << std::endl;
+        std::cout << file << ":" << line << " Assertion Failed (" << expression << ") "
+                  << (message != nullptr ? message : "") << std::endl;
 
         return true;
     }
 
-    bool (*OnAssertFail) (const char* expression, const char* file, uint32 line, const char* message) = &OnAssertFailImpl;
-}
+    bool (*OnAssertFail)(const char* expression, const char* file, uint32 line, const char* message) = &OnAssertFailImpl;
+} // namespace Deep

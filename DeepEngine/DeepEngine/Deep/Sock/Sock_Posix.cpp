@@ -6,6 +6,6 @@
 
 #if defined(DEEP_PLATFORM_MAC) || defined(DEEP_PLATFORM_UNIX)
 
- // TODO(randomuserhi) Implement:
+// TODO(randomuserhi) Implement:
 
 #endif

@@ -13,7 +13,7 @@ namespace Deep {
         // Constructors
         Quat() = default;
         Quat(const Quat& other) = default;
-        Quat& operator= (const Quat& other) = default;
+        Quat& operator=(const Quat& other) = default;
         Deep_Inline Quat(Vec4 vec);
         explicit Deep_Inline Quat(SSE_m128 sse_m128);
         explicit Deep_Inline Quat(float32 x, float32 y, float32 z, float32 w);
@@ -37,29 +37,29 @@ namespace Deep {
         friend bool operator==(QuatArg a, QuatArg b);
 
         // Add quaternions
-        Deep_Inline Quat& operator+= (QuatArg other);
-        friend Deep_Inline Quat operator+ (QuatArg a, QuatArg b);
+        Deep_Inline Quat& operator+=(QuatArg other);
+        friend Deep_Inline Quat operator+(QuatArg a, QuatArg b);
 
         // Sub quaternions
-        Deep_Inline Quat& operator-= (QuatArg other);
-        friend Deep_Inline Quat operator- (QuatArg a, QuatArg b);
+        Deep_Inline Quat& operator-=(QuatArg other);
+        friend Deep_Inline Quat operator-(QuatArg a, QuatArg b);
 
         // Mul quaternions
-        Deep_Inline Quat& operator*= (QuatArg other);
-        friend Deep_Inline Quat operator* (Quat a, QuatArg b);
+        Deep_Inline Quat& operator*=(QuatArg other);
+        friend Deep_Inline Quat operator*(Quat a, QuatArg b);
 
         // Mul quaternion and float
-        Deep_Inline Quat& operator*= (float32 other);
-        friend Deep_Inline Quat operator* (QuatArg v, float32 a);
-        friend Deep_Inline Quat operator* (float32 a, QuatArg v);
+        Deep_Inline Quat& operator*=(float32 other);
+        friend Deep_Inline Quat operator*(QuatArg v, float32 a);
+        friend Deep_Inline Quat operator*(float32 a, QuatArg v);
 
         // Div quaternion and float
-        Deep_Inline Quat& operator/= (float32 other);
+        Deep_Inline Quat& operator/=(float32 other);
         friend Deep_Inline Quat operator/(QuatArg q, float32 a);
         friend Deep_Inline Quat operator/(float32 a, QuatArg q);
 
         // Rotate a vector by a quaternion
-        friend Deep_Inline Vec3 operator* (QuatArg rot, Vec3Arg v);
+        friend Deep_Inline Vec3 operator*(QuatArg rot, Vec3Arg v);
 
         // Rotate a vector by the inverse of this quaternion
         static Deep_Inline Vec3 InverseRotate(QuatArg rot, Vec3Arg v);
@@ -79,4 +79,4 @@ namespace Deep {
     };
 
     static_assert(std::is_trivial<Quat>(), "Is supposed to be a trivial type!");
-}
+} // namespace Deep

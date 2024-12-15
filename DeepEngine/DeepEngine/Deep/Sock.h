@@ -20,29 +20,29 @@
 
 #endif
 
- // TODO(randomuserhi): Refactor to UDPServer, UDPClient, TCPServer, TCPClient
- //                     -> There is no reason to have my own wrapper around individual socket implementation
- //                     -> Instead wrap the entirety of the server/client system
- //                     -> Refactor how I approach portability in this sense
- //                     -> Possibly, remove "Sock.h" and place everything inside "Net.h"
+// TODO(randomuserhi): Refactor to UDPServer, UDPClient, TCPServer, TCPClient
+//                     -> There is no reason to have my own wrapper around individual socket implementation
+//                     -> Instead wrap the entirety of the server/client system
+//                     -> Refactor how I approach portability in this sense
+//                     -> Possibly, remove "Sock.h" and place everything inside "Net.h"
 
 namespace Deep {
     // This namespace is used for storing OS implementation specifics
-    // NOTE(randomuserhi): They can still be accessed by the user via __impl__ to allow them to write 
+    // NOTE(randomuserhi): They can still be accessed by the user via __impl__ to allow them to write
     //                     OS specific code.
-    //                     It is ill-advised to rely on this in normal use-cases as it may change 
+    //                     It is ill-advised to rely on this in normal use-cases as it may change
     //                     between compilation on different OS.
     //                     Only specific definitions that MUST be visible or that are useful to be exposed
     //                     for OS specific reasons will be found under __impl__ in this header
     namespace __impl__ {
         struct UDPSocket; // Stores implementation specific socket information such as Handles etc...
         struct TCPSocket; // Stores implementation specific socket information such as Handles etc...
-    }
+    } // namespace __impl__
 
     class UDPSocket {
     public:
-        UDPSocket() : __impl__() {
-        }
+        UDPSocket() :
+            __impl__() {}
 
         int32 GetSockName(IPv4& address);
 
@@ -64,12 +64,12 @@ namespace Deep {
 
     class TCPSocket {
     public:
-        TCPSocket() : __impl__() {
-        }
+        TCPSocket() :
+            __impl__() {}
 
     private:
         __impl__::TCPSocket __impl__;
     };
-}
+} // namespace Deep
 
 #include "./Sock.inl"

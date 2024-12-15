@@ -50,17 +50,9 @@ namespace Deep {
     }
 
     Vec3 PacketReader::ReadVec3() {
-        return Vec3{
-            ReadFloat(),
-            ReadFloat(),
-            ReadFloat()
-        };
+        return Vec3{ ReadFloat(), ReadFloat(), ReadFloat() };
     }
     Vec3 PacketReader::ReadHalfVec3() {
-        return Vec3{
-            ReadHalf(),
-            ReadHalf(),
-            ReadHalf()
-        };
+        return Vec3{ ReadHalf(), ReadHalf(), ReadHalf() };
     }
-}
+} // namespace Deep

@@ -22,5 +22,5 @@ namespace Deep {
         Deep_Inline int32 GetWSAError() {
             return WSAGetLastError();
         }
-    }
-}
+    } // namespace __impl__
+} // namespace Deep

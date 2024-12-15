@@ -71,4 +71,4 @@ namespace Deep {
         }
         return q;
     }
-}
+} // namespace Deep

@@ -39,4 +39,4 @@ namespace Deep {
         std::unique_lock<std::mutex> lock(mutex);
         cvCompleted.wait(lock, [this] { return jobs.empty() && busy == 0; });
     }
-}
+} // namespace Deep
