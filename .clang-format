@@ -38,3 +38,5 @@ AllowShortIfStatementsOnASingleLine: true
 SpaceAfterTemplateKeyword: false
 
 Cpp11BracedListStyle: false
+
+AllowShortLambdasOnASingleLine: Empty
