@@ -49,8 +49,7 @@ namespace Deep {
         uint32 oldCount = numDependencies.fetch_sub(count, std::memory_order_release);
         // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
         uint32 newCount = oldCount - count;
-        Deep_Assert(oldCount > newCount,
-                    "Test wrap around, this is a logic error (Removed more dependencies than there are).");
+        Deep_Assert(oldCount > newCount, "Logical Error. Removed more dependencies than there were available.");
 
         // Queue the job if dependencies == 0
         if (newCount == 0) {

@@ -55,7 +55,7 @@ namespace Deep {
 
 namespace Deep {
     Deep_Inline bool IsBigEndian() {
-        uint x = 1;
+        uint32 x = 1;
         uint8* c = reinterpret_cast<uint8*>(&x);
         return static_cast<uint8>(*c) == 0; // 0 if big endian, 1 if little endian
     }
@@ -75,7 +75,7 @@ namespace Deep {
     }
 
     // Compute number of trailing zero bits (how many low bits are zero)
-    inline uint NumTrailingZeros(uint32 value) {
+    inline uint32 NumTrailingZeros(uint32 value) {
 #if defined(DEEP_CPU_X86)
 #if defined(DEEP_USE_TZCNT)
         return _tzcnt_u32(value);
@@ -166,7 +166,7 @@ namespace Deep {
     Deep_Inline uint32 AsUInt(const float32 x) {
         return Deep::BitCast<const uint32>(x);
     }
-    Deep_Inline float32 AsFloat(const uint x) {
+    Deep_Inline float32 AsFloat(const uint32 x) {
         return Deep::BitCast<const float32>(x);
     }
 

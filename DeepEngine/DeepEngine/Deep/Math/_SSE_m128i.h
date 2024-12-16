@@ -54,11 +54,11 @@ namespace Deep {
         static Deep_Inline SSE_m128i Equals(SSE_m128iArg a, SSE_m128iArg b);
 
         // Shift all components by `Count` bits to the left
-        template<const uint Count>
+        template<const uint32 Count>
         Deep_Inline SSE_m128i LogicalShiftLeft() const;
 
         // Shift all components by `Count` bits to the right
-        template<const uint Count>
+        template<const uint32 Count>
         Deep_Inline SSE_m128i LogicalShiftRight() const;
 
         // Component wise select, returns `a` when highest bit of `control` = 0 and `b` when highest bit of `control` = 1

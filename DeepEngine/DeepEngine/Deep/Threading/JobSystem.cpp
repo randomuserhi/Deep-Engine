@@ -27,15 +27,17 @@ namespace Deep {
         running = true;
 
         // Allocate heads for job queue per thread
-        heads = reinterpret_cast<std::atomic<uint>*>(Malloc(sizeof(std::atomic<uint>) * numThreads));
-        for (int i = 0; i < numThreads; ++i) {
+        heads = reinterpret_cast<std::atomic<uint32>*>(Malloc(sizeof(std::atomic<uint32>) * numThreads));
+        for (int32 i = 0; i < numThreads; ++i) {
             heads[i] = 0;
         }
 
         // Allocate and start threads
         threads = reinterpret_cast<std::thread*>(Malloc(numThreads * sizeof(std::thread)));
         for (int32 i = 0; i < numThreads; ++i) {
-            ::new (threads + i) std::thread([this, i] { ThreadMain(i); });
+            ::new (threads + i) std::thread([this, i] {
+                ThreadMain(i);
+            });
         }
     }
 
@@ -148,7 +150,7 @@ namespace Deep {
 
         for (;;) {
             // Check if there is space in the queue
-            uint oldValue = tail;
+            uint32 oldValue = tail;
             if (oldValue - head >= queueLength) {
                 // We calculated the head outside of the loop, update head (and we also need to update tail to prevent it
                 // from passing head)
@@ -189,4 +191,11 @@ namespace Deep {
 namespace Deep {
     JobSystem::Job::Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies) :
         jobSystem(jobSystem), jobFunction(jobFunction), numDependencies(numDependencies) {}
+} // namespace Deep
+
+// Class Barrier
+namespace Deep {
+    void JobSystem::Barrier::AddJob(const JobHandle& job) {}
+
+    void JobSystem::Barrier::Wait() {}
 } // namespace Deep

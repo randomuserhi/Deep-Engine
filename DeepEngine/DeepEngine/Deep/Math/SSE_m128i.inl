@@ -79,7 +79,7 @@ namespace Deep {
 #endif
     }
 
-    template<const uint Count>
+    template<const uint32 Count>
     SSE_m128i SSE_m128i::LogicalShiftLeft() const {
         static_assert(Count <= 31, "Invalid shift");
 
@@ -90,7 +90,7 @@ namespace Deep {
 #endif
     }
 
-    template<const uint Count>
+    template<const uint32 Count>
     SSE_m128i SSE_m128i::LogicalShiftRight() const {
         static_assert(Count <= 31, "Invalid shift");
 

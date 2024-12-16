@@ -53,6 +53,7 @@
 /// For long, it is always atleast 32 bits. If you wish to guarantee atleast 64 bits, use long long
 /// https://en.cppreference.com/w/cpp/language/types#:~:text=target%20type%20will%20have%20width%20of%20at%20least%2064%20bits
 
+#ifdef DEEP_CPP_STANDARD_WIDTH_TYPES
 using longlong = long long;
 
 using uchar = unsigned char;
@@ -62,6 +63,7 @@ using ulong = unsigned long;
 using ulonglong = unsigned long long;
 
 using half = unsigned short;
+#endif
 
 /// strict definitions => short hand for intXX_t
 /// Like above the type is atleast XX number of bits large

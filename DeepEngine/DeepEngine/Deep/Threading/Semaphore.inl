@@ -3,6 +3,7 @@
 #include "../Math.h"
 
 #ifdef DEEP_PLATFORM_WINDOWS
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
@@ -88,7 +89,9 @@ namespace Deep {
 #else
         std::unique_lock<std::mutex> lock(mutex);
         count -= update;
-        waitVariable.wait(lock, [this]() { return count >= 0; });
+        waitVariable.wait(lock, [this]() {
+            return count >= 0;
+        });
 #endif
     }
 #endif
