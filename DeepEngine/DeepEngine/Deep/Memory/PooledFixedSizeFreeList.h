@@ -7,18 +7,16 @@
 #include <mutex>
 
 namespace Deep {
-    // Implementation of a fixed size free list (https://en.wikipedia.org/wiki/Free_list)
-    // Fixed size means that it cannot create more items than the specified maxItems
-    // Supports lockless construction of items (unless a new page of items needs to be allocated)
-    // Supports batching items to destruct them all in a single atomic operation
-    //
-    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/FixedSizeFreeList.h
+    // Variant of FixedSizeFreeList which keeps the given type T constructed in memory at all times.
+    // Acts more like an object pool in which constructed objects are reused.
     template<typename T>
-    class FixedSizeFreeList : NonCopyable {
+    class PooledFixedSizeFreeList : NonCopyable {
+        static_assert(std::is_default_constructible<T>(), "Type 'T' should have a default constructor.");
+
     public:
         // Represents a batch of items to destruct
         struct Batch {
-            friend class FixedSizeFreeList<T>;
+            friend class PooledFixedSizeFreeList<T>;
 
         private:
 #ifdef DEEP_ENABLE_ASSERTS
@@ -32,7 +30,7 @@ namespace Deep {
 
     private:
         struct ItemStorage {
-            friend class FixedSizeFreeList<T>;
+            friend class PooledFixedSizeFreeList<T>;
 
         private:
             T item;
@@ -45,22 +43,21 @@ namespace Deep {
         static_assert(alignof(ItemStorage) == alignof(T), "ItemStorage is not aligned properly");
 
     public:
-        FixedSizeFreeList() = delete;
-        explicit inline FixedSizeFreeList(uint32 maxItems, uint32 pageSize);
-        inline ~FixedSizeFreeList();
+        PooledFixedSizeFreeList() = delete;
+        explicit inline PooledFixedSizeFreeList(uint32 maxItems, uint32 pageSize);
+        inline ~PooledFixedSizeFreeList();
 
-        // Lockless construct a new Item of type T, parameters are passed to constructor
-        template<typename... Parameters>
-        inline uint32 AllocItem(Parameters&&... parameters);
+        // Lockless grab a new Item of type T
+        inline uint32 AcquireItem();
 
         // Lockless destruct an item and return it to free pool
-        inline void FreeItem(uint32 itemIndex);
+        inline void ReleaseItem(uint32 itemIndex);
 
         // Lockless destruct an item and return it to free pool
         // NOTE(randomuserhi): Undefined behaviour if called on an item that is part of a batch which is yet to be destructed
         //                     as the `nextFreeItem` value for this item will no longer be its index, but the next item in
         //                     the batch linked list.
-        inline void FreeItem(const T* item);
+        inline void ReleaseItem(const T* item);
 
         static const uint32 invalidItemIndex = 0xffffffff;
         static const int32 itemStorageSize = sizeof(ItemStorage);
@@ -75,7 +72,7 @@ namespace Deep {
         // NOTE(randomuserhi): This operation is not thread-safe in regards to `rwBatch`.
         //                     If `rwBatch` is changed by another thread as this operation runs,
         //                     it results in undefined behaviour.
-        inline void FreeBatch(Batch& rwBatch);
+        inline void ReleaseBatch(Batch& rwBatch);
 
         // Get an item by index
         Deep_Inline T& operator[](uint32 itemIndex) const;
@@ -129,4 +126,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "FixedSizeFreeList.inl"
+#include "PooledFixedSizeFreeList.inl"

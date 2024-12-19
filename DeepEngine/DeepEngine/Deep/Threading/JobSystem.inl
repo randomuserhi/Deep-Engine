@@ -7,6 +7,10 @@ namespace Deep {
     void JobSystem::FreeJob(JobSystem::Job* job) {
         jobs.FreeItem(job);
     }
+
+    void JobSystem::ReleaseBarrier(JobSystem::Barrier* barrier) {
+        barriers.ReleaseItem(barrier);
+    }
 } // namespace Deep
 
 // Class Job
@@ -164,5 +168,12 @@ namespace Deep {
     void JobSystem::JobHandle::RemoveDependency(uint32 count = 1) const {
         Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         job->RemoveDependency(count);
+    }
+} // namespace Deep
+
+// Class Barrier
+namespace Deep {
+    bool JobSystem::Barrier::IsEmpty() {
+        return readIndex == writeIndex;
     }
 } // namespace Deep

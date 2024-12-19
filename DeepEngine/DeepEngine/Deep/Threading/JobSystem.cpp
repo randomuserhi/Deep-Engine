@@ -10,9 +10,10 @@
 
 // Class JobSystem
 namespace Deep {
-    JobSystem::JobSystem(int32 numThreads, uint32 maxJobs) :
-        jobs(maxJobs, maxJobs), numThreads(numThreads) {
-        Deep_Assert(Sign(numThreads) == 1, "Number of threads must be positive.");
+    JobSystem::JobSystem(int32 numThreads, uint32 maxJobs, uint32 maxBarriers) :
+        jobs(maxJobs, maxJobs), numThreads(numThreads), barriers(maxBarriers, maxBarriers) {
+        Deep_Assert(numThreads > 0, "Number of threads must be greater than 0.");
+        Deep_Assert(maxBarriers > 0, "Maximum number of barriers must be greater than 0.");
 
         StartThreads();
     }
@@ -100,7 +101,7 @@ namespace Deep {
         // Loop until we can construct a job in the free list
         uint32 index;
         for (;;) {
-            index = jobs.ConstructItem(this, jobFunction, numDependencies);
+            index = jobs.AllocItem(this, jobFunction, numDependencies);
             if (index != FixedSizeFreeList<Job>::invalidItemIndex) {
                 break;
             }
@@ -185,6 +186,22 @@ namespace Deep {
         // Wake up a thread to process the job
         semaphore.Release();
     }
+
+    JobSystem::Barrier* JobSystem::AcquireBarrier() {
+        // Loop until we can acquire a barrier in the free list
+        uint32 index;
+        for (;;) {
+            index = barriers.AcquireItem();
+            if (index != PooledFixedSizeFreeList<JobSystem::Barrier>::invalidItemIndex) {
+                break;
+            }
+
+            // If we can't, then stall
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+        }
+
+        return &barriers[index];
+    }
 } // namespace Deep
 
 // Class Job
@@ -195,6 +212,16 @@ namespace Deep {
 
 // Class Barrier
 namespace Deep {
+    JobSystem::Barrier::Barrier() {
+        for (size_t i = 0; i < maxJobs; ++i) {
+            jobs[i] = nullptr;
+        }
+    }
+
+    JobSystem::Barrier::~Barrier() {
+        Deep_Assert(IsEmpty());
+    }
+
     void JobSystem::Barrier::AddJob(const JobHandle& job) {}
 
     void JobSystem::Barrier::Wait() {}

@@ -33,6 +33,10 @@
     <ClInclude Include="Deep\Math\_Vec3.h" />
     <ClInclude Include="Deep\Math\_Vec4.h" />
     <ClInclude Include="Deep\Memory.h" />
+    <ClInclude Include="Deep\Memory\PooledFixedSizeFreeList.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="Deep\Net.h" />
     <ClInclude Include="Deep\BitHelper.h" />
     <ClInclude Include="Deep\Net\Packet.h" />
@@ -83,6 +87,7 @@
     <None Include="Deep\Math\SSE_m128.inl" />
     <None Include="Deep\Math\SSE_m128i.inl" />
     <None Include="Deep\Memory.inl" />
+    <None Include="Deep\Memory\PooledFixedSizeFreeList.inl" />
     <None Include="Deep\Net\PacketReader.inl" />
     <None Include="Deep\Net\PacketWriter.inl" />
     <None Include="Deep\Sock.inl" />

@@ -5,9 +5,10 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Math\Vec4.cpp" />
     <ClCompile Include="Math\Mat4.cpp" />
-    <ClCompile Include="Memory\FixedSizedFreeList.cpp" />
+    <ClCompile Include="Memory\FixedSizeFreeList.cpp" />
     <ClCompile Include="Math\Quaternion.cpp" />
     <ClCompile Include="BitHelper.cpp" />
+    <ClCompile Include="Memory\PooledFixedSizeFreeList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

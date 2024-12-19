@@ -8,7 +8,7 @@
 
 namespace Deep {
     template<typename T>
-    FixedSizeFreeList<T>::FixedSizeFreeList(uint32 maxItems, uint32 pageSize) :
+    PooledFixedSizeFreeList<T>::PooledFixedSizeFreeList(uint32 maxItems, uint32 pageSize) :
         numItems(0), firstFreeItemInNewPage(0), allocTag(1), firstFreeItemAndTag(invalidItemIndex) {
 
         Deep_Assert(maxItems > 0, "Must be able to contain atleast 1 item.");
@@ -55,9 +55,9 @@ namespace Deep {
     }
 
     template<typename T>
-    FixedSizeFreeList<T>::~FixedSizeFreeList() {
+    PooledFixedSizeFreeList<T>::~PooledFixedSizeFreeList() {
         if (pages != nullptr) {
-// Ensure all items are freed
+// Ensure all items are released
 #ifdef DEEP_ENABLE_ASSERTS
             Deep_Assert(numFreeItems.load(std::memory_order_relaxed) == numPages * pageSize,
                         "Not all items were released before memory was deallocated.");
@@ -68,6 +68,11 @@ namespace Deep {
 
             // Free allocated pages
             for (uint32 page = 0; page < numPages; ++page) {
+                // Call all destructors
+                for (uint32 i = 0; i < pageSize; ++i) {
+                    pages[page][i].item.~T();
+                }
+
                 AlignedFree(pages[page]);
             }
 
@@ -78,19 +83,18 @@ namespace Deep {
     }
 
     template<typename T>
-    typename FixedSizeFreeList<T>::ItemStorage& FixedSizeFreeList<T>::GetStorage(uint32 index) const {
+    typename PooledFixedSizeFreeList<T>::ItemStorage& PooledFixedSizeFreeList<T>::GetStorage(uint32 index) const {
         Deep_Assert(index != invalidItemIndex, "Invalid index.");
         return pages[index >> pageShift][index & itemMask];
     }
 
     template<typename T>
-    T& FixedSizeFreeList<T>::operator[](uint32 itemIndex) const {
+    T& PooledFixedSizeFreeList<T>::operator[](uint32 itemIndex) const {
         return GetStorage(itemIndex).item;
     }
 
     template<typename T>
-    template<typename... Parameters>
-    uint32 FixedSizeFreeList<T>::AllocItem(Parameters&&... parameters) {
+    uint32 PooledFixedSizeFreeList<T>::AcquireItem() {
         for (;;) {
             uint64 firstFreeItemAndTag = this->firstFreeItemAndTag.load(std::memory_order_acquire);
             uint32 firstFree = static_cast<uint32>(firstFreeItemAndTag); // Grab the low 32 bits
@@ -108,6 +112,10 @@ namespace Deep {
                         }
                         pages[nextPage] = reinterpret_cast<ItemStorage*>(AlignedMalloc(
                             pageSize * sizeof(ItemStorage), Max<size_t>(alignof(ItemStorage), DEEP_CACHE_LINE_SIZE)));
+
+                        // Construct all items inside the page (differs from FixedSizedFreeList)
+                        ::new (pages[nextPage]) ItemStorage[pageSize];
+
                         numItems += pageSize;
                     }
                 }
@@ -116,7 +124,6 @@ namespace Deep {
                 numFreeItems.fetch_sub(1, std::memory_order_relaxed);
 #endif
                 ItemStorage& storage = GetStorage(firstFree);
-                ::new (&storage.item) T(std::forward<Parameters>(parameters)...);
                 storage.nextFreeItem.store(firstFree, std::memory_order_release);
                 return firstFree;
             } else {
@@ -134,7 +141,6 @@ namespace Deep {
                     numFreeItems.fetch_sub(1, std::memory_order_relaxed);
 #endif
                     ItemStorage& storage = GetStorage(firstFree);
-                    ::new (&storage.item) T(std::forward<Parameters>(parameters)...);
                     storage.nextFreeItem.store(firstFree, std::memory_order_release);
                     return firstFree;
                 }
@@ -143,14 +149,13 @@ namespace Deep {
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::FreeItem(uint32 itemIndex) {
+    void PooledFixedSizeFreeList<T>::ReleaseItem(uint32 itemIndex) {
         Deep_Assert(itemIndex != invalidItemIndex, "Invalid index.");
         Deep_Assert(itemIndex < numItems, "Index out of bounds.");
 
         ItemStorage& storage = GetStorage(itemIndex);
         Deep_Assert(storage.nextFreeItem == itemIndex,
                     "Item cannot be freed as it is already free or part of a batch to be freed.");
-        storage.item.~T();
 
         // Add item back to free list, inserting it at the front
         for (;;) {
@@ -175,15 +180,15 @@ namespace Deep {
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::FreeItem(const T* item) {
+    void PooledFixedSizeFreeList<T>::ReleaseItem(const T* item) {
         uint32 index = reinterpret_cast<const ItemStorage*>(item)->nextFreeItem.load(std::memory_order_relaxed);
         Deep_Assert(item == &GetStorage(index).item,
                     "Item cannot be freed as it is either invalid, already free or part of a batch to be freed.");
-        FreeItem(index);
+        ReleaseItem(index);
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::AddItemToBatch(Batch& batch, uint32 itemIndex) {
+    void PooledFixedSizeFreeList<T>::AddItemToBatch(Batch& batch, uint32 itemIndex) {
 #ifdef DEEP_ENABLE_ASSERTS
         if (batch.owner == nullptr) {
             batch.owner = this;
@@ -210,22 +215,8 @@ namespace Deep {
     }
 
     template<typename T>
-    void FixedSizeFreeList<T>::FreeBatch(Batch& batch) {
+    void PooledFixedSizeFreeList<T>::ReleaseBatch(Batch& batch) {
         if (batch.firstItemIndex != invalidItemIndex) {
-            if
-#if __cplusplus >= 201703L
-                constexpr
-#endif
-                (!std::is_trivially_destructible<T>()) {
-                // Loop and destruct each item
-                uint32 itemIndex = batch.firstItemIndex;
-                do {
-                    ItemStorage& storage = GetStorage(itemIndex);
-                    storage.item.~T();
-                    itemIndex = storage.nextFreeItem.load(std::memory_order_relaxed);
-                } while (itemIndex != invalidItemIndex);
-            }
-
             ItemStorage& storage = GetStorage(batch.lastItemIndex);
             for (;;) {
                 uint64 firstFreeItemAndTag = this->firstFreeItemAndTag.load(std::memory_order_acquire);

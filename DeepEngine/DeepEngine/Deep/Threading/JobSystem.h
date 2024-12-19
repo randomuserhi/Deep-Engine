@@ -7,6 +7,7 @@
 #include "../../Deep.h"
 #include "../BitHelper.h"
 #include "../Memory/FixedSizeFreeList.h"
+#include "../Memory/PooledFixedSizeFreeList.h"
 #include "../NonCopyable.h"
 #include "./semaphore.h"
 
@@ -26,9 +27,9 @@
 /// [ ] barrier.Wait()
 ///
 /// DETAILS:
-/// [ ] Job Queue -> lockless
-/// [ ] JobHandle reference
-/// [ ] ThreadMain implementation (check job queue)
+/// [x] Job Queue -> lockless
+/// [x] JobHandle reference
+/// [x] ThreadMain implementation (check job queue)
 ///
 /// Things to Note
 /// - Construction of condition_variable and mutex being slow
@@ -36,12 +37,47 @@
 
 namespace Deep {
     class JobSystem : NonCopyable {
-    private:
-        class Job;
-
     public:
         using JobFunction = std::function<void()>;
 
+    private:
+        class Job : NonCopyable {
+        public:
+            Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies);
+
+            // Acquire a reference to this job
+            Deep_Inline void Acquire();
+
+            // Release a reference to this job
+            Deep_Inline void Release();
+
+            // Set dependencies
+            Deep_Inline void SetDependencies(uint32 count);
+
+            // Add a dependency
+            Deep_Inline void AddDependency(uint32 count);
+
+            // Remove a dependency and queues the job when count == 0
+            Deep_Inline void RemoveDependency(uint32 count);
+
+            // Execute jobFunction
+            Deep_Inline void Execute();
+
+        private:
+            // Job system that owns this job
+            JobSystem* const jobSystem;
+
+            // Function the job executes
+            JobFunction jobFunction;
+
+            // Number of references to this job. Used for reference counting to free the job.
+            std::atomic<uint32> referenceCount;
+
+            // Number of dependencies left before this job can execute
+            std::atomic<uint32> numDependencies;
+        };
+
+    public:
         class JobHandle {
         public:
             Deep_Inline JobHandle() = default;
@@ -85,60 +121,55 @@ namespace Deep {
 
         class Barrier : NonCopyable {
         public:
+            Barrier();
+            ~Barrier();
+
             void AddJob(const JobHandle& job);
 
+            // Wait for all jobs in the barrier to complete, while waiting, execute jobs that are part of this barrier on the
+            // current thread
             void Wait();
 
+            // Returns true if there are no jobs in the barrier
+            Deep_Inline bool IsEmpty();
+
+            // Flag to indicate if the barrier has been allocated or not
+            std::atomic<bool> isAllocated{ false };
+
         private:
+            // Job queue for the barrier
             static constexpr uint32 maxJobs = 2048;
             static_assert(IsPowerOf2(maxJobs), "Maximum job count must be a power of 2 due to bit operations.");
             std::atomic<Job*> jobs[maxJobs];
+
+            // First job that can be read from job queue
+            alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint32> readIndex{ 0 };
+
+            // First job that can be written from job queue
+            alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint32> writeIndex{ 0 };
+
+            // Number of times the semaphore has been released, the barrier needs to acquire the semaphore this many times
+            std::atomic<int> numToAcquire{ 0 };
+
+            // Semaphore used by finishing jobs to signal the barrier that they're done
+            Semaphore<INT_MAX> semaphore;
         };
 
+    public:
         // Constructors
-        explicit JobSystem(int32 numThreads, uint32 maxJobs);
+        explicit JobSystem(int32 numThreads, uint32 maxJobs, uint32 maxBarriers);
         ~JobSystem();
 
         // Creates a job and queues it
         JobHandle Enqueue(JobFunction jobFunction, uint32 numDependencies = 0);
 
+        // Obtain a barrier
+        Barrier* AcquireBarrier();
+
+        // Release a barrier
+        Deep_Inline void ReleaseBarrier(Barrier* barrier);
+
     private:
-        class Job : NonCopyable {
-        public:
-            Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies);
-
-            // Acquire a reference to this job
-            Deep_Inline void Acquire();
-
-            // Release a reference to this job
-            Deep_Inline void Release();
-
-            // Set dependencies
-            Deep_Inline void SetDependencies(uint32 count);
-
-            // Add a dependency
-            Deep_Inline void AddDependency(uint32 count);
-
-            // Remove a dependency and queues the job when count == 0
-            Deep_Inline void RemoveDependency(uint32 count);
-
-            // Execute jobFunction
-            Deep_Inline void Execute();
-
-        private:
-            // Job system that owns this job
-            JobSystem* const jobSystem;
-
-            // Function the job executes
-            JobFunction jobFunction;
-
-            // Number of references to this job. Used for reference counting to free the job.
-            std::atomic<uint32> referenceCount;
-
-            // Number of dependencies left before this job can execute
-            std::atomic<uint32> numDependencies;
-        };
-
         void StartThreads();
         void StopThreads();
         void ThreadMain(int32 id);
@@ -171,12 +202,13 @@ namespace Deep {
 
         Semaphore<INT_MAX> semaphore;
 
-        // TODO(randomuserhi): Barriers
+        PooledFixedSizeFreeList<Barrier> barriers;
 
         std::atomic<bool> running = true;
     };
 
     using JobHandle = JobSystem::JobHandle;
+    using Barrier = JobSystem::Barrier;
 } // namespace Deep
 
 #include "./JobSystem.inl"
