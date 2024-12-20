@@ -17,7 +17,7 @@ int main() {
     Deep::JobSystem jobSystem{ static_cast<int>(std::thread::hardware_concurrency() - 1), 2048, 1024 };
 
     constexpr size_t count = 1000000000;
-    constexpr size_t slice = 100000000;
+    constexpr size_t slice = 62500000;
     static_assert(count % slice == 0, "");
 
     Deep::Vec3* positions = new Deep::Vec3[count];
