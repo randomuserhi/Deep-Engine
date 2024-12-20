@@ -7,6 +7,8 @@ namespace Deep {
     // whenever a reference is acquired or released.
     //
     // NOTE(randomuserhi): class T must implement `Acquire` and `Release` methods or this class will not compile.
+    //
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/Reference.h
     template<class T>
     class Ref {
     public:

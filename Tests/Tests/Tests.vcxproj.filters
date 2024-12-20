@@ -9,6 +9,7 @@
     <ClCompile Include="Math\Quaternion.cpp" />
     <ClCompile Include="BitHelper.cpp" />
     <ClCompile Include="Memory\PooledFixedSizeFreeList.cpp" />
+    <ClCompile Include="Threading\JobSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
