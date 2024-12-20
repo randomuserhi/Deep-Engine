@@ -190,7 +190,7 @@ namespace Deep {
         semaphore.Release();
     }
 
-    JobSystem::Barrier* JobSystem::AcquireBarrier() {
+    JobSystem::BarrierHandle JobSystem::AcquireBarrier() {
         // Loop until we can acquire a barrier in the free list
         uint32 index;
         for (;;) {
@@ -202,8 +202,10 @@ namespace Deep {
             // If we can't, then stall
             std::this_thread::sleep_for(std::chrono::microseconds(100));
         }
+        Barrier* barrier = &barriers[index];
+        barrier->jobSystem = this; // Set owning job system
 
-        return &barriers[index];
+        return BarrierHandle{ barrier };
     }
 } // namespace Deep
 
@@ -215,7 +217,8 @@ namespace Deep {
 
 // Class Barrier
 namespace Deep {
-    JobSystem::Barrier::Barrier() {
+    JobSystem::Barrier::Barrier() :
+        jobSystem(nullptr) {
         for (size_t i = 0; i < maxJobs; ++i) {
             jobs[i] = nullptr;
         }
@@ -234,6 +237,7 @@ namespace Deep {
         bool releaseSemaphore = false;
 
         Job* jobPtr = job.GetPtr();
+        Deep_Assert(jobSystem == jobPtr->jobSystem, "Job and Barrier must belong to the same job system.");
         if (jobPtr->SetBarrier(this)) {
             numToAcquire++;
             if (jobPtr->CanBeExecuted()) {

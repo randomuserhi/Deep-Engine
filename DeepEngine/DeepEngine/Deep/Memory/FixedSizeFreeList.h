@@ -14,7 +14,7 @@ namespace Deep {
     //
     // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/FixedSizeFreeList.h
     template<typename T>
-    class FixedSizeFreeList : NonCopyable {
+    class FixedSizeFreeList : private NonCopyable {
     public:
         // Represents a batch of items to destruct
         struct Batch {

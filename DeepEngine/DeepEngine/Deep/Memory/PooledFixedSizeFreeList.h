@@ -10,7 +10,7 @@ namespace Deep {
     // Variant of FixedSizeFreeList which keeps the given type T constructed in memory at all times.
     // Acts more like an object pool in which constructed objects are reused.
     template<typename T>
-    class PooledFixedSizeFreeList : NonCopyable {
+    class PooledFixedSizeFreeList : private NonCopyable {
         static_assert(std::is_default_constructible<T>(), "Type 'T' should have a default constructor.");
 
     public:

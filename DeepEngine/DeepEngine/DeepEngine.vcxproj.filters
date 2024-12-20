@@ -117,6 +117,9 @@
     <ClInclude Include="Deep\Memory\PooledFixedSizeFreeList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\Memory\Reference.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECS.cpp">
@@ -194,6 +197,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Deep\Memory\PooledFixedSizeFreeList.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Memory\Reference.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

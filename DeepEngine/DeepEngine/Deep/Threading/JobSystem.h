@@ -6,6 +6,7 @@
 
 #include "../../Deep.h"
 #include "../BitHelper.h"
+#include "../Memory/Reference.h"
 #include "../Memory/FixedSizeFreeList.h"
 #include "../Memory/PooledFixedSizeFreeList.h"
 #include "../NonCopyable.h"
@@ -23,13 +24,14 @@
 // TODO(randomuserhi): Create a BarrierHandle to automatically handle releasing barrier back to job system
 
 namespace Deep {
-    class JobSystem : NonCopyable {
+    class JobSystem : private NonCopyable {
     public:
         using JobFunction = std::function<void()>;
 
     private:
-        class Barrier;
-        class Job : NonCopyable {
+        class Barrier; // Forward declaration
+
+        class Job : private NonCopyable {
             friend class Barrier;
 
         public:
@@ -90,33 +92,19 @@ namespace Deep {
         };
 
     public:
-        class JobHandle {
+        class JobHandle final : private Ref<Job> {
+            friend class JobSystem;
+
         public:
-            Deep_Inline JobHandle() = default;
-            Deep_Inline JobHandle(Job* job);
-            Deep_Inline JobHandle(const JobHandle& handle);
-            Deep_Inline JobHandle(JobHandle&& handle) noexcept;
-            Deep_Inline ~JobHandle();
+            // Inherit constructors
+            using Ref<Job>::Ref;
 
-            // Assignment operators
-            Deep_Inline JobHandle& operator=(Job* job);
-            Deep_Inline JobHandle& operator=(const JobHandle& handle);
-            Deep_Inline JobHandle& operator=(JobHandle&& handle) noexcept;
+            inline JobHandle() = default;
+            inline JobHandle(const JobHandle& handle) = default;
+            inline JobHandle(JobHandle&& handle) noexcept;
 
-            // Casting operators
-            Deep_Inline operator JobSystem::Job*() const;
-
-            // Pointer access
-            Deep_Inline Job* operator->() const;
-            Deep_Inline Job& operator*() const;
-
-            // Comparison
-            Deep_Inline bool operator==(const Job* b) const;
-            friend bool operator==(JobHandle& a, JobHandle& b);
-            Deep_Inline bool operator!=(const Job* b) const;
-            friend bool operator!=(JobHandle& a, JobHandle& b);
-
-            Deep_Inline Job* GetPtr() const;
+            inline JobHandle& operator=(const JobHandle& ref) = default;
+            inline JobHandle& operator=(JobHandle&& ref) noexcept = default;
 
             Deep_Inline void AddDependency(uint32 count) const;
             Deep_Inline void RemoveDependency(uint32 count) const;
@@ -124,16 +112,13 @@ namespace Deep {
             Deep_Inline bool IsDone() const;
 
         private:
-            // Wrapper for job->Acquire, noop on nullptr
-            Deep_Inline void Acquire();
-
-            // Wrapper for job->Release, noop on nullptr
-            Deep_Inline void Release();
-
-            Job* job = nullptr;
+            // Inherit GetPtr
+            using Ref<Job>::GetPtr;
         };
 
-        class Barrier : NonCopyable {
+    private:
+        class Barrier : private NonCopyable {
+            friend class JobSystem;
             friend class Job;
 
         public:
@@ -147,11 +132,20 @@ namespace Deep {
             void Wait();
 
             // Returns true if there are no jobs in the barrier
-            Deep_Inline bool IsEmpty();
+            Deep_Inline bool IsEmpty() const;
+
+            // Acquire a reference to this barrier
+            Deep_Inline void Acquire();
+
+            // Release a reference to this barrier
+            Deep_Inline void Release();
 
         private:
             // Called by a job to mark it as finished within this barrier
             Deep_Inline void OnJobFinished(Job* job);
+
+            // Job system that owns this job
+            JobSystem* jobSystem = nullptr;
 
             // TODO(randomuserhi): More optimal barrier job queue...
 
@@ -171,6 +165,35 @@ namespace Deep {
 
             // Semaphore used by finishing jobs to signal the barrier that they're done
             Semaphore<INT_MAX> semaphore;
+
+            // Number of references to this job. Used for reference counting to free the job.
+            std::atomic<uint32> referenceCount;
+        };
+
+    public:
+        class BarrierHandle final : private Ref<Barrier> {
+            friend class JobSystem;
+
+        public:
+            // Inherit constructors
+            using Ref<Barrier>::Ref;
+
+            inline BarrierHandle() = default;
+            inline BarrierHandle(const BarrierHandle& handle) = default;
+            inline BarrierHandle(BarrierHandle&& handle) noexcept;
+
+            Deep_Inline void AddJob(const JobHandle& job) const;
+
+            // Wait for all jobs in the barrier to complete, while waiting, execute jobs that are part of this barrier on the
+            // current thread
+            Deep_Inline void Wait() const;
+
+            // Returns true if there are no jobs in the barrier
+            Deep_Inline bool IsEmpty() const;
+
+        private:
+            // Inherit GetPtr
+            using Ref<Barrier>::GetPtr;
         };
 
     public:
@@ -182,7 +205,7 @@ namespace Deep {
         JobHandle Enqueue(JobFunction jobFunction, uint32 numDependencies = 0);
 
         // Obtain a barrier
-        Barrier* AcquireBarrier();
+        BarrierHandle AcquireBarrier();
 
         // Release a barrier
         Deep_Inline void ReleaseBarrier(Barrier* barrier);
@@ -227,8 +250,8 @@ namespace Deep {
         std::atomic<bool> running = true;
     };
 
-    using JobHandle = JobSystem::JobHandle;
-    using Barrier = JobSystem::Barrier;
+    using Job = JobSystem::JobHandle;
+    using Barrier = JobSystem::BarrierHandle;
 } // namespace Deep
 
 #include "./JobSystem.inl"

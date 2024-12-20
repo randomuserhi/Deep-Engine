@@ -37,6 +37,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="Deep\Memory\Reference.h" />
     <ClInclude Include="Deep\Net.h" />
     <ClInclude Include="Deep\BitHelper.h" />
     <ClInclude Include="Deep\Net\Packet.h" />
@@ -86,6 +87,7 @@
     <None Include="Deep\Math\SSE_m128i.inl" />
     <None Include="Deep\Memory.inl" />
     <None Include="Deep\Memory\PooledFixedSizeFreeList.inl" />
+    <None Include="Deep\Memory\Reference.inl" />
     <None Include="Deep\Net\PacketReader.inl" />
     <None Include="Deep\Net\PacketWriter.inl" />
     <None Include="Deep\Sock.inl" />

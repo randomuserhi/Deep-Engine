@@ -16,6 +16,8 @@
 int main() {
     Deep::JobSystem jobSystem{ static_cast<int>(std::thread::hardware_concurrency() - 1), 2048, 1024 };
 
+    // constexpr size_t count = 1000000000;
+    // constexpr size_t slice = 62500000;
     constexpr size_t count = 1000000000;
     constexpr size_t slice = 62500000;
     static_assert(count % slice == 0, "");
@@ -29,9 +31,9 @@ int main() {
     }
 
 #ifdef THREADED
-    Deep::Barrier* barrier = jobSystem.AcquireBarrier();
-    Deep::JobHandle waiter = jobSystem.Enqueue([]() {}, count / slice);
-    barrier->AddJob(waiter);
+    Deep::Barrier barrier = jobSystem.AcquireBarrier();
+    Deep::Job waiter = jobSystem.Enqueue([]() {}, count / slice);
+    barrier.AddJob(waiter);
 #endif
 
     auto start = std::chrono::system_clock::now();
@@ -46,8 +48,7 @@ int main() {
         });
     }
 
-    barrier->Wait();
-    jobSystem.ReleaseBarrier(barrier);
+    barrier.Wait();
 #else
     for (size_t i = 0; i < count; ++i) {
         positions[i] += velocities[i];

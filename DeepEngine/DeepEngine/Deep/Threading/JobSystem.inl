@@ -125,113 +125,27 @@ namespace Deep {
 
 // Class JobHandle
 namespace Deep {
-    JobSystem::JobHandle::JobHandle(JobSystem::Job* job) :
-        job(job) {
-        Acquire();
-    }
-
-    JobSystem::JobHandle::JobHandle(const JobSystem::JobHandle& handle) :
-        job(handle.job) {
-        Acquire();
-    }
-
-    JobSystem::JobHandle::JobHandle(JobSystem::JobHandle&& handle) noexcept :
-        job(handle.job) {
-        handle.job = nullptr;
-    }
-
-    JobSystem::JobHandle::~JobHandle() {
-        Release();
-    }
-
-    void JobSystem::JobHandle::Acquire() {
-        if (job != nullptr) {
-            job->Acquire();
-        }
-    }
-
-    void JobSystem::JobHandle::Release() {
-        if (job != nullptr) {
-            job->Release();
-        }
-    }
-
-    JobSystem::JobHandle& JobSystem::JobHandle::operator=(JobSystem::Job* job) {
-        if (this->job != job) {
-            Release();
-            this->job = job;
-            Acquire();
-        }
-        return *this;
-    }
-
-    JobSystem::JobHandle& JobSystem::JobHandle::operator=(const JobSystem::JobHandle& handle) {
-        if (job != handle.job) {
-            Release();
-            job = handle.job;
-            Acquire();
-        }
-        return *this;
-    }
-
-    JobSystem::JobHandle& JobSystem::JobHandle::operator=(JobSystem::JobHandle&& handle) noexcept {
-        if (job != handle.job) {
-            Release();
-            job = handle.job;
-            handle.job = nullptr;
-        }
-        return *this;
-    }
-
-    JobSystem::JobHandle::operator JobSystem::Job*() const {
-        return job;
-    }
-
-    JobSystem::Job* JobSystem::JobHandle::operator->() const {
-        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
-        return job;
-    }
-
-    JobSystem::Job& JobSystem::JobHandle::operator*() const {
-        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
-        return *job;
-    }
-
-    bool JobSystem::JobHandle::operator==(const Job* b) const {
-        return job == b;
-    }
-    Deep_Inline bool operator==(JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
-        return a.job == b.job;
-    }
-    bool JobSystem::JobHandle::operator!=(const JobSystem::Job* b) const {
-        return !(*this == b);
-    }
-    Deep_Inline bool operator!=(JobSystem::JobHandle& a, JobSystem::JobHandle& b) {
-        return !(a == b);
-    }
-
-    JobSystem::Job* JobSystem::JobHandle::GetPtr() const {
-        return job;
-    }
+    JobSystem::JobHandle::JobHandle(JobHandle&& handle) noexcept :
+        Ref<Job>(std::move(handle)) {}
 
     void JobSystem::JobHandle::AddDependency(uint32 count = 1) const {
-        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
-        job->AddDependency(count);
+        Deep_Assert(ptr != nullptr, "JobHandle is nullptr.");
+        ptr->AddDependency(count);
     }
 
     void JobSystem::JobHandle::RemoveDependency(uint32 count = 1) const {
-        Deep_Assert(job != nullptr, "JobHandle is nullptr.");
-        job->RemoveDependency(count);
+        Deep_Assert(ptr != nullptr, "JobHandle is nullptr.");
+        ptr->RemoveDependency(count);
     }
 
     bool JobSystem::JobHandle::IsDone() const {
-        return job->IsDone();
+        return ptr->IsDone();
     }
 } // namespace Deep
 
 // Class Barrier
 namespace Deep {
-    bool JobSystem::Barrier::IsEmpty() {
+    bool JobSystem::Barrier::IsEmpty() const {
         return readIndex == writeIndex;
     }
 
@@ -240,5 +154,49 @@ namespace Deep {
         //                     can fill up and eventually become full even if all jobs are completed.
 
         semaphore.Release();
+    }
+
+    void JobSystem::Barrier::Acquire() {
+        referenceCount.fetch_add(1, std::memory_order_relaxed);
+    }
+
+    void JobSystem::Barrier::Release() {
+        Deep_Assert(jobSystem != nullptr, "Barrier was not assigned a job system.");
+
+        // Releasing a reference must use release semantics...
+        if (referenceCount.fetch_sub(1, std::memory_order_release) == 1) {
+            // ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before
+            // freeing the job
+            std::atomic_thread_fence(std::memory_order_acquire);
+            jobSystem->ReleaseBarrier(this);
+        }
+
+        // NOTE(randomuserhi): For TSAN no atomic_thread_fence can be used, so the below alternative is required
+        // TODO(randomuserhi): TSAN #define flag
+        /*
+        if (referenceCount.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+            jobSystem->jobs.FreeItem(this);
+        }
+        */
+    }
+} // namespace Deep
+
+#include <iostream>
+
+// Class BarrierHandle
+namespace Deep {
+    JobSystem::BarrierHandle::BarrierHandle(BarrierHandle&& handle) noexcept :
+        Ref<Barrier>(std::move(handle)) {}
+
+    void JobSystem::BarrierHandle::AddJob(const JobHandle& job) const {
+        ptr->AddJob(job);
+    }
+
+    void JobSystem::BarrierHandle::Wait() const {
+        ptr->Wait();
+    }
+
+    bool JobSystem::BarrierHandle::IsEmpty() const {
+        return ptr->IsEmpty();
     }
 } // namespace Deep
