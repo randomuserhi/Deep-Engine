@@ -207,9 +207,6 @@ namespace Deep {
         // Obtain a barrier
         BarrierHandle AcquireBarrier();
 
-        // Release a barrier
-        Deep_Inline void ReleaseBarrier(Barrier* barrier);
-
     private:
         void StartThreads();
         void StopThreads();
@@ -217,6 +214,9 @@ namespace Deep {
 
         // Free a job back into free list
         Deep_Inline void FreeJob(Job* job);
+
+        // Release a barrier back into pool
+        Deep_Inline void ReleaseBarrier(Barrier* barrier);
 
         // Get the head that has processed the least jobs
         Deep_Inline uint32 GetMinHead();
