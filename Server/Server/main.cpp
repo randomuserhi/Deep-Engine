@@ -32,20 +32,17 @@ int main() {
 
 #ifdef THREADED
     Deep::Barrier barrier = jobSystem.AcquireBarrier();
-    Deep::Job waiter = jobSystem.Enqueue([]() {}, count / slice);
-    barrier.AddJob(waiter);
 #endif
 
     auto start = std::chrono::system_clock::now();
 
 #ifdef THREADED
     for (size_t i = 0; i < count / slice; ++i) {
-        jobSystem.Enqueue([slice, i, &waiter, &positions, &velocities]() {
+        barrier.AddJob(jobSystem.Enqueue([slice, i, &positions, &velocities]() {
             for (size_t j = i * slice; j < i * slice + slice; ++j) {
                 positions[j] += velocities[j];
             }
-            waiter.RemoveDependency();
-        });
+        }));
     }
 
     barrier.Wait();
