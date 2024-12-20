@@ -1,7 +1,5 @@
 #pragma once
 
-#include "./JobSystem.h" // TODO(randomuserhi): Remove
-
 // Class JobSystem
 namespace Deep {
     void JobSystem::FreeJob(JobSystem::Job* job) {
@@ -238,9 +236,6 @@ namespace Deep {
     }
 
     void JobSystem::Barrier::OnJobFinished(Job* job) {
-        Deep_Assert(reinterpret_cast<Barrier*>(job->barrier.load(std::memory_order_relaxed)) == this,
-                    "Job must belong to this barrier.");
-
         // NOTE(randomuserhi): Since we do not pop the job off the barrier queue, if Wait() has not been called, the barrier
         //                     can fill up and eventually become full even if all jobs are completed.
 

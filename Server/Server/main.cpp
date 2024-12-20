@@ -1,6 +1,6 @@
-#include <iostream>
-
 #define DEEP_ENABLE_ASSERTS
+
+#include <iostream>
 
 #include <Deep.h>
 #include <Deep/Net.h>
@@ -11,11 +11,13 @@
 #include <chrono>
 #include <thread>
 
+#define THREADED
+
 int main() {
     Deep::JobSystem jobSystem{ static_cast<int>(std::thread::hardware_concurrency() - 1), 2048, 1024 };
 
-    const size_t count = 100000000;
-    const size_t slice = 1000;
+    constexpr size_t count = 1000000000;
+    constexpr size_t slice = 100000000;
     static_assert(count % slice == 0, "");
 
     Deep::Vec3* positions = new Deep::Vec3[count];
@@ -26,14 +28,17 @@ int main() {
         velocities[i] = Deep::Vec3::left;
     }
 
+#ifdef THREADED
     Deep::Barrier* barrier = jobSystem.AcquireBarrier();
     Deep::JobHandle waiter = jobSystem.Enqueue([]() {}, count / slice);
     barrier->AddJob(waiter);
+#endif
 
     auto start = std::chrono::system_clock::now();
 
+#ifdef THREADED
     for (size_t i = 0; i < count / slice; ++i) {
-        jobSystem.Enqueue([i, &waiter, &positions, &velocities]() {
+        jobSystem.Enqueue([slice, i, &waiter, &positions, &velocities]() {
             for (size_t j = i * slice; j < i * slice + slice; ++j) {
                 positions[j] += velocities[j];
             }
@@ -42,7 +47,12 @@ int main() {
     }
 
     barrier->Wait();
-    // jobSystem.ReleaseBarrier(barrier);
+    jobSystem.ReleaseBarrier(barrier);
+#else
+    for (size_t i = 0; i < count; ++i) {
+        positions[i] += velocities[i];
+    }
+#endif
 
     auto end = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

@@ -161,6 +161,9 @@ namespace Deep {
     }
 } // namespace Deep
 
+// TODO(randomuserhi): Remove this default definition, its here for debugging.
+#define DEEP_ENABLE_ASSERTS
+
 #ifdef DEEP_ENABLE_ASSERTS
 #define Deep_Assert(expression, message)                                                                                    \
     do {                                                                                                                    \

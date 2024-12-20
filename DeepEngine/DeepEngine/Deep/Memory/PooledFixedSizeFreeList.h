@@ -29,7 +29,9 @@ namespace Deep {
         };
 
     private:
-        struct ItemStorage {
+        // NOTE(randomuserhi): Align each item storage to prevent false sharing on concurrent writes to
+        //                     adjacent items
+        struct alignas(DEEP_CACHE_LINE_SIZE) ItemStorage {
             friend class PooledFixedSizeFreeList<T>;
 
         private:
@@ -40,7 +42,8 @@ namespace Deep {
             // `T*`, the index is known to properly handle it
             std::atomic<uint32> nextFreeItem;
         };
-        static_assert(alignof(ItemStorage) == alignof(T), "ItemStorage is not aligned properly");
+        static_assert(alignof(ItemStorage) == (DEEP_CACHE_LINE_SIZE > alignof(T) ? DEEP_CACHE_LINE_SIZE : alignof(T)),
+                      "ItemStorage is not aligned properly");
 
     public:
         PooledFixedSizeFreeList() = delete;

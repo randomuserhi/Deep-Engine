@@ -222,7 +222,7 @@ namespace Deep {
     }
 
     JobSystem::Barrier::~Barrier() {
-        Deep_Assert(IsEmpty());
+        Deep_Assert(IsEmpty(), "Barrier must be empty.");
     }
 
     void JobSystem::Barrier::AddJob(const JobHandle& job) {
