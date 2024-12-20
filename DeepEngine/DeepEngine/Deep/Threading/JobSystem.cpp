@@ -295,6 +295,9 @@ namespace Deep {
                     if (jobPtr->CanBeExecuted()) {
                         // Only execute the job if it has not already been executed
                         // and mark the fact that we executed a job ourself.
+                        //
+                        // NOTE(randomuserhi): `jobPtr->Execute() == Job::doneState` is not sufficient as the job could have
+                        //                     been executed by different thread.
                         jobPtr->Execute();
                         hasExecuted = true;
                         break;
