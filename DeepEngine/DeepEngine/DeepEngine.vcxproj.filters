@@ -54,9 +54,6 @@
     <ClInclude Include="Deep\Sock\Sock_Windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\Threading\ThreadPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Deep\Deep_Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -147,9 +144,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Sock\Sock_Windows.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Deep\Threading\ThreadPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Math\Mat4.cpp">

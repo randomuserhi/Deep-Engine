@@ -52,7 +52,6 @@
     <ClInclude Include="Deep\Memory\FixedSizeFreeList.h" />
     <ClInclude Include="Deep\Threading\JobSystem.h" />
     <ClInclude Include="Deep\Threading\Semaphore.h" />
-    <ClInclude Include="Deep\Threading\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\Deep.cpp" />
@@ -81,7 +80,6 @@
     <ClCompile Include="Deep\Sock\Sock_Posix.cpp" />
     <ClCompile Include="Deep\Sock\Sock_Windows.cpp" />
     <ClCompile Include="Deep\Threading\JobSystem.cpp" />
-    <ClCompile Include="Deep\Threading\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Deep\Math\SSE_m128.inl" />

@@ -18,23 +18,6 @@
 #include <queue>
 #include <thread>
 
-/// TODO:
-/// [x] JobSystem(size_t numThreads)
-/// [x] JobHandle job = JobSystem.Enqueue(std::function<void()> job, uint32 numDependencies)
-/// [ ] job.AddDependency(1)
-/// [ ] job.RemoveDependency(1)
-/// [ ] Barrier barrier = JobSystem.CreateBarrier();
-/// [ ] barrier.Wait()
-///
-/// DETAILS:
-/// [x] Job Queue -> lockless
-/// [x] JobHandle reference
-/// [x] ThreadMain implementation (check job queue)
-///
-/// Things to Note
-/// - Construction of condition_variable and mutex being slow
-/// - Creating a barrier in a Job will consume a thread until that barrier is released
-
 namespace Deep {
     class JobSystem : NonCopyable {
     public:
@@ -221,6 +204,8 @@ namespace Deep {
         const int32 numThreads;
 
         // Job queue
+        //
+        // TODO(randomuserhi): Document how this job queue works
         static constexpr uint32 queueLength = 1024;
         static_assert(IsPowerOf2(queueLength), "Queue length must be a power of 2 due to bit operations.");
         std::atomic<Job*> queue[queueLength];

@@ -60,7 +60,6 @@ namespace Deep {
         // Free Threads
         Free(threads);
 
-        // TODO(randomuserhi): Document...
         // Ensure that there are no lingering jobs in the queue, release them all
         for (uint32 head = 0; head != tail; ++head) {
             Job* job_ptr = queue[head & (queueLength - 1)].exchange(nullptr);
@@ -77,7 +76,6 @@ namespace Deep {
     }
 
     void JobSystem::ThreadMain(int32 id) {
-        // TODO(randomuserhi): Document
         std::atomic<uint32>& head = heads[id];
 
         while (running) {
@@ -141,8 +139,6 @@ namespace Deep {
         //                     Check job is not already executing -> assert only?
         //                     Check job has 0 dependencies -> assert only?
         //                     Check we have worker threads and that the job system is running -> assert only?
-
-        // TODO(randomuserhi): Check logic and understand what is going on...
 
         // Acquire a reference to the job to keep it alive in job queue
         job->Acquire();

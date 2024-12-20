@@ -2,15 +2,13 @@
 
 #include "../Math.h"
 
-// TODO(randomuserhi): Vectorisation of all methods
-
 namespace Deep {
     Quat::Quat(float32 x, float32 y, float32 z, float32 w) :
-        vec(x, y, z, w) {};
+        vec(x, y, z, w){};
     Quat::Quat(SSE_m128 sse_m128) :
-        sse_m128(sse_m128) {};
+        sse_m128(sse_m128){};
     Quat::Quat(Vec4 vec) :
-        vec(vec) {};
+        vec(vec){};
 
     Quat Quat::FromMat4(Mat4Arg m) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm

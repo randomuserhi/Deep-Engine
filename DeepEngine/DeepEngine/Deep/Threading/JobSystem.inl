@@ -20,8 +20,6 @@ namespace Deep {
     }
 
     void JobSystem::Job::Release() {
-        // TODO(randomuserhi): Learn why the release semantics are this way...
-
         // Releasing a reference must use release semantics...
         if (referenceCount.fetch_sub(1, std::memory_order_release) == 1) {
             // ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before
