@@ -4,10 +4,6 @@
 
 #include "./JobSystem.h"
 
-// TODO(randomuserhi): Thread affinity ?? => seems platform dependent
-// #include <windows.h>
-// DWORD_PTR dw = ::SetThreadAffinityMask(pool.back().native_handle(), DWORD_PTR(1) << i);
-
 // Class JobSystem
 namespace Deep {
     JobSystem::JobSystem(int32 numThreads, uint32 maxJobs, uint32 maxBarriers) :
@@ -39,6 +35,9 @@ namespace Deep {
             ::new (threads + i) std::thread([this, i] {
                 ThreadMain(i);
             });
+
+            // TODO(randomuserhi): Someway to manage thread affinity ?
+            // DWORD_PTR dw = ::SetThreadAffinityMask(threads[i].native_handle(), DWORD_PTR(1) << i);
         }
     }
 
