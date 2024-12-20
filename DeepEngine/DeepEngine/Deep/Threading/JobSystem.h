@@ -18,6 +18,10 @@
 #include <queue>
 #include <thread>
 
+// TODO(randomuserhi): Create a Ref template class to handle reference counting
+// TODO(randomuserhi): Migrate Job to inherit from said Ref template class
+// TODO(randomuserhi): Create a BarrierHandle to automatically handle releasing barrier back to job system
+
 namespace Deep {
     class JobSystem : NonCopyable {
     public:
