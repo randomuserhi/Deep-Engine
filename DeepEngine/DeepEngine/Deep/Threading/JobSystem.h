@@ -41,7 +41,10 @@ namespace Deep {
         using JobFunction = std::function<void()>;
 
     private:
+        class Barrier;
         class Job : NonCopyable {
+            friend class Barrier;
+
         public:
             Job(JobSystem* jobSystem, JobFunction jobFunction, uint32 numDependencies);
 
@@ -60,21 +63,43 @@ namespace Deep {
             // Remove a dependency and queues the job when count == 0
             Deep_Inline void RemoveDependency(uint32 count);
 
-            // Execute jobFunction
-            Deep_Inline void Execute();
+            // Returns true if the job has 0 dependencies, and thus can be executed
+            Deep_Inline bool CanBeExecuted() const;
+
+            // Execute jobFunction, if it fails to execute, return the number of dependencies / current state
+            Deep_Inline uint32 Execute();
+
+            // Returns true if the job has executed
+            Deep_Inline bool IsDone() const;
 
         private:
+            // Try assign a barrier to this job
+            Deep_Inline bool SetBarrier(Barrier* barrier);
+
             // Job system that owns this job
             JobSystem* const jobSystem;
 
             // Function the job executes
             JobFunction jobFunction;
 
+            // Pointer to barrier that this job is associated with
+            std::atomic<intptr_t> barrier = 0;
+
+            // Value of `barrier` when the barrier has been triggered
+            static constexpr intptr_t barrierDoneState = ~intptr_t(0);
+
             // Number of references to this job. Used for reference counting to free the job.
             std::atomic<uint32> referenceCount;
 
             // Number of dependencies left before this job can execute
+            // NOTE(randomuserhi): Also stores the job state, refer to `executingState` and `doneState`
             std::atomic<uint32> numDependencies;
+
+            // Value of `numDependencies` when job is executing
+            static constexpr uint32 executingState = 0xe0e0e0e0;
+
+            // Value of `numDependencies` when job is done
+            static constexpr uint32 doneState = 0xd0d0d0d0;
         };
 
     public:
@@ -109,6 +134,8 @@ namespace Deep {
             Deep_Inline void AddDependency(uint32 count) const;
             Deep_Inline void RemoveDependency(uint32 count) const;
 
+            Deep_Inline bool IsDone() const;
+
         private:
             // Wrapper for job->Acquire, noop on nullptr
             Deep_Inline void Acquire();
@@ -120,6 +147,8 @@ namespace Deep {
         };
 
         class Barrier : NonCopyable {
+            friend class Job;
+
         public:
             Barrier();
             ~Barrier();
@@ -133,23 +162,25 @@ namespace Deep {
             // Returns true if there are no jobs in the barrier
             Deep_Inline bool IsEmpty();
 
-            // Flag to indicate if the barrier has been allocated or not
-            std::atomic<bool> isAllocated{ false };
-
         private:
+            // Called by a job to mark it as finished within this barrier
+            Deep_Inline void OnJobFinished(Job* job);
+
+            // TODO(randomuserhi): More optimal barrier job queue...
+
             // Job queue for the barrier
             static constexpr uint32 maxJobs = 2048;
             static_assert(IsPowerOf2(maxJobs), "Maximum job count must be a power of 2 due to bit operations.");
             std::atomic<Job*> jobs[maxJobs];
 
             // First job that can be read from job queue
-            alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint32> readIndex{ 0 };
+            alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint32> readIndex = 0;
 
             // First job that can be written from job queue
-            alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint32> writeIndex{ 0 };
+            alignas(DEEP_CACHE_LINE_SIZE) std::atomic<uint32> writeIndex = 0;
 
             // Number of times the semaphore has been released, the barrier needs to acquire the semaphore this many times
-            std::atomic<int> numToAcquire{ 0 };
+            std::atomic<int> numToAcquire = 0;
 
             // Semaphore used by finishing jobs to signal the barrier that they're done
             Semaphore<INT_MAX> semaphore;

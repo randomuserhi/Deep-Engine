@@ -12,9 +12,11 @@
 #include <thread>
 
 int main() {
-    Deep::JobSystem jobSystem{ 16, 2048 };
+    Deep::JobSystem jobSystem{ static_cast<int>(std::thread::hardware_concurrency() - 1), 2048, 1024 };
 
-    size_t count = 16;
+    const size_t count = 100000000;
+    const size_t slice = 1000;
+    static_assert(count % slice == 0, "");
 
     Deep::Vec3* positions = new Deep::Vec3[count];
     Deep::Vec3* velocities = new Deep::Vec3[count];
@@ -24,20 +26,23 @@ int main() {
         velocities[i] = Deep::Vec3::left;
     }
 
+    Deep::Barrier* barrier = jobSystem.AcquireBarrier();
+    Deep::JobHandle waiter = jobSystem.Enqueue([]() {}, count / slice);
+    barrier->AddJob(waiter);
+
     auto start = std::chrono::system_clock::now();
 
-    Deep::JobHandle prev;
-    for (size_t i = 0; i < count; ++i) {
-        prev = jobSystem.Enqueue(
-            [i, prev, &positions, &velocities]() {
-                positions[i] += velocities[i];
-                if (i != 0) prev.RemoveDependency();
-            },
-            1);
+    for (size_t i = 0; i < count / slice; ++i) {
+        jobSystem.Enqueue([i, &waiter, &positions, &velocities]() {
+            for (size_t j = i * slice; j < i * slice + slice; ++j) {
+                positions[j] += velocities[j];
+            }
+            waiter.RemoveDependency();
+        });
     }
-    prev.RemoveDependency();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    barrier->Wait();
+    // jobSystem.ReleaseBarrier(barrier);
 
     auto end = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

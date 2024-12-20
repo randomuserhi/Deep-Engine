@@ -164,7 +164,7 @@ namespace Deep {
 #ifdef DEEP_ENABLE_ASSERTS
 #define Deep_Assert(expression, message)                                                                                    \
     do {                                                                                                                    \
-        if (!(expression) && ::Deep::AssertFailed(#expression, __FILE__, static_cast<uint32>(__LINE__), message)) {         \
+        if (!(expression) && ::Deep::AssertFailed((#expression), __FILE__, static_cast<uint32>(__LINE__), (message))) {     \
             Deep_Break;                                                                                                     \
         }                                                                                                                   \
     } while (false)

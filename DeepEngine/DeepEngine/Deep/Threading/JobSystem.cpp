@@ -88,6 +88,8 @@ namespace Deep {
                 if (job.load() != nullptr) {
                     JobSystem::Job* jobPtr = job.exchange(nullptr);
                     if (jobPtr != nullptr) {
+                        // NOTE(randomuserhi): We do not need to check if the job has already been executed
+                        //                     as `Execute()` will early return automatically if it has.
                         jobPtr->Execute();
                         jobPtr->Release();
                     }
@@ -111,13 +113,18 @@ namespace Deep {
         }
         Job* const job = &jobs[index];
 
+        // Create a reference to the job
+        // NOTE(randomuserhi): Has to be done prior queueing the job, as if the job completes
+        //                     prior the creation of this reference, the job gets released.
+        JobSystem::JobHandle ref{ job };
+
         // Queue the job if it has no dependencies
         if (numDependencies == 0) {
             QueueJobInternal(job);
         }
 
         // Return handle
-        return JobSystem::JobHandle{ job };
+        return ref;
     }
 
     uint32 JobSystem::GetMinHead() {
@@ -222,7 +229,98 @@ namespace Deep {
         Deep_Assert(IsEmpty());
     }
 
-    void JobSystem::Barrier::AddJob(const JobHandle& job) {}
+    void JobSystem::Barrier::AddJob(const JobHandle& job) {
+        if (job.IsDone()) {
+            // If the job has already finished executing, skip it
+            return;
+        }
 
-    void JobSystem::Barrier::Wait() {}
+        bool releaseSemaphore = false;
+
+        Job* jobPtr = job.GetPtr();
+        if (jobPtr->SetBarrier(this)) {
+            numToAcquire++;
+            if (jobPtr->CanBeExecuted()) {
+                // If the job can be executed we want to release the semaphore to allow the waiting thread to
+                // start executing it
+                releaseSemaphore = true;
+                numToAcquire++;
+            }
+
+            // Add the job to our job list
+            jobPtr->Acquire();
+            uint32 writeIndex = this->writeIndex++;
+            while (writeIndex - readIndex >= maxJobs) {
+                // Barrier is full, stall and wait for space
+                std::this_thread::sleep_for(std::chrono::microseconds(100));
+            }
+            jobs[writeIndex & (maxJobs - 1)] = jobPtr;
+        }
+
+        // Notify waiting thread that a new executable job is available
+        // NOTE(randomuserhi): Should only be called if the passed job has 0 dependencies,
+        //                     and is thus executable.
+        if (releaseSemaphore) {
+            semaphore.Release();
+        }
+    }
+
+    void JobSystem::Barrier::Wait() {
+        // TODO(randomuserhi): More optimal barrier job queue...
+
+        while (numToAcquire > 0) {
+            // Go through all jobs
+            bool hasExecuted;
+            do {
+                hasExecuted = false;
+
+                // Loop through the jobs and erase jobs from the beginning of the list that are done
+                while (readIndex < writeIndex) {
+                    std::atomic<Job*>& job = jobs[readIndex & (maxJobs - 1)];
+                    Job* jobPtr = job.load();
+                    Deep_Assert(jobPtr != nullptr, "Invalid job pointer was encountered.");
+                    if (!jobPtr->IsDone()) break;
+
+                    // Job is finished, release it
+                    jobPtr->Release();
+                    job = nullptr;
+                    ++readIndex;
+                }
+
+                // Loop through the jobs and execute the first executable job
+                for (uint32 index = readIndex; index < writeIndex; ++index) {
+                    const std::atomic<Job*>& job = jobs[index & (maxJobs - 1)];
+                    Job* jobPtr = job.load();
+                    Deep_Assert(jobPtr != nullptr, "Invalid job pointer was encountered.");
+                    if (jobPtr->CanBeExecuted()) {
+                        // Only execute the job if it has not already been executed
+                        // and mark the fact that we executed a job ourself.
+                        jobPtr->Execute();
+                        hasExecuted = true;
+                        break;
+                    }
+                }
+
+            } while (hasExecuted);
+
+            // Wait for another thread to wake us when either there is more work to do or when all jobs have completed
+
+            // When there have been multiple releases, we acquire them all at the same time to avoid needlessly spinning on
+            // executing jobs
+            int numToAcquire = Max(1, semaphore.GetValue());
+            semaphore.Acquire(numToAcquire);
+            this->numToAcquire -= numToAcquire;
+        }
+
+        // Release all jobs from list
+        while (readIndex < writeIndex) {
+            std::atomic<Job*>& job = jobs[readIndex & (maxJobs - 1)];
+            Job* jobPtr = job.load();
+            Deep_Assert(jobPtr != nullptr, "Invalid job pointer was encountered.");
+            Deep_Assert(jobPtr->IsDone(), "Not all jobs were completed.");
+            jobPtr->Release();
+            job = nullptr;
+            ++readIndex;
+        }
+    }
 } // namespace Deep

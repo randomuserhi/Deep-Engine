@@ -40,18 +40,33 @@ namespace Deep {
     }
 
     void JobSystem::Job::SetDependencies(uint32 count) {
-        // TODO(randomuserhi): Checks for if dependencies are set while a job is already running or is finished etc...
+#ifdef DEEP_ENABLE_ASSERTS
+        uint32 state = numDependencies.load(std::memory_order_relaxed);
+        Deep_Assert(state != doneState && state != executingState,
+                    "Cannot set dependencies of a completed / executing job.");
+#endif
+
         numDependencies.store(count, std::memory_order_relaxed);
     }
 
     void JobSystem::Job::AddDependency(uint32 count) {
-        // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
+#ifdef DEEP_ENABLE_ASSERTS
+        uint32 state = numDependencies.load(std::memory_order_relaxed);
+        Deep_Assert(state != doneState && state != executingState,
+                    "Cannot set dependencies of a completed / executing job.");
+#endif
+
         numDependencies.fetch_add(count, std::memory_order_relaxed);
     }
 
     void JobSystem::Job::RemoveDependency(uint32 count) {
+#ifdef DEEP_ENABLE_ASSERTS
+        uint32 state = numDependencies.load(std::memory_order_relaxed);
+        Deep_Assert(state != doneState && state != executingState,
+                    "Cannot set dependencies of a completed / executing job.");
+#endif
+
         uint32 oldCount = numDependencies.fetch_sub(count, std::memory_order_release);
-        // TODO(randomuserhi): Checks for if dependency is added while a job is already running or is finished etc...
         uint32 newCount = oldCount - count;
         Deep_Assert(oldCount > newCount, "Logical Error. Removed more dependencies than there were available.");
 
@@ -61,11 +76,54 @@ namespace Deep {
         }
     }
 
-    void JobSystem::Job::Execute() {
-        // TODO(randomuserhi): Check executing state (dont run job if it already executed / executing) -> assert only?
-        //                     Check number of dependencies == 0 -> assert only?
+    uint32 JobSystem::Job::Execute() {
+        // Transition job to executing state
+        uint32 state = 0;
+        if (!numDependencies.compare_exchange_strong(state, executingState, std::memory_order_acquire)) {
+            // If the job has already executed or has dependencies left, early return
+            return state;
+        }
 
+        // Run the Job
         jobFunction();
+
+        // Exchange barrier pointer to the done state, so no barrier is set after job has completed
+        intptr_t barrierPtr = barrier.load(std::memory_order_relaxed);
+        for (;;) {
+            if (barrier.compare_exchange_weak(barrierPtr, barrierDoneState, std::memory_order_relaxed)) break;
+        }
+        Deep_Assert(barrierPtr != barrierDoneState,
+                    "Barrier should not have been in done state. The job may have run twice?");
+
+        // Transition job to done state
+        state = executingState;
+        numDependencies.compare_exchange_strong(state, doneState, std::memory_order_relaxed);
+        Deep_Assert(state == executingState, "The job should have been in executing state. The job may have run twice?");
+
+        // Notify barrier that a job has completed
+        if (barrierPtr != 0) {
+            reinterpret_cast<Barrier*>(barrierPtr)->OnJobFinished(this);
+        }
+
+        return doneState;
+    }
+
+    bool JobSystem::Job::IsDone() const {
+        return numDependencies.load(std::memory_order_relaxed) == doneState;
+    }
+
+    bool JobSystem::Job::CanBeExecuted() const {
+        return numDependencies.load(std::memory_order_relaxed) == 0;
+    }
+
+    bool JobSystem::Job::SetBarrier(Barrier* barrier) {
+        intptr_t barrierPtr = 0;
+        if (this->barrier.compare_exchange_strong(barrierPtr, reinterpret_cast<intptr_t>(barrier),
+                                                  std::memory_order_relaxed)) {
+            return true;
+        }
+        Deep_Assert(barrierPtr == barrierDoneState, "A job can only belong to 1 barrier");
+        return false;
     }
 } // namespace Deep
 
@@ -169,11 +227,25 @@ namespace Deep {
         Deep_Assert(job != nullptr, "JobHandle is nullptr.");
         job->RemoveDependency(count);
     }
+
+    bool JobSystem::JobHandle::IsDone() const {
+        return job->IsDone();
+    }
 } // namespace Deep
 
 // Class Barrier
 namespace Deep {
     bool JobSystem::Barrier::IsEmpty() {
         return readIndex == writeIndex;
+    }
+
+    void JobSystem::Barrier::OnJobFinished(Job* job) {
+        Deep_Assert(reinterpret_cast<Barrier*>(job->barrier.load(std::memory_order_relaxed)) == this,
+                    "Job must belong to this barrier.");
+
+        // NOTE(randomuserhi): Since we do not pop the job off the barrier queue, if Wait() has not been called, the barrier
+        //                     can fill up and eventually become full even if all jobs are completed.
+
+        semaphore.Release();
     }
 } // namespace Deep
