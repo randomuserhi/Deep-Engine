@@ -37,7 +37,10 @@ namespace Deep {
             });
 
             // TODO(randomuserhi): Someway to manage thread affinity ?
-            // DWORD_PTR dw = ::SetThreadAffinityMask(threads[i].native_handle(), DWORD_PTR(1) << i);
+            // NOTE(randomuserhi): Account for hyperthreading
+            //                     - `i*2` here to account for hyperthreading so 2 threads aren't put on the same physical
+            //                       core.
+            // DWORD_PTR dw = ::SetThreadAffinityMask(threads[i].native_handle(), DWORD_PTR(1) << (i * 2));
         }
     }
 
@@ -299,6 +302,7 @@ namespace Deep {
                         //                     been executed by different thread.
                         jobPtr->Execute();
                         hasExecuted = true;
+
                         break;
                     }
                 }

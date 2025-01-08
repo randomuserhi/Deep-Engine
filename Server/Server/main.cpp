@@ -14,12 +14,10 @@
 #define THREADED
 
 int main() {
-    Deep::JobSystem jobSystem{ static_cast<int>(std::thread::hardware_concurrency() - 1), 2048, 1024 };
+    Deep::JobSystem jobSystem{ static_cast<int>(8 - 1), 2048, 1024 };
 
-    // constexpr size_t count = 1000000000;
-    // constexpr size_t slice = 62500000;
     constexpr size_t count = 1000000000;
-    constexpr size_t slice = 62500000;
+    constexpr size_t slice = 500000;
     static_assert(count % slice == 0, "");
 
     Deep::Vec3* positions = new Deep::Vec3[count];
@@ -47,8 +45,12 @@ int main() {
 
     barrier.Wait();
 #else
-    for (size_t i = 0; i < count; ++i) {
-        positions[i] += velocities[i];
+    {
+        size_t i;
+#pragma omp parallel for
+        for (i = 0; i < count; ++i) {
+            positions[i] += velocities[i];
+        }
     }
 #endif
 
