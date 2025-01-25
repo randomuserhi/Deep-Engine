@@ -4,4 +4,6 @@
 
 #include "../ECS.h"
 
-namespace Deep {}
+namespace Deep {
+    class ECS {};
+} // namespace Deep
