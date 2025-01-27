@@ -10,9 +10,8 @@
 *Consider renaming to ECDB (Entity-Component Database)*
 
 **Operations**
-- Create Entity
-- Delete Entity
-- Add Component to Entity
-- Remove Component from Entity
-- Tag
+- Create/Delete Entity
+- Add/Remove Components from Entities
+- Add/Remove Tags to Entities
+- Add/Remove Shared Components
 - Query Entities
