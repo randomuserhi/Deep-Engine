@@ -27,6 +27,9 @@
 		- Filling the hole requires 2 indirection -> handle goes to lookup and lookup points to entity (this allows lookup to be updated when entity is moved instead of all handles being updated)
 			- Thread safety here is a bummer
 
+- Queries
+	- Querying can be post-processed (aka built prior) and then updated on the fly similar to how adding removing archetypes works
+
 ## Example
 
 > DoT damage on enemies
