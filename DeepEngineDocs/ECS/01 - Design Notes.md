@@ -16,7 +16,7 @@
 - Archetype tree
 	- Stores entities of a specific type combination and creates a tree (in real time) of how to traverse between archetypes when components are inserted or removed 
 	- Chunking -> archetype stores chunks of data (Refer to Unity ECS)
-		- Chunks is provides more efficient memory allocation
+		- Chunks provide more efficient memory allocation
 
 - Entity references
 	- https://stackoverflow.com/questions/19385853/understanding-cache-friendly-data-oriented-objects-and-handles
@@ -51,6 +51,6 @@
 > 	- Follow player
 
 **Operations**
-- Ability to bunch types of enemies that are targeting the same player? (not really sure how this scales...) Cause if targeting constantly changes might be expensive...
+- Ability to bunch types of enemies that are targeting the same player? (not really sure how this scales...) Cause if targeting constantly changes it might be expensive...
 	- What about queries based on properties: "All enemies with Target component where target == player1"
 	- I think DOTS way of handling things as a database with queries and being able to store lookups is best...
