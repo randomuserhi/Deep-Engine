@@ -11,7 +11,7 @@
 	- [ ] Access by reference should not break concurrent read/write rules nor deadlock application
 - [ ] Cache friendly implementation
 	- [ ] Archetype tree ?
-## Technical details
+## Random Notes
 
 - Archetype tree
 	- Stores entities of a specific type combination and creates a tree (in real time) of how to traverse between archetypes when components are inserted or removed 
