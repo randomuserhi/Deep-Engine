@@ -73,3 +73,4 @@ https://gamedev.stackexchange.com/questions/206715/hierarchical-relationships-in
 https://gamedev.stackexchange.com/questions/174319/dealing-with-more-complex-entities-in-an-ecs-architecture
 https://gamedev.stackexchange.com/questions/203541/branchless-archetype-ecs/203562#203562
 https://www.youtube.com/watch?v=rX0ItVEVjHc
+https://jrouwe.nl/architectingjolt/ArchitectingJoltPhysics_Rouwe_Jorrit_Notes.pdf
