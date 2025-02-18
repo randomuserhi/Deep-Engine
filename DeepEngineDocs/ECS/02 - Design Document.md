@@ -17,12 +17,6 @@
 - [ ] Query Entities
 - [ ] Reference Specific Entities
 
-- [ ] Hierarchy of Entities
-	- [ ] Set parent
-	- [ ] Set child
-	- [ ] Iterate children
-	- [ ] Find parent
-
 **Caveats**
 - Must be runtime operated to support modding
 - Thread safety of operations
@@ -75,8 +69,17 @@ The handle / reference then points to the item in the lookup table which is fixe
 
 Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=gaj4SY4KNR4
 - versioning prevents accidental reuse of an entity which has changed due to a move (refer to *Removing Entities*)
-### Hierarchies
+### A Note on Hierarchies
 
+ECS will not support hierarchies inherently. This is because hierarchies are better suited for scene graphs and rendering, even physics engines do not need hierarchies, and it does not make sense for them to have hierarchies.
+
+If you are combining this ECS (which is more of a database) to a scene graph you would implement components that reference the scene graph and have systems that synchronize entities with their scene graph counterparts (ECS components act as a wrapper around the scene graph)
+- However you map the ECS data to scene graph is implementation dependent and up to the developer.
+	- An example implementation may require a copy of data in ECS and then copying that information or just a handle to the object in the scene graph (like a pointer). This object can then be queried using the scene graph for the information required.
+
+**Additional Reading (kind of related)**
 https://gamedev.stackexchange.com/questions/206715/hierarchical-relationships-in-an-entity-component-system
 https://gamedev.stackexchange.com/questions/174319/dealing-with-more-complex-entities-in-an-ecs-architecture
 https://gamedev.stackexchange.com/questions/203541/branchless-archetype-ecs/203562#203562
+https://www.youtube.com/watch?v=rX0ItVEVjHc
+https://jrouwe.nl/architectingjolt/ArchitectingJoltPhysics_Rouwe_Jorrit_Notes.pdf
