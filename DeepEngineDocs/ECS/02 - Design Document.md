@@ -44,7 +44,16 @@ Internally this *type* is represented as a special bitfield which supports an ar
 - For efficiency, the bitfield supports sparsity in which an offset can be applied (undecided size, maybe a single byte is suffice?) to each 32/64 bit block.
 	- Can even place the offset inside the 32/64 bit field, so each chunk stores a 8 bit offset and 24/56 bit field for the components
 - This means that for optimal usage, components used together for specific entities should be grouped to share a single 32/64 bit chunk so that at most 2 comparisons are needed to compare archetypes (one to check offset, and the second to compare the chunks)
+	- If the offset is placed inside the field, then only 1 comparison is needed
 	- An API for the developer to specify component `id`'s to control this in someway is needed
+	- Not very good for components shared across many archetypes
+		- Transform component is needed in pretty much all entity types
+		- Maybe use 32 bit chunks (24 bit field + 8 bit offset)
+			- On 64 bit systems, common shared components can fit in the first 32 bit chunk and the second 32 bit chunk fits the entity components
+			- This way a single 64 bit comparison can be done to check archetype despite spanning 2 chunks
+		- Another strategy is 16 bit chunks (12 bit field + 4 bit offset)
+			- 32 bit systems can fit 2 chunks then, 64 bit 4 chunks.
+			- This is effectively the same as 32 bit chunks as 2 16 bit chunks make up the same footprint.
 
 Entities are stored in archetypes such that entities made up of the same components / tags are concurrent in memory.
 
