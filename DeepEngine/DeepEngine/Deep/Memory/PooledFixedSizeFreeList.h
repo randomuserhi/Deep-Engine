@@ -9,6 +9,8 @@
 namespace Deep {
     // Variant of FixedSizeFreeList which keeps the given type T constructed in memory at all times.
     // Acts more like an object pool in which constructed objects are reused.
+    //
+    // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/FixedSizeFreeList.h
     template<typename T>
     class PooledFixedSizeFreeList : private NonCopyable {
         static_assert(std::is_default_constructible<T>(), "Type 'T' should have a default constructor.");
@@ -38,7 +40,8 @@ namespace Deep {
             T item;
 
             // When the item is freed (or in the process of being freed as a batch) this will contain the index to the next
-            // free item (The free list) When an item is in use it will contain the item's index, such that when freed via
+            // free item (The free list)
+            // When an item is in use it will contain the item's index, such that when freed via
             // `T*`, the index is known to properly handle it
             std::atomic<uint32> nextFreeItem;
         };

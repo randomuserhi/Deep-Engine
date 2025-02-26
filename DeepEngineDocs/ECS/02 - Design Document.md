@@ -69,8 +69,15 @@ If you are combining this ECS (which is more of a database) to a scene graph you
 	- An example implementation may require a copy of data in ECS and then copying that information or just a handle to the object in the scene graph (like a pointer). This object can then be queried using the scene graph for the information required.
 
 **Additional Reading (kind of related)**
+https://github.com/IainWinter/IwEngine/blob/master/IwEngine/include/iw/entity/Component.h
+- https://www.youtube.com/watch?v=hXFJX2WAwQY
+
 https://gamedev.stackexchange.com/questions/206715/hierarchical-relationships-in-an-entity-component-system
 https://gamedev.stackexchange.com/questions/174319/dealing-with-more-complex-entities-in-an-ecs-architecture
 https://gamedev.stackexchange.com/questions/203541/branchless-archetype-ecs/203562#203562
 https://www.youtube.com/watch?v=rX0ItVEVjHc
 https://jrouwe.nl/architectingjolt/ArchitectingJoltPhysics_Rouwe_Jorrit_Notes.pdf
+
+## Implementation Details
+https://en.cppreference.com/w/cpp/types/type_index
+https://en.cppreference.com/w/cpp/language/typeid

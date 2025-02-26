@@ -40,7 +40,8 @@ namespace Deep {
             T item;
 
             // When the item is freed (or in the process of being freed as a batch) this will contain the index to the next
-            // free item (The free list) When an item is in use it will contain the item's index, such that when freed via
+            // free item (The free list)
+            // When an item is in use it will contain the item's index, such that when freed via
             // `T*`, the index is known to properly handle it
             std::atomic<uint32> nextFreeItem;
         };
