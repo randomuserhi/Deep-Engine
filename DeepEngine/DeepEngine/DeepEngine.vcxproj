@@ -23,6 +23,7 @@
     <ClInclude Include="Deep\Deep_Types.h" />
     <ClInclude Include="Deep\ECS.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
+    <ClInclude Include="Deep\ECS\Archetype.h" />
     <ClInclude Include="Deep\Math.h" />
     <ClInclude Include="Deep\Math\Constants.h" />
     <ClInclude Include="Deep\Math\_SSE_m128.h" />

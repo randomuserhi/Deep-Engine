@@ -120,6 +120,9 @@
     <ClInclude Include="Deep\Memory\Reference.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\ECS\Archetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECS.cpp">
