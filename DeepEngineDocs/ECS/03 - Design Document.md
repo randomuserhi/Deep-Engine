@@ -15,14 +15,22 @@ The implementation works at compile-time *and* runtime to support modding where 
 	- (This mapping can realistically be anything, even a string name as opposed to `std::type_index`)
 	- *Performance is not an issue as majority of lookups to types are only performed once (and not during the main program loop), for example queries will only go through the mapping on creation. Once constructed, the query does not use any custom lookup and works with `ComponentId` directly.*
 
-**Operations**
-- [x] Register/Deregister Components/Tag types
-- [ ] Create/Delete Entity
-- [ ] Add/Remove Components from Entities
-- [ ] Add/Remove Tags to Entities
+**Operations** (All of which are thread-safe)
+- [x] Register Components/Tag types
+- [x] Create/Delete Entity
+- [x] Add/Remove Components from Entities
+- [x] Add/Remove Tags to Entities
+- [x] Reference Specific Entities
+- [ ] Queries
+- [ ] Register Shared Components
 - [ ] Add/Remove Shared Components
-- [ ] Query Entities
-- [ ] Reference Specific Entities
+
+> NOTE:: 
+> Deregistering types has many caveats with entities that are currently using a component/tag as well as `ECDB` allocated chunks / archetypes that get invalidated.
+> 
+> As a result, deregistering types as a concept is fundamentally flawed. A better approach is to deconstruct the entire `ECDB` and reconstruct it again with the right types.
+- [ ] Deregister Components/Tag types
+- [ ] Deregister Shared Components
 ### ECRegistry
 
 Manages components / tag types used within ECDB. Registering a type returns an *integer* handle which is used to identify the component.
@@ -47,8 +55,6 @@ class ECRegistry {
 	
 	Deep_Inline int RequestTag(ComponentId component, char* name = nullptr)
 	Deep_Inline template<typename T> int RequestTag(ComponentId component, char* name = nullptr)
-
-	void Deregister(ComponentId component);
 }
 ```
 
@@ -79,9 +85,6 @@ ComponentId ECRegistry::RegisterTag<typename T>(char* name = nullptr); // compil
 ```
 
 > NOTE:: These are simply wrappers around `RegisterComponent` where `size` is 0
-#### Deregistering Types
-
-When a type is deregistered, the `ComponentId` that originally belonged to the type 
 ### ECDB
 
 ```cpp
@@ -100,21 +103,37 @@ Internally this *type* is represented as a special bitfield which supports an ar
 
 Entities are stored in archetypes such that entities made up of the same components / tags are concurrent in memory.
 
-Each archetype maintains a lookup for which archetype entities would move to when a given component is added. This produces a graph which can be traversed to reach the final archetype.
-- The graph is constructed at run time
-
 **Chunks**
 - Each archetype allocates entities in chunks, this is to prevent having to move entities during a resize operation and instead chunks can be allocated/reused.
-- These chunks are of fixed size (Undecided as to whether they are fixed in size (like Unity's 16Kib chunks) or in count ($N$ entities per chunk))
+- These chunks utilize a [Free List](https://en.wikipedia.org/wiki/Free_list) to manage reuse of old chunks
+- These chunks are of fixed size (*not count*) such that they offer a good balance for cache efficiency (Probably follow Unity's footsteps with 16kib chunk sizes):
+	- *Small Chunks* - Too many chunks can result in overhead crossing chunk borders (pointer chasing)
+	- *Large Chunks* - Loading a single chunk can evict other parts of cache that may have benefitted from being around as well as being wasteful if not the entire chunk is utilized
 
 **Operations**
 - Archetype equality => To check if 2 entities are from the same archetype, simply check if they are part of the same archetype container (entities themselves do not store their *type* but rather are contained within the same container and the container stores the *type*)
 - Has Component/Tag => To check if an entity / the archetype has a given component, check the *type* bitfield
 #### Add/Remove Components/Tags from Entities
+
+*This is effectively changing an entities type.*
+
+Each archetype maintains a lookup for which archetype entities would move to when a given component is added. This produces a graph which can be traversed to reach the final archetype.
+- The graph is constructed at run time
 #### Create/Delete Entities
 
-#### Entity References
+When an entity is created it does not belong to an archetype and holds no data. It does, however, have a valid handle which can reference it (despite it not existing in memory, since the entity has no data).
 
+Once a component/tag is added the entity is allocated inside of the appropriate archetype and chunk. (It occupies a chunk with free space and is appended to the last free slot).
+
+On deletion, or removal from an archetype given a type change, the entity is deallocated and the last entity in the archetype is moved to fill the gap created by the removed entity.
+#### Entity References/Handles
+
+There is a lookup table which stores the location of entities in memory. This lookup is updated whenever an entity is moved (either by archetype change or other).
+
+The handle / reference then points to the item in the lookup table which is fixed per entity (until the entity is deleted in which the reference becomes invalid)
+
+Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=gaj4SY4KNR4
+- versioning prevents accidental reuse of an entity which has changed due to a move either from deletion or change in archetype
 #### Queries
 
 ### Portability and Modding
