@@ -40,6 +40,11 @@
 
 #include "./Deep/Deep_Types.h"
 
+// TODO(randomuserhi):
+// - Detect architecture (64bit / 32bit), currently only 64 bit is supported
+// - Proper detection of SIMD (current is botched)
+// - Support for ARM / WASM compilation
+
 #if defined(DEEP_COMPILER_CLANG)
 #define Deep_Inline inline
 #define Deep_AlignOf(type) __alignof__(type)
