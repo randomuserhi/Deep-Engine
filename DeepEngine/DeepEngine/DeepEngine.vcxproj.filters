@@ -126,6 +126,9 @@
     <ClInclude Include="Deep\ECS\ECDB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\ECS\ECRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\ECS\ECDB.cpp">
@@ -168,6 +171,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Deep.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Deep\ECS\ECRegistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
