@@ -13,7 +13,7 @@ The implementation works at compile-time *and* runtime to support modding where 
 - If the runtime support is not required by a given implementation, the developer can write a wrapper that maps `std::type_index` to the runtime `ComponentId`.
 	- Deep engine provides an example implementation of this as `class ECRegistry::StaticTypeMap`
 	- (This mapping can realistically be anything, even a string name as opposed to `std::type_index`)
-	- *Performance is not an issue as majority of lookups to types are only performed once, for example queries will only go through the mapping on creation. Once constructed, the query does not use any custom lookup and works with `ComponentId` directly.*
+	- *Performance is not an issue as majority of lookups to types are only performed once (and not during the main program loop), for example queries will only go through the mapping on creation. Once constructed, the query does not use any custom lookup and works with `ComponentId` directly.*
 
 
 **Operations**
