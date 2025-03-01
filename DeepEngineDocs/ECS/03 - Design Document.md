@@ -23,13 +23,6 @@ The implementation works at compile-time *and* runtime to support modding where 
 - [ ] Add/Remove Shared Components
 - [ ] Query Entities
 - [ ] Reference Specific Entities
-
-```cpp
-class ECDB {
-	ECDB();
-	ECDB(ECRegistry registry);
-}
-```
 ### ECRegistry
 
 Manages components / tag types used within ECDB. Registering a type returns an *integer* handle which is used to identify the component.
@@ -72,14 +65,23 @@ ComponentId ECRegistry::RegisterTag<typename T>(char* name = nullptr); // compil
 ```
 
 > NOTE:: These are simply wrappers around `RegisterComponent` where `size` is 0
-### Archetypes
 
-### Add/Remove Components/Tags
-### Create/Delete Entities
+### ECDB
 
-### Entity References
+```cpp
+class ECDB {
+	ECDB();
+	ECDB(ECRegistry registry);
+}
+```
+#### Archetypes
 
-### Queries
+#### Add/Remove Components/Tags from Entities
+#### Create/Delete Entities
+
+#### Entity References
+
+#### Queries
 
 
 
