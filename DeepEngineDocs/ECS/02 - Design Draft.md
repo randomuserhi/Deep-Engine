@@ -58,9 +58,18 @@ Each archetype maintains a lookup for which archetype entities would move to whe
 *How are entities stored within archetypes - as a single array? chunks?*
 - https://docs.unity3d.com/Packages/com.unity.entities@1.0/manual/concepts-archetypes.html#archetype-chunks
 
+Archetypes are stored in chunks (possibly with a free-list). Chunks are better than a single resizing list as resizing the archetype as a whole simply requires allocating a new chunk, reusing old chunks etc... whereas resizing an array requires allocating a new block and moving entities from the old block to the new one.
+- Chunk size should be optimal, either fixed size (Unity 16kib) or can be changed at runtime etc...
+	- Could be fixed size in terms of memory (Unity)
+	- Or fixed sized based on count
+	- *Testing needed on which actually makes a difference*
+- Systems can work on different chunks concurrently OR concurrent within a chunk
+	- *Not sure what is better for performance*
+
 **Removing Entities**
 - Entities are removed and the last entity in the archetype is moved to fill the gap produced
 
+### Thread Safety
 ### Entity References / Handles
 
 There is a lookup table which stores the location of entities in memory. This lookup is updated whenever an entity is moved (either by archetype change or other).
@@ -81,6 +90,8 @@ If you are combining this ECS (which is more of a database) to a scene graph you
 https://github.com/IainWinter/IwEngine/blob/master/IwEngine/include/iw/entity/Component.h
 - https://www.youtube.com/watch?v=hXFJX2WAwQY
 
+https://www.flecs.dev/flecs/md_docs_2Manual.html
+https://www.youtube.com/watch?v=fp1D45hhVEM&t=2135s
 https://gamedev.stackexchange.com/questions/206715/hierarchical-relationships-in-an-entity-component-system
 https://gamedev.stackexchange.com/questions/174319/dealing-with-more-complex-entities-in-an-ecs-architecture
 https://gamedev.stackexchange.com/questions/203541/branchless-archetype-ecs/203562#203562

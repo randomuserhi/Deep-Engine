@@ -123,9 +123,12 @@
     <ClInclude Include="Deep\ECS\Archetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\ECS\ECDB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Deep\ECS\ECS.cpp">
+    <ClCompile Include="Deep\ECS\ECDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Net\Net.cpp">

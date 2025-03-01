@@ -1,1 +1,6 @@
-{}
+{
+  "enabledCssSnippets": [
+    "NoWrap Code",
+    "Center Images"
+  ]
+}

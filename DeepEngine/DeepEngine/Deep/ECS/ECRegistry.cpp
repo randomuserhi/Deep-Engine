@@ -1,7 +1,7 @@
 /**
- * ECS
+ * ECRegistry
  */
 
-#include "../ECS.h"
+#include "./ECRegistry.h"
 
 namespace Deep {} // namespace Deep
