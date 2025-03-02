@@ -6,6 +6,8 @@
 
 #include <vector>
 
+// TODO(randomuserhi): Documentation
+
 namespace Deep {
     using ComponentId = uint32; // TODO(randomuserhi): Move somewhere else
 
