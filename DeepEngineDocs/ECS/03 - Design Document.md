@@ -136,7 +136,7 @@ Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=ga
 - versioning prevents accidental reuse of an entity which has changed due to a move either from deletion or change in archetype
 #### Queries
 
-### Portability and Modding
+### Modding and Portability
 
 As mentioned before, `ECDB` is implemented to work at runtime to support modding. For this reason, components are not tied to types as they can have differences in struct layout across DLL boundaries (or environments). 
 
@@ -145,5 +145,9 @@ Instead, `ECDB` acts as an allocator for the memory the components reside in and
 > NOTE:: For instances where this is not applicable, a variant that returns a typed memory region is also provided: 
 > - `void* GetComponent(ComponentId comp)`
 > - `Deep_Inline T& GetComponent<typename T>(ComponentId comp)`
+
+Alternatively, modding can be done by loading a DLL compiled with the exact same ABI and the same struct packing and alignment (typically safely achieved by compiling both the custom DLL and the main code with the same compiler (including compiler version + patch)) thus allowing the raw structs to be passed around.
+
+Or just recompile the entire program with the custom code from scratch!
 
 
