@@ -49,22 +49,10 @@ class ECRegistry {
 	
 	Deep_Inline ComponentId RegisterTag(char* name = nullptr);
 	Deep_Inline template<typename T> ComponentId RegisterTag(char* name = nullptr);
-
-	int RequestComponent(ComponentId component, size_t size, size_t alignment, char* name = nullptr)
-	Deep_Inline template<typename T> int RequestComponent(ComponentId component, char* name = nullptr)
-	
-	Deep_Inline int RequestTag(ComponentId component, char* name = nullptr)
-	Deep_Inline template<typename T> int RequestTag(ComponentId component, char* name = nullptr)
 }
 ```
 
 `ComponentId` is an integer value representing the component. All references to the type will use the component id.
-
-You may also specify what `ComponentId` value you wish to give a component/tag via:
-- `RequestComponent`
-- `RequestTag`
-
-This becomes important when optimizing [[03 - Design Document#Archetypes|archetype lookup]].
 #### Components
 
 Blocks of data that can be assigned to entities.

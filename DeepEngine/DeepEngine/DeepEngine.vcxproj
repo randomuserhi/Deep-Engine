@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Deep\ECS\Archetype.inl" />
+    <None Include="Deep\ECS\ECRegistry.inl" />
     <None Include="Deep\Math\SSE_m128.inl" />
     <None Include="Deep\Math\SSE_m128i.inl" />
     <None Include="Deep\Memory.inl" />
@@ -182,7 +183,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
@@ -205,7 +206,7 @@
       </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
@@ -226,7 +227,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
@@ -249,7 +250,7 @@
       </PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>

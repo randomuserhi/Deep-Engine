@@ -14,6 +14,8 @@
 	- https://stackoverflow.com/a/44783029
 	- https://stackoverflow.com/a/12938588
 
+- [ ] Remove unnecessary uses of `NonCopyable`
+
 - [ ] Reorganise to use CMake
 
 - [ ] Broader support for CPU Architectures - Macros for each architecture as well (Currently only supports 64 bit)

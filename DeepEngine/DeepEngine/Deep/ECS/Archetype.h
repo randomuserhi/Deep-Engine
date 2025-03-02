@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Deep.h"
+#include "../ECS.h"
 
 #include "../NonCopyable.h"
 
@@ -9,8 +10,6 @@
 // TODO(randomuserhi): Documentation
 
 namespace Deep {
-    using ComponentId = uint32; // TODO(randomuserhi): Move somewhere else
-
     struct ArchetypeBitField final : private NonCopyable {
     private:
         using Type = uint32;

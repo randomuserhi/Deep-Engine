@@ -2,6 +2,7 @@
 #include <Deep.h>
 #include <Deep/ECS/Archetype.h>
 
+// TODO(randomuserhi): Split this test up
 TEST(Archetype, ArchetypeBitField) {
     Deep::ArchetypeBitField bitfield;
 

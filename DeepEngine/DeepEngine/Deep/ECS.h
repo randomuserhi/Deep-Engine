@@ -10,6 +10,8 @@
 namespace Deep {
     using namespace concurrency;
 
+    using ComponentId = uint32;
+
     class ECS {
     public:
     private:
