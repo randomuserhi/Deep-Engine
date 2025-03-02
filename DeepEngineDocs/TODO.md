@@ -1,4 +1,0 @@
-- [ ] Reorganise to use CMake
-- [ ] Reorganise to separate includes from source files
-	- This is to match the standard of having "include" folder etc...
-	- Also remove relative `#include`'s (have the compiler link to the include directory)

@@ -104,11 +104,15 @@ Internally this *type* is represented as a special bitfield which supports an ar
 Entities are stored in archetypes such that entities made up of the same components / tags are concurrent in memory.
 
 **Chunks**
-- Each archetype allocates entities in chunks, this is to prevent having to move entities during a resize operation and instead chunks can be allocated/reused.
+- Each archetype allocates entities in chunks, this is to prevent having to move entities during a resize operation and instead chunks can be allocated/reused. 
 - These chunks utilize a [Free List](https://en.wikipedia.org/wiki/Free_list) to manage reuse of old chunks
 - These chunks are of fixed size (*not count*) such that they offer a good balance for cache efficiency (Probably follow Unity's footsteps with 16kib chunk sizes):
 	- *Small Chunks* - Too many chunks can result in overhead crossing chunk borders (pointer chasing)
 	- *Large Chunks* - Loading a single chunk can evict other parts of cache that may have benefitted from being around as well as being wasteful if not the entire chunk is utilized
+	- Fixed sized chunks also allows the array of structs for each component to be packed such that each list of a component comes one after the other within the chunk keeping locality.
+		- Without chunking each component list is just a pointer to some random location on the heap
+	- A downside is that a single entity within the chunk cannot exceed the chunk size (In unity's case an entity cannot be larger than 16kib)
+		- Could be mitigated by allowing dynamic chunk sizes and allocate a larger chunk for big entities - can log a warning when this happens.
 
 **Operations**
 - Archetype equality => To check if 2 entities are from the same archetype, simply check if they are part of the same archetype container (entities themselves do not store their *type* but rather are contained within the same container and the container stores the *type*)

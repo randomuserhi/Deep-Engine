@@ -76,3 +76,5 @@ bleed->damage = 5.0f;
 ```
 
 Its not pretty, but showcases that you can definitely get far by manually coding compile-time ECS and following a data-oriented style.
+
+Additionally, this approach can easily be done using metaprogramming where u can write code to generate the above ECS code. This way you do not need to wrangle with the template system.

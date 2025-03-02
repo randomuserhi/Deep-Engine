@@ -1,0 +1,1 @@
+Allocate memory upfront and dealing with the pre-allocated blocks is a perfectly fine approach.
