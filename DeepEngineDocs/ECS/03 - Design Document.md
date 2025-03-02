@@ -21,7 +21,7 @@ The implementation works at compile-time *and* runtime to support modding where 
 - [x] Add/Remove Components from Entities
 - [x] Add/Remove Tags to Entities
 - [x] Reference Specific Entities
-- [ ] Queries
+- [ ] Queries (Iterating query results)
 - [ ] Register Shared Components
 - [ ] Add/Remove Shared Components
 
