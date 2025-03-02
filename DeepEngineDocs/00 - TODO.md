@@ -1,3 +1,7 @@
+- [ ] Reorganise to separate includes from source files
+	- This is to match the standard of having "include" folder etc...
+	- Also remove relative `#include`'s (have the compiler link to the include directory)
+
 - [ ] Custom Allocator Support
 	- [ ] `FixedSizeFreeList`
 	- [ ] `PooledFixedSizeFreeList`
@@ -11,9 +15,6 @@
 	- https://stackoverflow.com/a/12938588
 
 - [ ] Reorganise to use CMake
-- [ ] Reorganise to separate includes from source files
-	- This is to match the standard of having "include" folder etc...
-	- Also remove relative `#include`'s (have the compiler link to the include directory)
 
 - [ ] Broader support for CPU Architectures - Macros for each architecture as well (Currently only supports 64 bit)
 	- [ ] ARM

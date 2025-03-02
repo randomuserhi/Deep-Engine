@@ -20,14 +20,14 @@
 #include <thread>
 
 namespace Deep {
-    class JobSystem : private NonCopyable {
+    class JobSystem final : private NonCopyable {
     public:
         using JobFunction = std::function<void()>;
 
     private:
         class Barrier; // Forward declaration
 
-        class Job : private NonCopyable {
+        class Job final : private NonCopyable {
             friend class Barrier;
 
         public:
@@ -113,7 +113,7 @@ namespace Deep {
         };
 
     private:
-        class Barrier : private NonCopyable {
+        class Barrier final : private NonCopyable {
             friend class JobSystem;
             friend class Job;
 

@@ -12,7 +12,7 @@ namespace Deep {
     //
     // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Core/FixedSizeFreeList.h
     template<typename T>
-    class PooledFixedSizeFreeList : private NonCopyable {
+    class PooledFixedSizeFreeList final : private NonCopyable {
         static_assert(std::is_default_constructible<T>(), "Type 'T' should have a default constructor.");
 
     public:
