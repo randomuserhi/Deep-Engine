@@ -10,6 +10,7 @@
     <ClCompile Include="BitHelper.cpp" />
     <ClCompile Include="Memory\PooledFixedSizeFreeList.cpp" />
     <ClCompile Include="Threading\JobSystem.cpp" />
+    <ClCompile Include="ECS\Archetype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

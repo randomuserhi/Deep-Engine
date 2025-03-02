@@ -7,11 +7,22 @@
 #include <vector>
 
 namespace Deep {
+    using ComponentId = uint32; // TODO(randomuserhi): Move somewhere else
+
     struct ArchetypeBitField final : private NonCopyable {
+    private:
+        using Type = uint32;
+
     public:
-        ArchetypeBitField();
+        Deep_Inline bool HasComponent(ComponentId component);
+
+        Deep_Inline void AddComponent(ComponentId component);
+
+        Deep_Inline void RemoveComponent(ComponentId component);
 
     private:
-        std::vector<int64> bits;
+        std::vector<Type> bits;
     };
 } // namespace Deep
+
+#include "./Archetype.inl"

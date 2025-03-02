@@ -214,5 +214,8 @@
     <None Include="Deep\Memory\Reference.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="Deep\ECS\Archetype.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

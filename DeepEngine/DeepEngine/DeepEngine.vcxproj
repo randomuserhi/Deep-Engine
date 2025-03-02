@@ -87,6 +87,7 @@
     <ClCompile Include="Deep\Threading\JobSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Deep\ECS\Archetype.inl" />
     <None Include="Deep\Math\SSE_m128.inl" />
     <None Include="Deep\Math\SSE_m128i.inl" />
     <None Include="Deep\Memory.inl" />
