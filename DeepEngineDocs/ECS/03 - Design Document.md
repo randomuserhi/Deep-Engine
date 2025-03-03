@@ -11,7 +11,7 @@
 The implementation works at compile-time *and* runtime to support modding where a developer may expose an API that custom scripts, native (**dll**'s) or external (**wasm**, **lua**, etc...) can use to access ECDB. 
 - This is why types use a `ComponentId` instead of `std::type_index` (or alternatives) such that the *id* of types remains constant across environments and such that non c++ types can be registered such as those from external custom scripts like **lua** / **wasm**
 - If the runtime support is not required by a given implementation, the developer can write a wrapper that maps `std::type_index` to the runtime `ComponentId`.
-	- Deep provides an example implementation of this as `class ECRegistry::StaticTypeMap`
+	- Deep provides an example implementation of this as `class ECStaticRegistry`
 	- (This mapping can realistically be anything, even a string name as opposed to `std::type_index`)
 	- *Performance is not an issue as majority of lookups to types are only performed once (and not during the main program loop), for example queries will only go through the mapping on creation. Once constructed, the query does not use any custom lookup and works with `ComponentId` directly.*
 
