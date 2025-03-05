@@ -4,6 +4,7 @@
 #include <Deep/Entity.h>
 #include <Deep/NonCopyable.h>
 
+#include <unordered_map>
 #include <vector>
 
 // TODO(randomuserhi): Documentation

@@ -128,6 +128,26 @@ Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=ga
 - versioning prevents accidental reuse of an entity which has changed due to a move either from deletion or change in archetype
 #### Queries
 
+### Proposed API
+
+```cpp
+struct Transform {
+	Deep::Vec3 position;
+};
+
+ECRegistry _registry;
+ECDB db{ _registry };
+ECStaticRegistry registry{ _registry };
+
+registry.RegisterComponent<Transform>();
+
+Deep::Ent entity = db.Entity();
+entity.AddComponent<Transform>(registry);
+// Above is equivalent to:
+// entity.AddComponent(registry.GetComponent<Transform>());
+// db.AddComponent(entity, registry.GetComponent<Transform>());
+```
+
 ### Modding and Portability
 
 As mentioned before, `ECDB` is implemented to work at runtime to support modding. For this reason, components are not tied to types as they can have differences in struct layout across DLL boundaries (or environments). 
