@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "../Deep.h"
-#include "./BitHelper.h"
+#include <Deep.h>
+#include <Deep/BitHelper.h>
 
 // Vector alignment for vectorisation
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
@@ -85,24 +85,24 @@ namespace Deep {
     }
 } // namespace Deep
 
-#include "./Math/Constants.h"
+#include <Deep/Math/Constants.h>
 
 // NOTE(randomuserhi): Below import order is important as there are cyclic references that have to be declared first, prior
 // implementation.
 //                     For this reason, individual math components cannot be imported on their own.
 
-#include "./Math/_SSE_m128.h"
-#include "./Math/_SSE_m128i.h"
+#include "Math/_SSE_m128.h"
+#include "Math/_SSE_m128i.h"
 
-#include "./Math/SSE_m128.inl"
-#include "./Math/SSE_m128i.inl"
+#include "Math/SSE_m128.inl"
+#include "Math/SSE_m128i.inl"
 
-#include "./Math/_Vec3.h"
-#include "./Math/_Vec4.h"
-#include "./Math/_Mat4.h"
-#include "./Math/_Quaternion.h"
+#include "Math/_Vec3.h"
+#include "Math/_Vec4.h"
+#include "Math/_Mat4.h"
+#include "Math/_Quaternion.h"
 
-#include "./Math/Vec3.inl"
-#include "./Math/Vec4.inl"
-#include "./Math/Mat4.inl"
-#include "./Math/Quaternion.inl"
+#include "Math/Vec3.inl"
+#include "Math/Vec4.inl"
+#include "Math/Mat4.inl"
+#include "Math/Quaternion.inl"

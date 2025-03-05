@@ -1,4 +1,4 @@
-#include "../Math.h"
+#include <Deep/Math.h>
 
 namespace Deep {
     const Mat4 Mat4::identity = Mat4{

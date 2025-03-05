@@ -2,6 +2,6 @@
  * Sock
  */
 
-#include "../Sock.h"
+#include <Deep/Sock.h>
 
 namespace Deep {}

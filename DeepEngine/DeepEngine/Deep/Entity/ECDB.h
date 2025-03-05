@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../Deep.h"
-#include "ECRegistry.h"
+#include <Deep.h>
+#include <Deep/Entity.h>
+#include <Deep/Entity/ECRegistry.h>
 
 namespace Deep {
     class ECDB {

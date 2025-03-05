@@ -1,7 +1,5 @@
 #pragma once
 
-#include "./Memory.h" // Not needed btw
-
 namespace Deep {
     void* Malloc(size_t size) {
         Deep_Assert(size > 0, "Size must be greater than 0.");

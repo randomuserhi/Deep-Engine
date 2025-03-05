@@ -4,8 +4,8 @@
 
 #include <winsock2.h>
 
-#include "./PacketReader.h"
-#include "../Math.h"
+#include <Deep/Net/PacketReader.h>
+#include <Deep/Math.h>
 
 namespace Deep {
     Quat PacketReader::ReadQuaternion() {

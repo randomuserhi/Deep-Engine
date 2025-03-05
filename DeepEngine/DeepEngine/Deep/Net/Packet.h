@@ -4,5 +4,5 @@
 
 #pragma once
 
-#include "./PacketWriter.h"
-#include "./PacketReader.h"
+#include <Deep/Net/PacketWriter.h>
+#include <Deep/Net/PacketReader.h>

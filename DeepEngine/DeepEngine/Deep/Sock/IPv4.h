@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../Deep.h"
+#include <Deep.h>
 
 namespace Deep {
     struct IPv4 {
@@ -27,4 +27,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./IPv4.inl"
+#include "IPv4.inl"

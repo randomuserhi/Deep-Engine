@@ -1,4 +1,4 @@
-#include "../Deep.h"
+#include <Deep.h>
 
 #include <iostream>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Deep.h"
+#include <Deep.h>
 
 // Implementation based on Jolt: https://github.com/jrouwe/JoltPhysics/tree/master/Jolt/Math
 

@@ -2,7 +2,7 @@
  * Sock
  */
 
-#include "../Sock.h"
+#include <Deep/Sock.h>
 
 #if defined(DEEP_PLATFORM_MAC) || defined(DEEP_PLATFORM_UNIX)
 

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../../Deep.h"
-#include "../ECS.h"
-
-#include "../NonCopyable.h"
+#include <Deep.h>
+#include <Deep/Entity.h>
+#include <Deep/NonCopyable.h>
 
 #include <vector>
 
@@ -26,4 +25,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./Archetype.inl"
+#include "Archetype.inl"

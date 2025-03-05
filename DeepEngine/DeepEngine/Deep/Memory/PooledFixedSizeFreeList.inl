@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../BitHelper.h"
-#include "../Math.h"
-#include "../Memory.h"
+#include <Deep/BitHelper.h>
+#include <Deep/Math.h>
+#include <Deep/Memory.h>
 
 #include <type_traits>
 

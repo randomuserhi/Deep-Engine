@@ -5,9 +5,9 @@
 #pragma once
 
 #include <vector>
-#include "../../Deep.h"
-#include "../Math.h"
-#include "../BitHelper.h"
+#include <Deep.h>
+#include <Deep/Math.h>
+#include <Deep/BitHelper.h>
 
 namespace Deep {
     struct PacketReader {
@@ -40,4 +40,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./PacketReader.inl"
+#include "PacketReader.inl"

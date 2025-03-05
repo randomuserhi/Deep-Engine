@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "../../Deep.h"
-#include "../BitHelper.h"
-#include "../Memory/Reference.h"
-#include "../Memory/FixedSizeFreeList.h"
-#include "../Memory/PooledFixedSizeFreeList.h"
-#include "../NonCopyable.h"
-#include "./semaphore.h"
+#include <Deep.h>
+#include <Deep/BitHelper.h>
+#include <Deep/Memory/Reference.h>
+#include <Deep/Memory/FixedSizeFreeList.h>
+#include <Deep/Memory/PooledFixedSizeFreeList.h>
+#include <Deep/NonCopyable.h>
+#include <Deep/Threading/Semaphore.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -250,4 +250,4 @@ namespace Deep {
     using Barrier = JobSystem::BarrierHandle;
 } // namespace Deep
 
-#include "./JobSystem.inl"
+#include "JobSystem.inl"

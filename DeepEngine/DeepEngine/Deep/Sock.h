@@ -4,19 +4,19 @@
 
 #pragma once
 
-#include "../Deep.h"
+#include <Deep.h>
 
 #define DEEP_SOCKET_NOERROR (0)
 #define DEEP_SOCKET_ERROR (-1)
 #define DEEP_SOCKET_UNKNOWN_ADDRESS_FAMILY (-2)
 #define DEEP_SOCKET_INCOMPATIBLE_ADDRESS_FAMILY (-3)
 
-#include "Sock/AF_INET.h"
-#include "./Net/PacketWriter.h"
+#include <Deep/Sock/AF_INET.h>
+#include <Deep/Net/PacketWriter.h>
 
 #if defined(DEEP_PLATFORM_WINDOWS)
 
-#include "Sock/Sock_Windows.h"
+#include <Deep/Sock/Sock_Windows.h>
 
 #endif
 
@@ -72,4 +72,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./Sock.inl"
+#include "Sock.inl"

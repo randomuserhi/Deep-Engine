@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="Deep.h" />
     <ClInclude Include="Deep\Deep_Types.h" />
-    <ClInclude Include="Deep\ECS.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
     <ClInclude Include="Deep\ECS\Archetype.h" />
     <ClInclude Include="Deep\ECS\ECDB.h" />
@@ -59,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\Deep.cpp" />
+    <ClCompile Include="Deep\ECS\Archetype.cpp" />
     <ClCompile Include="Deep\ECS\ECDB.cpp" />
     <ClCompile Include="Deep\ECS\ECRegistry.cpp" />
     <ClCompile Include="Deep\Math\Mat4.cpp" />
@@ -186,6 +186,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory); %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -209,6 +210,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory); %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -230,6 +232,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory); %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -253,6 +256,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory); %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>

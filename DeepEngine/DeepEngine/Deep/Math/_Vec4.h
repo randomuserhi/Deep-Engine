@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./_MathTypes.h"
+#include "_MathTypes.h"
 #include <type_traits>
 
 namespace Deep {

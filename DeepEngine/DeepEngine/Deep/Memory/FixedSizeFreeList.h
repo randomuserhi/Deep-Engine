@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Deep.h"
-#include "../NonCopyable.h"
+#include <Deep.h>
+#include <Deep/NonCopyable.h>
 
 #include <atomic>
 #include <mutex>

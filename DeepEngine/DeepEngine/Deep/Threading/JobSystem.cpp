@@ -2,7 +2,7 @@
  * Job System
  */
 
-#include "./JobSystem.h"
+#include <Deep/Threading/JobSystem.h>
 
 // Class JobSystem
 namespace Deep {

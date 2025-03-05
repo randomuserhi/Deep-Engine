@@ -1,4 +1,4 @@
-#include "Archetype.h"
+#include <Deep/Entity/Archetype.h>
 
 namespace Deep {
     void ArchetypeBitField::AddComponent(ComponentId component) {

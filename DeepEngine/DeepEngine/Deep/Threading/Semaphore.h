@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Deep.h"
+#include <Deep.h>
 #if __cplusplus >= 202002L
 #include <semaphore>
 #endif
@@ -66,4 +66,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./Semaphore.inl"
+#include "Semaphore.inl"

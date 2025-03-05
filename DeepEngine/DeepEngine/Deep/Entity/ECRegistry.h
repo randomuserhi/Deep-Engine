@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../Deep.h"
-#include "../NonCopyable.h"
-#include "../ECS.h"
+#include <Deep.h>
+#include <Deep/Entity.h>
+#include <Deep/NonCopyable.h>
 
 #include <vector>
 #include <unordered_map>
@@ -55,4 +55,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./ECRegistry.inl"
+#include "ECRegistry.inl"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Deep.h"
+#include <Deep.h>
 
 namespace Deep {
     // Class for automatic referencing, calls `Acquire()` and `Release()` on the target class T
@@ -49,4 +49,4 @@ namespace Deep {
     };
 } // namespace Deep
 
-#include "./Reference.inl"
+#include "Reference.inl"

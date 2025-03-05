@@ -4,8 +4,8 @@
 
 #include <winsock2.h>
 
-#include "./PacketWriter.h"
-#include "../Math.h"
+#include <Deep/Net/PacketWriter.h>
+#include <Deep/Math.h>
 
 namespace Deep {
     void PacketWriter::Write(Quat value) {

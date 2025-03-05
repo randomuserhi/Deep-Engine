@@ -1,4 +1,4 @@
-#include "../Math.h"
+#include <Deep/Math.h>
 
 namespace Deep {
     const Vec3 Vec3::zero = Vec3{ 0.0f, 0.0f, 0.0f };

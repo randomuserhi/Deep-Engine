@@ -4,6 +4,6 @@
 
 #pragma once
 
-#include "../Deep.h"
+#include <Deep.h>
 
-#include "./Threading/JobSystem.h"
+#include <Deep/Threading/JobSystem.h>

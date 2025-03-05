@@ -2,6 +2,6 @@
  * Net
  */
 
-#include "../Net.h"
+#include <Deep/Net.h>
 
 namespace Deep {}
