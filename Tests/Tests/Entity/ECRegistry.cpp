@@ -1,6 +1,6 @@
 #include "../pch.h"
 #include <Deep.h>
-#include <Deep/ECS/ECRegistry.h>
+#include <Deep/Entity/ECRegistry.h>
 #include <string>
 
 struct Component {

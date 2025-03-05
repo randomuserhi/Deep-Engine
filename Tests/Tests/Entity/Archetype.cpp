@@ -1,6 +1,6 @@
 #include "../pch.h"
 #include <Deep.h>
-#include <Deep/ECS/Archetype.h>
+#include <Deep/Entity/Archetype.h>
 
 // TODO(randomuserhi): Split this test up
 TEST(Archetype, ArchetypeBitField) {

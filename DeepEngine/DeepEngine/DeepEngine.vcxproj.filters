@@ -117,18 +117,21 @@
     <ClInclude Include="Deep\Memory\Reference.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\ECS\Archetype.h">
+    <ClInclude Include="Deep\Entity\Archetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\ECS\ECDB.h">
+    <ClInclude Include="Deep\Entity\ECDB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Deep\ECS\ECRegistry.h">
+    <ClInclude Include="Deep\Entity\ECRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Deep\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Deep\ECS\ECDB.cpp">
+    <ClCompile Include="Deep\Entity\ECDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deep\Net\Net.cpp">
@@ -170,10 +173,10 @@
     <ClCompile Include="Deep\Deep.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Deep\ECS\ECRegistry.cpp">
+    <ClCompile Include="Deep\Entity\ECRegistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Deep\ECS\Archetype.cpp">
+    <ClCompile Include="Deep\Entity\Archetype.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -214,10 +217,10 @@
     <None Include="Deep\Memory\Reference.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Deep\ECS\Archetype.inl">
+    <None Include="Deep\Entity\Archetype.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Deep\ECS\ECRegistry.inl">
+    <None Include="Deep\Entity\ECRegistry.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
