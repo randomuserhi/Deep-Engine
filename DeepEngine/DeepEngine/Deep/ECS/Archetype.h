@@ -17,9 +17,9 @@ namespace Deep {
     public:
         Deep_Inline bool HasComponent(ComponentId component);
 
-        Deep_Inline void AddComponent(ComponentId component);
+        void AddComponent(ComponentId component);
 
-        Deep_Inline void RemoveComponent(ComponentId component);
+        void RemoveComponent(ComponentId component);
 
     private:
         std::vector<Type> bits;

@@ -4,4 +4,7 @@
 
 #include "./ECDB.h"
 
-namespace Deep {} // namespace Deep
+namespace Deep {
+    ECDB::ECDB(ECRegistry* registry) :
+        registry(registry) {}
+} // namespace Deep
