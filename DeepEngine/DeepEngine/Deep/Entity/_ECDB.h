@@ -92,7 +92,7 @@ namespace Deep {
             //
             // This is a more cache efficient `std::unordered_map<ComponentId, size_t>` specialized for the constraints of:
             // - Fixed number of components in an archetype
-            // - Each component is unique with its own unique offset
+            // - ComponentIds are numbers
             std::vector<ComponentId> ids;
             std::vector<size_t> offsets;
 
