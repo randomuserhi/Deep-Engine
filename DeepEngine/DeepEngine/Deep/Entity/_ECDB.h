@@ -82,8 +82,20 @@ namespace Deep {
 
             Chunk* chunks = nullptr;
 
-            // Determines where each component array is within a chunk (offset from chunk pointer)
-            std::unordered_map<ComponentId, size_t> offsets;
+            // Instead of the above, finding the offset of a component within a chunk is done using the 2 buckets
+            // `ids` and `offsets`. Each item in `ids` and `offsets` correspond to each other so `offsets[0]` is the offset
+            // for ComponentId `ids[0]`.
+            //
+            // When looking up the offset for a given ComponentId, (ComponentId % numComponentsInArchetype) is used to index
+            // the `ids` bucket. A linear probe is then used to resolve hash conflicts (iterating `ids` until a match is
+            // found). The index of the match is then used to lookup the offset from the `offsets` bucket.
+            //
+            // This is a more cache efficient `std::unordered_map<ComponentId, size_t>` specialized for the constraints of:
+            // - Fixed number of components in an archetype
+            // - Each component is unique with its own unique offset
+            std::vector<ComponentId> ids;
+            std::vector<size_t> offsets;
+
             std::unordered_map<ComponentId, Archetype*> archetypeMap;
         };
 
