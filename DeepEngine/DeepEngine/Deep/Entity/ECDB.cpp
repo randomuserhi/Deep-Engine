@@ -61,7 +61,7 @@ namespace Deep {
         ptr->chunk = nullptr;
         ptr->next = nullptr;
 
-        return ECDB::Ent{ ptr };
+        return ECDB::Ent{ this, ptr };
     }
 } // namespace Deep
 

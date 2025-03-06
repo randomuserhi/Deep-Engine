@@ -20,10 +20,12 @@ namespace Deep {
     public:
         struct Ent {
             Ent() = delete;
-            Ent(EntityPtr* ptr) :
-                ptr(ptr) {}; // TODO(randomuserhi): move somewhere else
+            Ent(ECDB* database, EntityPtr* ptr) :
+                ptr(ptr), database(database) {}; // TODO(randomuserhi): move somewhere else
 
         private:
+            ECDB* const database;
+
             EntityPtr* ptr;
         };
 
