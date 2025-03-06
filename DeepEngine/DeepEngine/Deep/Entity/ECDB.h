@@ -10,9 +10,22 @@
 #include <vector>
 
 namespace Deep {
+
+    // TODO(randomuserhi): Asserts and debug mode memory safety (counting number of delete calls etc...)
+
     class ECDB final : NonCopyable {
+    private:
+        struct EntityPtr;
+
     public:
-        ECDB(ECRegistry* registry);
+        struct Ent {
+            Ent() = delete;
+            Ent(EntityPtr* ptr) :
+                ptr(ptr) {}; // TODO(randomuserhi): move somewhere else
+
+        private:
+            EntityPtr* ptr;
+        };
 
     private:
         class Archetype final : NonCopyable {
@@ -35,28 +48,40 @@ namespace Deep {
         };
 
         struct EntityPtr {
-
             Archetype::Chunk* chunk;
 
             size_t index;
+
+            EntityPtr* next;
         };
 
         struct EntityPage {
-            static const size_t pageSize = 128;
+            static const size_t pageSize = 85;
 
             EntityPage* next;
 
             EntityPtr entityLookup[pageSize];
         };
 
+    public:
+        ECDB(ECRegistry* registry);
+        ~ECDB();
+
+        ECDB::Ent Entity();
+
+    private:
         ECRegistry* const registry;
 
         std::vector<Archetype> archetypes;
 
         std::unordered_map<ComponentId, Archetype*> archetypeMap;
 
-        EntityPage* firstFree;
+        uint32 firstFreeItemInNewPage = 0;
 
-        EntityPage* entityPages;
+        EntityPtr* firstFree = nullptr;
+
+        EntityPage* entityPages = nullptr;
     };
+
+    using Ent = ECDB::Ent;
 } // namespace Deep

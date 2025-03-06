@@ -12,6 +12,7 @@
     <ClCompile Include="Threading\JobSystem.cpp" />
     <ClCompile Include="Entity\Archetype.cpp" />
     <ClCompile Include="Entity\ECRegistry.cpp" />
+    <ClCompile Include="Entity\ECDB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
