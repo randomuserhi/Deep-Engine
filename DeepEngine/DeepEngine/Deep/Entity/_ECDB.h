@@ -55,12 +55,15 @@ namespace Deep {
             ECRegistry* const registry;
 
             std::vector<Type> bits;
+
+            // NOTE(randomuserhi): The order of which components are added determines the order in memory within a chunk
             std::vector<ComponentDesc> components;
         };
 
         class Archetype final : NonCopyable {
         public:
             struct Chunk {
+                // NOTE(randomuserhi): should appear at the end of the chunk's memory block
                 Chunk* next = nullptr;
             };
 
@@ -79,6 +82,8 @@ namespace Deep {
 
             Chunk* chunks = nullptr;
 
+            // Determines where each component array is within a chunk (offset from chunk pointer)
+            std::unordered_map<ComponentId, size_t> offsets;
             std::unordered_map<ComponentId, Archetype*> archetypeMap;
         };
 
