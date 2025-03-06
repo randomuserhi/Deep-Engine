@@ -131,16 +131,20 @@ Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=ga
 ### Proposed API
 
 ```cpp
+ECRegistry _registry;
+ECDB db{ _registry };
+ECStaticRegistry registry{ _registry };
+```
+
+```cpp
 struct Transform {
 	Deep::Vec3 position;
 };
 
-ECRegistry _registry;
-ECDB db{ _registry };
-ECStaticRegistry registry{ _registry };
-
 registry.RegisterComponent<Transform>();
+```
 
+```cpp
 Deep::Ent entity = db.Entity();
 entity.AddComponent<Transform>(registry);
 // Above is equivalent to:

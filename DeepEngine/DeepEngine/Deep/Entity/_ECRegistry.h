@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Deep.h>
-#include <Deep/Entity.h>
 #include <Deep/NonCopyable.h>
 
 #include <vector>
@@ -10,9 +8,6 @@
 
 namespace Deep {
     class ECRegistry final : NonCopyable {
-    private:
-        struct ComponentDesc;
-
     public:
         ComponentId RegisterComponent(size_t size, size_t alignment, const char* name = nullptr);
 
@@ -24,15 +19,11 @@ namespace Deep {
         template<typename T>
         Deep_Inline ComponentId RegisterTag(const char* name = nullptr);
 
-        Deep_Inline const ComponentDesc& operator[](ComponentId id) const;
+        Deep_Inline const ComponentDesc& Get(ComponentId id) const;
+
+        Deep_Inline bool Has(ComponentId id) const;
 
     private:
-        struct ComponentDesc {
-            const size_t size;
-            const size_t alignment;
-            const char* name;
-        };
-
         std::vector<ComponentDesc> lookup;
     };
 

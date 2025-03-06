@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Deep.h>
+// TODO(randomuserhi): Remove this include, its unnecessary but VS is being stupid
 #include <Deep/Entity.h>
-#include <Deep/Entity/Archetype.h>
-#include <Deep/Entity/ECRegistry.h>
+
 #include <Deep/NonCopyable.h>
 
 #include <unordered_map>
@@ -20,7 +19,7 @@ namespace Deep {
     public:
         struct Ent {
             Ent() = delete;
-            Ent(ECDB* database, EntityPtr* ptr) :
+            Deep_Inline Ent(ECDB* database, EntityPtr* ptr) :
                 ptr(ptr), database(database) {}; // TODO(randomuserhi): move somewhere else
 
         private:
@@ -30,17 +29,51 @@ namespace Deep {
         };
 
     private:
+        class ArchetypeType {
+        private:
+            using Type = uint32;
+
+        public:
+            Deep_Inline ArchetypeType(ECRegistry* registry);
+            Deep_Inline ArchetypeType(ArchetypeType& type) = default;
+            Deep_Inline ArchetypeType(ArchetypeType&& type) noexcept;
+
+            inline ArchetypeType& operator=(const ArchetypeType& ref) = default;
+            inline ArchetypeType& operator=(ArchetypeType&& ref) noexcept = default;
+
+            Deep_Inline bool HasComponent(ComponentId component);
+
+            void AddComponent(ComponentId component);
+
+            void RemoveComponent(ComponentId component);
+
+            size_t Size();
+
+            size_t Alignment();
+
+        private:
+            ECRegistry* const registry;
+
+            std::vector<Type> bits;
+            std::vector<ComponentDesc> components;
+        };
+
         class Archetype final : NonCopyable {
         public:
             struct Chunk {
                 Chunk* next = nullptr;
             };
 
-            Archetype(ECDB* database);
+            Archetype(ECDB* database, ArchetypeType type);
             ~Archetype();
 
         private:
             ECDB* const database;
+
+            const ArchetypeType type;
+
+            const size_t chunkSize;
+            const size_t chunkAlignment;
 
             Chunk* firstFree = nullptr;
 
@@ -74,7 +107,7 @@ namespace Deep {
     private:
         ECRegistry* const registry;
 
-        std::vector<Archetype> archetypes;
+        std::vector<Archetype*> archetypes;
 
         std::unordered_map<ComponentId, Archetype*> archetypeMap;
 
@@ -87,3 +120,5 @@ namespace Deep {
 
     using Ent = ECDB::Ent;
 } // namespace Deep
+
+#include "ECDB.inl"

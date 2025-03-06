@@ -2,14 +2,22 @@
  * ECDB
  */
 
-#include <Deep/Entity/ECDB.h>
+#include <Deep/Math.h>
+#include <Deep/Entity.h>
 #include <Deep/Memory.h>
 
 namespace Deep {
+    // TODO(randomuserhi): Make inline
     ECDB::ECDB(ECRegistry* registry) :
         registry(registry) {}
 
     ECDB::~ECDB() {
+        // Free archetypes
+        for (size_t i = 0; i < archetypes.size(); ++i) {
+            delete archetypes[i];
+        }
+
+        // Free entity pages
         while (entityPages != nullptr) {
             EntityPage* temp = entityPages;
             entityPages = entityPages->next;
@@ -66,8 +74,67 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    ECDB::Archetype::Archetype(ECDB* database) :
-        database(database) {}
+    void ECDB::ArchetypeType::AddComponent(ComponentId component) {
+        Deep_Assert(registry->Has(component), "ComponentId does not exist in registry.");
+        Deep_Assert(!HasComponent(component), "Type already contains the given component.");
+
+        uint32 i = component / sizeof(Type);
+        while (i >= bits.size()) {
+            bits.emplace_back(0u);
+        }
+        bits[i] |= (1u << (component % sizeof(Type)));
+
+        components.push_back(registry->Get(component));
+    }
+
+    void ECDB::ArchetypeType::RemoveComponent(ComponentId component) {
+        Deep_Assert(HasComponent(component), "Type does not have the given component.");
+
+        uint32 i = component / sizeof(Type);
+        if (i < bits.size()) {
+            bits[i] &= ~(1u << (component % sizeof(Type)));
+        }
+
+        // NOTE(randomuserhi): linear search should be sufficient since component type count is often low
+        for (size_t i = 0; i < components.size(); ++i) {
+            if (components[i].id == component) {
+                components.erase(components.begin() + i);
+                break;
+            }
+        }
+    }
+
+    size_t ECDB::ArchetypeType::Size() {
+        if (components.size() == 0) return 0;
+
+        size_t size = components[0].size;
+
+        for (size_t i = 1; i < components.size(); ++i) {
+            ComponentDesc& comp = components[i];
+            size_t padding = comp.alignment - (size % comp.alignment);
+            size += padding + comp.size;
+        }
+
+        return size;
+    }
+
+    size_t ECDB::ArchetypeType::Alignment() {
+        if (components.size() == 0) return 0;
+
+        size_t alignment = components[0].alignment;
+
+        for (size_t i = 1; i < components.size(); ++i) {
+            ComponentDesc& comp = components[i];
+            alignment = Deep::Max(alignment, comp.alignment);
+        }
+
+        return alignment;
+    }
+} // namespace Deep
+
+namespace Deep {
+    ECDB::Archetype::Archetype(ECDB* database, ArchetypeType type) :
+        database(database), type(type), chunkSize(type.Size()), chunkAlignment(type.Alignment()) {}
 
     ECDB::Archetype::~Archetype() {
         while (chunks != nullptr) {

@@ -1,6 +1,6 @@
 #include "../pch.h"
 #include <Deep.h>
-#include <Deep/Entity/ECDB.h>
+#include <Deep/Entity.h>
 
 // TODO(randomuserhi): Split this test up
 TEST(ECDB, Entity) {

@@ -2,12 +2,12 @@
  * ECRegistry
  */
 
-#include "Deep/Entity/ECRegistry.h"
+#include "Deep/Entity.h"
 
 namespace Deep {
     ComponentId ECRegistry::RegisterComponent(size_t size, size_t alignment, const char* name) {
-        int id = lookup.size();
-        lookup.emplace_back(ComponentDesc{ size, alignment, name });
+        ComponentId id = static_cast<ComponentId>(lookup.size());
+        lookup.emplace_back(id, size, alignment, name);
         return id;
     }
 } // namespace Deep

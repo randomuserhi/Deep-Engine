@@ -23,9 +23,8 @@
     <ClInclude Include="Deep\Deep_Types.h" />
     <ClInclude Include="Deep\Entity.h" />
     <ClInclude Include="Deep\ECS\Allocator.h" />
-    <ClInclude Include="Deep\Entity\Archetype.h" />
-    <ClInclude Include="Deep\Entity\ECDB.h" />
-    <ClInclude Include="Deep\Entity\ECRegistry.h" />
+    <ClInclude Include="Deep\Entity\_ECDB.h" />
+    <ClInclude Include="Deep\Entity\_ECRegistry.h" />
     <ClInclude Include="Deep\Math.h" />
     <ClInclude Include="Deep\Math\Constants.h" />
     <ClInclude Include="Deep\Math\_SSE_m128.h" />
@@ -59,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\Deep.cpp" />
-    <ClCompile Include="Deep\Entity\Archetype.cpp" />
     <ClCompile Include="Deep\Entity\ECDB.cpp" />
     <ClCompile Include="Deep\Entity\ECRegistry.cpp" />
     <ClCompile Include="Deep\Math\Mat4.cpp" />
@@ -88,7 +86,8 @@
     <ClCompile Include="Deep\Threading\JobSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Deep\Entity\Archetype.inl" />
+    <None Include="Deep\Entity.inl" />
+    <None Include="Deep\Entity\ECDB.inl" />
     <None Include="Deep\Entity\ECRegistry.inl" />
     <None Include="Deep\Math\SSE_m128.inl" />
     <None Include="Deep\Math\SSE_m128i.inl" />

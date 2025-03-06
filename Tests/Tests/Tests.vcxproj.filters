@@ -10,7 +10,6 @@
     <ClCompile Include="BitHelper.cpp" />
     <ClCompile Include="Memory\PooledFixedSizeFreeList.cpp" />
     <ClCompile Include="Threading\JobSystem.cpp" />
-    <ClCompile Include="Entity\Archetype.cpp" />
     <ClCompile Include="Entity\ECRegistry.cpp" />
     <ClCompile Include="Entity\ECDB.cpp" />
   </ItemGroup>

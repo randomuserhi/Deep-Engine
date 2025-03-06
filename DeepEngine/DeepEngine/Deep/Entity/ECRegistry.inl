@@ -22,8 +22,14 @@ namespace Deep {
         return RegisterTag(name);
     }
 
-    const ECRegistry::ComponentDesc& ECRegistry::operator[](ComponentId id) const {
+    const ComponentDesc& ECRegistry::Get(ComponentId id) const {
+        Deep_Assert(Has(id), "Component does not exist in registry.");
         return lookup[id];
+    }
+
+    bool ECRegistry::Has(ComponentId id) const {
+        Deep_Assert(id >= 0, "ComponentId's should be positive.");
+        return id < lookup.size();
     }
 } // namespace Deep
 
