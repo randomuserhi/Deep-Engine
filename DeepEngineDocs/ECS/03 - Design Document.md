@@ -171,8 +171,15 @@ ComponentId components[3] = {
 	registry.Get<Transform>(),
 	registry.Get<Player>()
 };
+
 Deep::ECDB::Archetype& arch = db.GetArchetype(components);
 Deep::ECDB::Archetype* arch = db.GetArchetype(components);
+
+Deep::ECDB::ArchetypeType type;
+type.AddComponent(registry.Get<Transform>());
+
+Deep::ECDB::Archetype& arch = db.GetArchetype(type);
+Deep::ECDB::Archetype* arch = db.GetArchetype(type);
 
 Deep::Ent entity = arch.Entity(); // Creates an entity inside of this
 							      // archetype directly.
