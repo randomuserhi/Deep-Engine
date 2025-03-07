@@ -79,9 +79,11 @@ namespace Deep {
             const ArchetypeType type;
 
             // The minimum number of bytes (including padding between members) required to store each component array
+            // NOTE(randomuserhi): Not including the chunk header / chunk footer.
             const size_t chunkSize;
 
             // The alignment of the chunk (based on its component members)
+            // NOTE(randomuserhi): Not including the chunk header / chunk footer.
             const size_t chunkAlignment;
 
             Chunk* firstFree = nullptr;
