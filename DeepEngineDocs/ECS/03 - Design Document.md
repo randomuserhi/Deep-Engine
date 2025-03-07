@@ -201,7 +201,7 @@ Transform* t = arch.GetComponent<Transform>(entity, transformOffset);
 Transform& t = arch.GetComponent<Transform>(entity, transformOffset);
 
 // Effectively the same as:
-Transform* t = reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index
+Transform* t = reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index;
 ```
 
 ### Modding and Portability
