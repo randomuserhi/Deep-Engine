@@ -19,13 +19,13 @@ namespace Deep {
     public:
         struct Ent {
             Ent() = delete;
-            Deep_Inline Ent(ECDB* database, EntityPtr& ptr) :
+            Deep_Inline Ent(ECDB* database, EntityPtr* ptr) :
                 ptr(ptr), database(database) {}; // TODO(randomuserhi): move somewhere else
 
         private:
             ECDB* const database;
 
-            EntityPtr& ptr;
+            EntityPtr* const ptr;
         };
 
     private:
