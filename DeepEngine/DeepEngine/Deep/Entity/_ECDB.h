@@ -63,6 +63,9 @@ namespace Deep {
         class Archetype final : NonCopyable {
         public:
             struct Chunk {
+                // NOTE(randomuserhi): should appear at the start of a chunk's memory block
+                Archetype* archetype;
+
                 // NOTE(randomuserhi): should appear at the end of the chunk's memory block
                 Chunk* next = nullptr;
             };
@@ -101,13 +104,15 @@ namespace Deep {
 
         struct EntityPtr {
             Archetype::Chunk* chunk;
-
             size_t index;
-
-            EntityPtr* next;
         };
 
         struct EntityPage {
+            struct Storage {
+                EntityPtr ptr;
+                Storage* next;
+            };
+
             static const size_t pageSize = 85;
 
             EntityPage* next;

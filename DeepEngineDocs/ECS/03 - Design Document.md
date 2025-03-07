@@ -146,14 +146,62 @@ registry.RegisterComponent<Transform>();
 
 ```cpp
 Deep::Ent entity = db.Entity();
+
 entity.AddComponent<Transform>(registry);
+
 // Above is equivalent to:
-// entity.AddComponent(registry.GetComponent<Transform>());
-// db.AddComponent(entity, registry.GetComponent<Transform>());
+entity.AddComponent(registry.GetComponent<Transform>());
+db.AddComponent(entity, registry.GetComponent<Transform>());
+
+Transform& t = entity.GetComponent<Transform>(registry);
+
+// Above is equivalent to:
+Transform& t = entity.GetComponent(registry.GetComponent<Transform>());
+Transform& t = db.GetComponent(entity, registry.GetComponent<Transform>());
+
+Transform* t = entity.GetComponent<Transform>(registry);
+
+// Above is equivalent to:
+Transform* t = entity.GetComponent(registry.GetComponent<Transform>());
+Transform* t = db.GetComponent(entity, registry.GetComponent<Transform>());
 ```
 
 ```cpp
-Archetype arch = 
+ComponentId components[3] = {
+	registry.Get<Transform>(),
+	registry.Get<Player>()
+};
+Deep::ECDB::Archetype& arch = db.GetArchetype(components);
+Deep::ECDB::Archetype* arch = db.GetArchetype(components);
+
+Deep::Ent entity = arch.Entity(); // Creates an entity inside of this
+							      // archetype directly.
+
+Deep::Ent entity = db.Entity();
+arch.Move(entity); // Moves `entity` directly into this archetype.
+                   // This includes copying the data from components 
+                   // that match its old archetype into this new one.
+                   // Performs no move if entity is already in this
+                   // archetype.
+
+arch.MoveNoCopy(entity); // Moves `entity` directly into this archetype
+						 // without copying any data from old archetype.
+
+arch.Remove(entity); // Removes the entity from this archetype, effectively
+                     // removing all components from the entity.
+
+// Get a given component for an entity
+Transform* t = arch.GetComponent<Transform>(entity);
+Transform& t = arch.GetComponent<Transform>(entity);
+
+// An overload exists where you can pass a cached offset to minimize pointer
+// chasing during lookup of component values:
+size_t transformOffset = arch.GetComponentOffset(registry.Get<Transform>());
+Transform* t = arch.GetComponent<Transform>(entity, transformOffset);
+Transform& t = arch.GetComponent<Transform>(entity, transformOffset);
+
+// Effectively the same as:
+Transform* t = reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index
 ```
 
 ### Modding and Portability
