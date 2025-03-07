@@ -61,12 +61,13 @@ namespace Deep {
         };
 
         class Archetype final : NonCopyable {
+            // NOTE(randomuserhi): Handle edge case where archetype is of size 0 (entity with just tags, no components)
+            //                     Pretty much just don't allocate any memory at all and the EntityPtr just points to this
+            //                     archetype with nullptr chunk.
+
         public:
             struct Chunk {
-                // NOTE(randomuserhi): should appear at the start of a chunk's memory block (chunk header)
-                Archetype* archetype;
-
-                // NOTE(randomuserhi): should appear at the end of the chunk's memory block (chunk footer)
+                // NOTE(randomuserhi): should appear at the end of the chunk's memory block
                 Chunk* next = nullptr;
             };
 
@@ -79,11 +80,11 @@ namespace Deep {
             const ArchetypeType type;
 
             // The minimum number of bytes (including padding between members) required to store each component array
-            // NOTE(randomuserhi): Not including the chunk header / chunk footer.
+            // NOTE(randomuserhi): Not including the extra chunk metadata.
             const size_t chunkSize;
 
             // The alignment of the chunk (based on its component members)
-            // NOTE(randomuserhi): Not including the chunk header / chunk footer.
+            // NOTE(randomuserhi): Not including the extra chunk metadata.
             const size_t chunkAlignment;
 
             Chunk* firstFree = nullptr;
@@ -101,6 +102,8 @@ namespace Deep {
             // This is a more cache efficient `std::unordered_map<ComponentId, size_t>` specialized for the constraints of:
             // - Fixed number of components in an archetype
             // - ComponentIds are numbers
+            //
+            // NOTE(randomuserhi): Does not include tags since they dont contribute any data.
             std::vector<ComponentId> ids;
             std::vector<size_t> offsets;
 
@@ -108,6 +111,7 @@ namespace Deep {
         };
 
         struct EntityPtr {
+            Archetype* archetype;
             Archetype::Chunk* chunk;
             size_t index;
         };

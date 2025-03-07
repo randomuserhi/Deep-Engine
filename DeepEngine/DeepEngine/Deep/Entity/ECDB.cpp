@@ -69,6 +69,7 @@ namespace Deep {
         storage->next = nullptr;
 
         EntityPtr& ptr = storage->ptr;
+        ptr.archetype = nullptr;
         ptr.chunk = nullptr;
 
         return ECDB::Ent{ this, &ptr };

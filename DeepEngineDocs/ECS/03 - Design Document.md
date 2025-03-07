@@ -209,6 +209,9 @@ Transform& t = arch.GetComponent<Transform>(entity, transformOffset);
 
 // Effectively the same as:
 Transform* t = reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index;
+
+// TODO(randomuserhi): Some form of API to transfer a chunk from one archetype
+//                     to another that shares the same layout
 ```
 
 ### Modding and Portability
