@@ -63,10 +63,10 @@ namespace Deep {
         class Archetype final : NonCopyable {
         public:
             struct Chunk {
-                // NOTE(randomuserhi): should appear at the start of a chunk's memory block
+                // NOTE(randomuserhi): should appear at the start of a chunk's memory block (chunk header)
                 Archetype* archetype;
 
-                // NOTE(randomuserhi): should appear at the end of the chunk's memory block
+                // NOTE(randomuserhi): should appear at the end of the chunk's memory block (chunk footer)
                 Chunk* next = nullptr;
             };
 
