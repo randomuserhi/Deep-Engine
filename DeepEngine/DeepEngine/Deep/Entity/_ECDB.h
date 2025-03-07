@@ -19,13 +19,13 @@ namespace Deep {
     public:
         struct Ent {
             Ent() = delete;
-            Deep_Inline Ent(ECDB* database, EntityPtr* ptr) :
+            Deep_Inline Ent(ECDB* database, EntityPtr& ptr) :
                 ptr(ptr), database(database) {}; // TODO(randomuserhi): move somewhere else
 
         private:
             ECDB* const database;
 
-            EntityPtr* ptr;
+            EntityPtr& ptr;
         };
 
     private:
@@ -122,7 +122,7 @@ namespace Deep {
 
             EntityPage* next;
 
-            EntityPtr entityLookup[pageSize];
+            Storage entityLookup[pageSize];
         };
 
     public:
@@ -140,7 +140,7 @@ namespace Deep {
 
         uint32 firstFreeItemInNewPage = 0;
 
-        EntityPtr* firstFree = nullptr;
+        EntityPage::Storage* firstFree = nullptr;
 
         EntityPage* entityPages = nullptr;
     };

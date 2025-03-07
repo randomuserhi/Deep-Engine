@@ -30,12 +30,12 @@ namespace Deep {
     ECDB::Ent ECDB::Entity() {
         // TODO(randomuserhi): Support Concurrency (lock-free)
 
-        EntityPtr* ptr;
+        EntityPage::Storage* storage;
 
         if (firstFree != nullptr) {
             // Take first item of free list
 
-            ptr = firstFree;
+            storage = firstFree;
             firstFree = firstFree->next;
         } else {
             // Free list is empty
@@ -46,14 +46,14 @@ namespace Deep {
                 if (firstFreeItemInNewPage < EntityPage::pageSize) {
                     // Allocated page has space
 
-                    ptr = &(entityPages->entityLookup[firstFreeItemInNewPage++]);
+                    storage = &(entityPages->entityLookup[firstFreeItemInNewPage++]);
                 } else {
                     // Allocated page is full
 
                     EntityPage* newPage = new EntityPage{ entityPages };
                     entityPages = newPage;
 
-                    ptr = &(entityPages->entityLookup[0]);
+                    storage = &(entityPages->entityLookup[0]);
 
                     firstFreeItemInNewPage = 1;
                 }
@@ -62,12 +62,13 @@ namespace Deep {
 
                 entityPages = new EntityPage{ nullptr };
 
-                ptr = &(entityPages->entityLookup[firstFreeItemInNewPage++]);
+                storage = &(entityPages->entityLookup[firstFreeItemInNewPage++]);
             }
         }
 
-        ptr->chunk = nullptr;
-        ptr->next = nullptr;
+        storage->next = nullptr;
+
+        EntityPtr& ptr = storage->ptr;
 
         return ECDB::Ent{ this, ptr };
     }
