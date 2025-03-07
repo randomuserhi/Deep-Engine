@@ -152,6 +152,10 @@ entity.AddComponent<Transform>(registry);
 // db.AddComponent(entity, registry.GetComponent<Transform>());
 ```
 
+```cpp
+Archetype arch = 
+```
+
 ### Modding and Portability
 
 As mentioned before, `ECDB` is implemented to work at runtime to support modding. For this reason, components are not tied to types as they can have differences in struct layout across DLL boundaries (or environments). 
