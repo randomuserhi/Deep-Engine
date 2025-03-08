@@ -77,7 +77,7 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    void ECDB::ArchetypeType::AddComponent(ComponentId component) {
+    void ECDB::ArchetypeBitField::AddComponent(ComponentId component) {
         Deep_Assert(registry->Has(component), "ComponentId does not exist in registry.");
         Deep_Assert(!HasComponent(component), "Type already contains the given component.");
 
@@ -86,58 +86,21 @@ namespace Deep {
             bits.emplace_back(0u);
         }
         bits[i] |= (1u << (component % sizeof(Type)));
-
-        components.push_back(registry->Get(component));
     }
 
-    void ECDB::ArchetypeType::RemoveComponent(ComponentId component) {
+    void ECDB::ArchetypeBitField::RemoveComponent(ComponentId component) {
         Deep_Assert(HasComponent(component), "Type does not have the given component.");
 
         uint32 i = component / sizeof(Type);
         if (i < bits.size()) {
             bits[i] &= ~(1u << (component % sizeof(Type)));
         }
-
-        // NOTE(randomuserhi): linear search should be sufficient since component type count is often low
-        for (size_t i = 0; i < components.size(); ++i) {
-            if (components[i].id == component) {
-                components.erase(components.begin() + i);
-                break;
-            }
-        }
-    }
-
-    size_t ECDB::ArchetypeType::Size() {
-        if (components.size() == 0) return 0;
-
-        size_t size = components[0].size;
-
-        for (size_t i = 1; i < components.size(); ++i) {
-            ComponentDesc& comp = components[i];
-            size_t padding = comp.alignment - (size % comp.alignment);
-            size += padding + comp.size;
-        }
-
-        return size;
-    }
-
-    size_t ECDB::ArchetypeType::Alignment() {
-        if (components.size() == 0) return 0;
-
-        size_t alignment = components[0].alignment;
-
-        for (size_t i = 1; i < components.size(); ++i) {
-            ComponentDesc& comp = components[i];
-            alignment = Deep::Max(alignment, comp.alignment);
-        }
-
-        return alignment;
     }
 } // namespace Deep
 
 namespace Deep {
-    ECDB::Archetype::Archetype(ECDB* database, ArchetypeType type) :
-        database(database), type(type), chunkSize(type.Size()), chunkAlignment(type.Alignment()) {}
+    ECDB::Archetype::Archetype(ECDB* database) :
+        database(database), type(database->registry) {}
 
     ECDB::Archetype::~Archetype() {
         while (chunks != nullptr) {
@@ -147,5 +110,22 @@ namespace Deep {
         }
 
         firstFree = nullptr;
+    }
+
+    void ECDB::Archetype::CalcSizeAlignment() {
+        chunkSize = 0;
+        chunkAlignment = 0;
+
+        if (layout.size() == 0) return;
+
+        for (size_t i = 0; i < layout.size(); ++i) {
+            ComponentDesc& comp = layout[i];
+            Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
+
+            size_t padding = comp.alignment - (chunkSize % comp.alignment);
+            chunkSize += padding + comp.size;
+
+            chunkAlignment = Deep::Max(chunkAlignment, comp.alignment);
+        }
     }
 } // namespace Deep

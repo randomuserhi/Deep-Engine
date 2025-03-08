@@ -24,12 +24,20 @@ namespace Deep {
 
     const ComponentDesc& ECRegistry::Get(ComponentId id) const {
         Deep_Assert(Has(id), "Component does not exist in registry.");
-        return lookup[id];
+        return lookup[id & (~tagBit)];
     }
 
     bool ECRegistry::Has(ComponentId id) const {
         Deep_Assert(id >= 0, "ComponentId's should be positive.");
         return id < lookup.size();
+    }
+
+    bool ECRegistry::IsComponent(ComponentId id) {
+        return (id & tagBit) == 0;
+    }
+
+    bool ECRegistry::IsTag(ComponentId id) {
+        return (id & tagBit) == tagBit;
     }
 } // namespace Deep
 

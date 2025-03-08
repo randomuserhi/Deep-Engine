@@ -1,13 +1,13 @@
 #pragma once
 
 namespace Deep {
-    ECDB::ArchetypeType::ArchetypeType(ECRegistry* registry) :
+    ECDB::ArchetypeBitField::ArchetypeBitField(ECRegistry* registry) :
         registry(registry) {}
 
-    ECDB::ArchetypeType::ArchetypeType(ArchetypeType&& type) noexcept :
-        registry(type.registry), bits(std::move(type.bits)), components(std::move(type.components)) {}
+    ECDB::ArchetypeBitField::ArchetypeBitField(ArchetypeBitField&& type) noexcept :
+        registry(type.registry), bits(std::move(type.bits)) {}
 
-    bool ECDB::ArchetypeType::HasComponent(ComponentId component) {
+    bool ECDB::ArchetypeBitField::HasComponent(ComponentId component) {
         uint32 i = component / sizeof(Type);
 
         if (i < bits.size()) {

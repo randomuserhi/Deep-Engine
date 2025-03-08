@@ -29,17 +29,17 @@ namespace Deep {
         };
 
     private:
-        class ArchetypeType {
+        class ArchetypeBitField {
         private:
             using Type = uint32;
 
         public:
-            Deep_Inline ArchetypeType(ECRegistry* registry);
-            Deep_Inline ArchetypeType(ArchetypeType& type) = default;
-            Deep_Inline ArchetypeType(ArchetypeType&& type) noexcept;
+            Deep_Inline ArchetypeBitField(ECRegistry* registry);
+            Deep_Inline ArchetypeBitField(ArchetypeBitField& type) = default;
+            Deep_Inline ArchetypeBitField(ArchetypeBitField&& type) noexcept;
 
-            inline ArchetypeType& operator=(const ArchetypeType& ref) = default;
-            inline ArchetypeType& operator=(ArchetypeType&& ref) noexcept = default;
+            inline ArchetypeBitField& operator=(const ArchetypeBitField& ref) = default;
+            inline ArchetypeBitField& operator=(ArchetypeBitField&& ref) noexcept = default;
 
             Deep_Inline bool HasComponent(ComponentId component);
 
@@ -47,17 +47,10 @@ namespace Deep {
 
             void RemoveComponent(ComponentId component);
 
-            size_t Size();
-
-            size_t Alignment();
-
         private:
             ECRegistry* const registry;
 
             std::vector<Type> bits;
-
-            // NOTE(randomuserhi): The order of which components are added determines the order in memory within a chunk
-            std::vector<ComponentDesc> components;
         };
 
         class Archetype final : NonCopyable {
@@ -71,21 +64,29 @@ namespace Deep {
                 Chunk* next = nullptr;
             };
 
-            Archetype(ECDB* database, ArchetypeType type);
+            Archetype(ECDB* database);
+            // Archetype(ECDB* database, ArchetypeBitField type, ComponentDesc* layout, size_t numMembers);
             ~Archetype();
 
         private:
+            void CalcSizeAlignment();
+
             ECDB* const database;
 
-            const ArchetypeType type;
+            ArchetypeBitField type;
+
+            // NOTE(randomuserhi): The order of which components are added determines the memory layout of the components in
+            //                     the chunk.
+            // NOTE(randomuserhi): Does not include tags.
+            std::vector<ComponentDesc> layout;
 
             // The minimum number of bytes (including padding between members) required to store each component array
             // NOTE(randomuserhi): Not including the extra chunk metadata.
-            const size_t chunkSize;
+            size_t chunkSize = 0;
 
             // The alignment of the chunk (based on its component members)
             // NOTE(randomuserhi): Not including the extra chunk metadata.
-            const size_t chunkAlignment;
+            size_t chunkAlignment = 0;
 
             Chunk* firstFree = nullptr;
 

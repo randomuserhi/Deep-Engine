@@ -34,6 +34,7 @@ The implementation works at compile-time *and* runtime to support modding where 
 ### ECRegistry
 
 Manages components / tag types used within ECDB. Registering a type returns an *integer* handle which is used to identify the component.
+- All components have the most significant bit set to 0, whilst tags have the most significant bit set to 1.
 
 You may optionally provide a `name` to the component which is used in debugging.
 - Typically the `typename` is used (*a macro is provided that gives this to you*)

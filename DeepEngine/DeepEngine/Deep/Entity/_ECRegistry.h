@@ -23,7 +23,13 @@ namespace Deep {
 
         Deep_Inline bool Has(ComponentId id) const;
 
+        Deep_Inline static bool IsTag(ComponentId id);
+
+        Deep_Inline static bool IsComponent(ComponentId id);
+
     private:
+        static const ComponentId tagBit = 1 << 31;
+
         std::vector<ComponentDesc> lookup;
     };
 
