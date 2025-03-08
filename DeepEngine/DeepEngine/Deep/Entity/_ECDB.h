@@ -111,6 +111,7 @@ namespace Deep {
             // This is a more cache efficient `std::unordered_map<ComponentId, size_t>` specialized for the constraints of:
             // - Fixed number of components in an archetype
             // - ComponentIds are numbers
+            // - Number of components is low
             //
             // NOTE(randomuserhi): Does not include tags since they dont contribute any data.
             // NOTE(randomuserhi): `ids` holds ComponentId + 1 as the value 0 is used to denote an empty bucket slot
