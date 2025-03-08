@@ -36,8 +36,8 @@ namespace Deep {
             Deep_Inline ArchetypeBitField(ArchetypeBitField&) = default;
             Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept;
 
-            inline ArchetypeBitField& operator=(const ArchetypeBitField& ref) = default;
-            inline ArchetypeBitField& operator=(ArchetypeBitField&& ref) noexcept = default;
+            Deep_Inline ArchetypeBitField& operator=(const ArchetypeBitField& ref) = default;
+            Deep_Inline ArchetypeBitField& operator=(ArchetypeBitField&& ref) noexcept = default;
 
             Deep_Inline bool HasComponent(ComponentId component);
 
@@ -51,13 +51,27 @@ namespace Deep {
             std::vector<Type> bits;
         };
 
+    public:
+        class Archetype;
+
+    private:
         struct ArchetypeDesc {
-            Deep_Inline ArchetypeDesc(ECDB* database);
+            friend class Archetype;
+
+        public:
+            Deep_Inline ArchetypeDesc(ECRegistry* registry);
             Deep_Inline ArchetypeDesc(const ArchetypeDesc&) = default;
             Deep_Inline ArchetypeDesc(ArchetypeDesc&&) noexcept;
 
-            ECDB* const database;
+            ECRegistry* const registry;
 
+            Deep_Inline bool HasComponent(ComponentId component);
+
+            void AddComponent(ComponentId component);
+
+            void RemoveComponent(ComponentId component);
+
+        private:
             ArchetypeBitField type;
 
             // NOTE(randomuserhi): The order of which components are added determines the memory layout of the components in

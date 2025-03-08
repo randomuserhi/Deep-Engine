@@ -29,14 +29,18 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    ECDB::ArchetypeDesc::ArchetypeDesc(ECDB* database) :
-        database(database), type(database->registry) {}
+    ECDB::ArchetypeDesc::ArchetypeDesc(ECRegistry* registry) :
+        registry(registry), type(registry) {}
 
     ECDB::ArchetypeDesc::ArchetypeDesc(ArchetypeDesc&& description) noexcept :
-        database(database), type(std::move(description.type)), layout(std::move(description.layout)) {}
+        registry(registry), type(std::move(description.type)), layout(std::move(description.layout)) {}
+
+    bool ECDB::ArchetypeDesc::HasComponent(ComponentId component) {
+        return type.HasComponent(component);
+    }
 } // namespace Deep
 
 namespace Deep {
     ECDB::Archetype::Archetype(ECDB* database) :
-        description(database) {}
+        description(database->registry) {}
 } // namespace Deep

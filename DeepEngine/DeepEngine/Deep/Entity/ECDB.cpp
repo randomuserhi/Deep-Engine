@@ -95,6 +95,35 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
+    void ECDB::ArchetypeDesc::AddComponent(ComponentId component) {
+        Deep_Assert(!HasComponent(component), "Type already contains the given component.");
+
+        type.AddComponent(component);
+
+        if (ECRegistry::IsComponent(component)) {
+            layout.push_back(registry->Get(component));
+        }
+    }
+
+    void ECDB::ArchetypeDesc::RemoveComponent(ComponentId component) {
+        Deep_Assert(HasComponent(component), "Type does not contain the given component.");
+
+        type.RemoveComponent(component);
+
+        if (ECRegistry::IsComponent(component)) {
+            // NOTE(randomuserhi): A linear search to remove the component is fast enough
+            //                     since the number of components is often low.
+            for (size_t i = 0; i < layout.size(); ++i) {
+                if (layout[i].id == component) {
+                    layout.erase(layout.begin() + i);
+                    break;
+                }
+            }
+        }
+    }
+} // namespace Deep
+
+namespace Deep {
     ECDB::Archetype::Archetype(ECDB* database, ArchetypeDesc&& desc) :
         description(std::move(desc)), ids(description.layout.size()), offsets(description.layout.size()) {
         for (size_t i = 0; i < description.layout.size(); ++i) {
