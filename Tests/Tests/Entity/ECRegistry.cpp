@@ -16,6 +16,8 @@ TEST(ECStaticRegistry, Components) {
     Deep::ComponentId id = registry.RegisterComponent<Component>();
 
     EXPECT_EQ(id, registry.Get<Component>());
+    EXPECT_TRUE(Deep::ECRegistry::IsComponent(id));
+    EXPECT_FALSE(Deep::ECRegistry::IsTag(id));
     EXPECT_EQ(_registry.Get(id).size, sizeof(Component));
     EXPECT_EQ(_registry.Get(id).alignment, alignof(Component));
 
@@ -29,6 +31,8 @@ TEST(ECStaticRegistry, Tags) {
     Deep::ComponentId id = registry.RegisterTag<Tag>();
 
     EXPECT_EQ(id, registry.Get<Tag>());
+    EXPECT_TRUE(Deep::ECRegistry::IsTag(id));
+    EXPECT_FALSE(Deep::ECRegistry::IsComponent(id));
     EXPECT_EQ(_registry.Get(id).size, 0);
     EXPECT_EQ(_registry.Get(id).alignment, 0);
 
@@ -42,6 +46,8 @@ TEST(ECRegistry, Components) {
     Deep::ComponentId id = registry.RegisterComponent<Component>(name);
 
     EXPECT_EQ(registry.Get(id).size, sizeof(Component));
+    EXPECT_TRUE(Deep::ECRegistry::IsComponent(id));
+    EXPECT_FALSE(Deep::ECRegistry::IsTag(id));
     EXPECT_EQ(registry.Get(id).alignment, alignof(Component));
     EXPECT_EQ(registry.Get(id).name, name);
 }
@@ -53,6 +59,8 @@ TEST(ECRegistry, Tags) {
     Deep::ComponentId id = registry.RegisterTag<Tag>(name);
 
     EXPECT_EQ(registry.Get(id).size, 0);
+    EXPECT_TRUE(Deep::ECRegistry::IsTag(id));
+    EXPECT_FALSE(Deep::ECRegistry::IsComponent(id));
     EXPECT_EQ(registry.Get(id).alignment, 0);
     EXPECT_EQ(registry.Get(id).name, name);
 }

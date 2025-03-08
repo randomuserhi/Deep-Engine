@@ -28,8 +28,7 @@ namespace Deep {
     }
 
     bool ECRegistry::Has(ComponentId id) const {
-        Deep_Assert(id >= 0, "ComponentId's should be positive.");
-        return id < lookup.size();
+        return (id & (~tagBit)) < lookup.size();
     }
 
     bool ECRegistry::IsComponent(ComponentId id) {
