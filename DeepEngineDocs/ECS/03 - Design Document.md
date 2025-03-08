@@ -172,6 +172,7 @@ ComponentId components[3] = {
 	registry.Get<Player>()
 };
 
+// If archetype doesnt exist, db will create it
 Deep::ECDB::Archetype& arch = db.GetArchetype(components);
 Deep::ECDB::Archetype* arch = db.GetArchetype(components);
 
@@ -193,6 +194,9 @@ arch.Move(entity); // Moves `entity` directly into this archetype.
 
 arch.MoveNoCopy(entity); // Moves `entity` directly into this archetype
 						 // without copying any data from old archetype.
+					     // - Allows for manual memcopy which can be optimal
+					     //   depending on layout. 
+					     //   (otherwise its 1 memcopy call per component)
 
 arch.Remove(entity); // Removes the entity from this archetype, effectively
                      // removing all components from the entity.
@@ -210,8 +214,16 @@ Transform& t = arch.GetComponent<Transform>(entity, transformOffset);
 // Effectively the same as:
 Transform* t = reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index;
 
-// TODO(randomuserhi): Some form of API to transfer a chunk from one archetype
-//                     to another that shares the same layout
+// TODO(randomuserhi): API for getting chunks (either free / allocated ones)
+
+// Archetypes that share the same memory layout can directly take chunks
+// from each other (this allows quickly changing archetypes of entire chunks
+// as its simply moving a pointer vs copying data to move each entity)
+arch0.TakeChunk(arch1.chunk);
+
+// NOTE(randomuserhi): It is good practice in general to trade chunks to prevent
+//                     an archetype from getting overloaded / starved of chunks
+arch1.TakeChunk(arch0.firstFree); // Trade back a free chunk 
 ```
 
 ### Modding and Portability
