@@ -1,6 +1,16 @@
 #pragma once
 
 namespace Deep {
+    ECDB::Entt::Entt(ECDB* database, EntityPtr* ptr) :
+        ptr(ptr), database(database) {};
+} // namespace Deep
+
+namespace Deep {
+    ECDB::ECDB(ECRegistry* registry) :
+        registry(registry) {}
+} // namespace Deep
+
+namespace Deep {
     ECDB::ArchetypeBitField::ArchetypeBitField(ECRegistry* registry) :
         registry(registry) {}
 
@@ -16,4 +26,17 @@ namespace Deep {
 
         return false;
     }
+} // namespace Deep
+
+namespace Deep {
+    ECDB::ArchetypeDesc::ArchetypeDesc(ECDB* database) :
+        database(database), type(database->registry) {}
+
+    ECDB::ArchetypeDesc::ArchetypeDesc(ArchetypeDesc&& description) noexcept :
+        database(database), type(std::move(description.type)), layout(std::move(description.layout)) {}
+} // namespace Deep
+
+namespace Deep {
+    ECDB::Archetype::Archetype(ECDB* database) :
+        description(database) {}
 } // namespace Deep

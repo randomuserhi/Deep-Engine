@@ -7,10 +7,6 @@
 #include <Deep/Memory.h>
 
 namespace Deep {
-    // TODO(randomuserhi): Make inline
-    ECDB::ECDB(ECRegistry* registry) :
-        registry(registry) {}
-
     ECDB::~ECDB() {
         // Free archetypes
         for (size_t i = 0; i < archetypes.size(); ++i) {
@@ -27,7 +23,7 @@ namespace Deep {
         firstFree = nullptr;
     }
 
-    ECDB::Ent ECDB::Entity() {
+    ECDB::Entt ECDB::Entity() {
         // TODO(randomuserhi): Support Concurrency (lock-free)
 
         EntityPage::Storage* storage;
@@ -72,7 +68,7 @@ namespace Deep {
         ptr.archetype = nullptr;
         ptr.chunk = nullptr;
 
-        return ECDB::Ent{ this, &ptr };
+        return ECDB::Entt{ this, &ptr };
     }
 } // namespace Deep
 
@@ -99,8 +95,34 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    ECDB::Archetype::Archetype(ECDB* database) :
-        database(database), type(database->registry) {}
+    ECDB::Archetype::Archetype(ECDB* database, ArchetypeDesc&& desc) :
+        description(std::move(desc)), ids(description.layout.size()), offsets(description.layout.size()) {
+
+        chunkSize = 0;
+        chunkAlignment = 0;
+
+        for (size_t i = 0; i < description.layout.size(); ++i) {
+            const ComponentDesc& comp = description.layout[i];
+            Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
+
+            // Add member offset entry
+            size_t bucket = comp.id % description.layout.size();
+            while (ids[bucket] != 0) {
+                ++bucket;
+            };
+            Deep_Assert(comp.id + 1 != 0,
+                        "Storing an id of 0 in the bucket is invalid as 0 represents an empty bucket slot.");
+            ids[bucket] = comp.id + 1;
+            offsets[bucket] = chunkSize;
+
+            // Size
+            size_t padding = comp.alignment - (chunkSize % comp.alignment);
+            chunkSize += padding + comp.size;
+
+            // Alignment
+            chunkAlignment = Deep::Max(chunkAlignment, comp.alignment);
+        }
+    }
 
     ECDB::Archetype::~Archetype() {
         while (chunks != nullptr) {
@@ -112,20 +134,11 @@ namespace Deep {
         firstFree = nullptr;
     }
 
-    void ECDB::Archetype::CalcSizeAlignment() {
-        chunkSize = 0;
-        chunkAlignment = 0;
-
-        if (layout.size() == 0) return;
-
-        for (size_t i = 0; i < layout.size(); ++i) {
-            ComponentDesc& comp = layout[i];
-            Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
-
-            size_t padding = comp.alignment - (chunkSize % comp.alignment);
-            chunkSize += padding + comp.size;
-
-            chunkAlignment = Deep::Max(chunkAlignment, comp.alignment);
-        }
+    size_t ECDB::Archetype::GetComponentOffset(ComponentId component) {
+        size_t bucket = component % description.layout.size();
+        while (ids[bucket] != component + 1) {
+            ++bucket;
+        };
+        return offsets[bucket];
     }
 } // namespace Deep

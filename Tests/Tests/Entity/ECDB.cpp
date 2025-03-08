@@ -7,5 +7,5 @@ TEST(ECDB, Entity) {
     Deep::ECRegistry registry;
     Deep::ECDB database{ &registry };
 
-    Deep::Ent ent = database.Entity();
+    Deep::Entt ent = database.Entity();
 }

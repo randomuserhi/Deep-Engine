@@ -17,10 +17,8 @@ namespace Deep {
         struct EntityPtr;
 
     public:
-        struct Ent {
-            Ent() = delete;
-            Deep_Inline Ent(ECDB* database, EntityPtr* ptr) :
-                ptr(ptr), database(database) {}; // TODO(randomuserhi): move somewhere else
+        struct Entt {
+            Deep_Inline Entt(ECDB* database, EntityPtr* ptr);
 
         private:
             ECDB* const database;
@@ -29,14 +27,14 @@ namespace Deep {
         };
 
     private:
-        class ArchetypeBitField {
+        struct ArchetypeBitField {
         private:
             using Type = uint32;
 
         public:
             Deep_Inline ArchetypeBitField(ECRegistry* registry);
-            Deep_Inline ArchetypeBitField(ArchetypeBitField& type) = default;
-            Deep_Inline ArchetypeBitField(ArchetypeBitField&& type) noexcept;
+            Deep_Inline ArchetypeBitField(ArchetypeBitField&) = default;
+            Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept;
 
             inline ArchetypeBitField& operator=(const ArchetypeBitField& ref) = default;
             inline ArchetypeBitField& operator=(ArchetypeBitField&& ref) noexcept = default;
@@ -53,6 +51,22 @@ namespace Deep {
             std::vector<Type> bits;
         };
 
+        struct ArchetypeDesc {
+            Deep_Inline ArchetypeDesc(ECDB* database);
+            Deep_Inline ArchetypeDesc(const ArchetypeDesc&) = default;
+            Deep_Inline ArchetypeDesc(ArchetypeDesc&&) noexcept;
+
+            ECDB* const database;
+
+            ArchetypeBitField type;
+
+            // NOTE(randomuserhi): The order of which components are added determines the memory layout of the components in
+            //                     the chunk.
+            // NOTE(randomuserhi): Does not include tags.
+            std::vector<ComponentDesc> layout;
+        };
+
+    public:
         class Archetype final : NonCopyable {
             // NOTE(randomuserhi): Handle edge case where archetype is of size 0 (entity with just tags, no components)
             //                     Pretty much just don't allocate any memory at all and the EntityPtr just points to this
@@ -64,22 +78,16 @@ namespace Deep {
                 Chunk* next = nullptr;
             };
 
-            Archetype(ECDB* database);
-            // Archetype(ECDB* database, ArchetypeBitField type, ComponentDesc* layout, size_t numMembers);
+            Deep_Inline Archetype(ECDB* database);
+            Archetype(ECDB* database, ArchetypeDesc&& description);
             ~Archetype();
 
+            // Describes the archetype (type + layout)
+            const ArchetypeDesc description;
+
+            size_t GetComponentOffset(ComponentId component);
+
         private:
-            void CalcSizeAlignment();
-
-            ECDB* const database;
-
-            ArchetypeBitField type;
-
-            // NOTE(randomuserhi): The order of which components are added determines the memory layout of the components in
-            //                     the chunk.
-            // NOTE(randomuserhi): Does not include tags.
-            std::vector<ComponentDesc> layout;
-
             // The minimum number of bytes (including padding between members) required to store each component array
             // NOTE(randomuserhi): Not including the extra chunk metadata.
             size_t chunkSize = 0;
@@ -105,12 +113,15 @@ namespace Deep {
             // - ComponentIds are numbers
             //
             // NOTE(randomuserhi): Does not include tags since they dont contribute any data.
+            // NOTE(randomuserhi): `ids` holds ComponentId + 1 as the value 0 is used to denote an empty bucket slot
+            //                     during initialization.
             std::vector<ComponentId> ids;
             std::vector<size_t> offsets;
 
             std::unordered_map<ComponentId, Archetype*> archetypeMap;
         };
 
+    private:
         struct EntityPtr {
             Archetype* archetype;
             Archetype::Chunk* chunk;
@@ -131,10 +142,10 @@ namespace Deep {
         };
 
     public:
-        ECDB(ECRegistry* registry);
+        Deep_Inline ECDB(ECRegistry* registry);
         ~ECDB();
 
-        ECDB::Ent Entity();
+        ECDB::Entt Entity();
 
     private:
         ECRegistry* const registry;
@@ -150,7 +161,7 @@ namespace Deep {
         EntityPage* entityPages = nullptr;
     };
 
-    using Ent = ECDB::Ent;
+    using Entt = ECDB::Entt;
 } // namespace Deep
 
 #include "ECDB.inl"
