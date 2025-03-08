@@ -115,6 +115,7 @@ namespace Deep {
             // NOTE(randomuserhi): Does not include tags since they dont contribute any data.
             // NOTE(randomuserhi): `ids` holds ComponentId + 1 as the value 0 is used to denote an empty bucket slot
             //                     during initialization.
+            // TODO(randomuserhi): Use a single allocated block (where ids and offsets are adjacent) instead of 2 vectors
             std::vector<ComponentId> ids;
             std::vector<size_t> offsets;
 
