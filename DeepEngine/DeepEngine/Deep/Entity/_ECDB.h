@@ -10,6 +10,50 @@
 #include <vector>
 
 namespace Deep {
+    struct ArchetypeBitField {
+        friend struct std::hash<Deep::ArchetypeBitField>;
+
+    private:
+        using Type = uint32;
+
+    public:
+        explicit Deep_Inline ArchetypeBitField(ECRegistry* registry);
+        Deep_Inline ArchetypeBitField(const ArchetypeBitField&) = default;
+        Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept = default;
+
+        Deep_Inline ArchetypeBitField& operator=(const ArchetypeBitField&) = default;
+        Deep_Inline ArchetypeBitField& operator=(ArchetypeBitField&&) noexcept = default;
+
+        friend bool operator!=(const ArchetypeBitField& a, const ArchetypeBitField& b);
+        friend bool operator==(const ArchetypeBitField& a, const ArchetypeBitField& b);
+
+        Deep_Inline bool HasComponent(ComponentId component) const;
+
+        ArchetypeBitField& AddComponent(ComponentId component);
+
+        ArchetypeBitField& RemoveComponent(ComponentId component);
+
+    private:
+        ECRegistry* const registry;
+
+        std::vector<Type> bits;
+    };
+} // namespace Deep
+
+template<>
+struct std::hash<Deep::ArchetypeBitField> {
+    std::size_t operator()(const Deep::ArchetypeBitField& k) const {
+        std::size_t hash = 0;
+
+        for (size_t i = 0; i < k.bits.size(); ++i) {
+            hash ^= std::hash<Deep::ArchetypeBitField::Type>()(k.bits[i]);
+        }
+
+        return hash;
+    }
+};
+
+namespace Deep {
 
     // TODO(randomuserhi): Asserts and debug mode memory safety (counting number of delete calls etc...)
 
@@ -29,38 +73,10 @@ namespace Deep {
             EntityPtr* const ptr;
         };
 
-    private:
-        struct ArchetypeBitField {
-        private:
-            using Type = uint32;
-
-        public:
-            explicit Deep_Inline ArchetypeBitField(ECRegistry* registry);
-            Deep_Inline ArchetypeBitField(const ArchetypeBitField&) = default;
-            Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept = default;
-
-            Deep_Inline ArchetypeBitField& operator=(const ArchetypeBitField&) = default;
-            Deep_Inline ArchetypeBitField& operator=(ArchetypeBitField&&) noexcept = default;
-
-            Deep_Inline bool HasComponent(ComponentId component) const;
-
-            ArchetypeBitField& AddComponent(ComponentId component);
-
-            ArchetypeBitField& RemoveComponent(ComponentId component);
-
-        private:
-            ECRegistry* const registry;
-
-            std::vector<Type> bits;
-        };
-
     public:
         class Archetype;
 
         struct ArchetypeDesc {
-            friend class Archetype;
-
-        public:
             explicit Deep_Inline ArchetypeDesc(ECRegistry* registry);
             Deep_Inline ArchetypeDesc(const ArchetypeDesc&) = default;
             Deep_Inline ArchetypeDesc(ArchetypeDesc&&) noexcept = default;
@@ -78,7 +94,6 @@ namespace Deep {
 
             ECRegistry* const registry;
 
-        private:
             ArchetypeBitField type;
 
             // NOTE(randomuserhi): The order of which components are added determines the memory layout of the components in
@@ -112,6 +127,8 @@ namespace Deep {
             ~Archetype();
 
             size_t GetComponentOffset(ComponentId component) const;
+
+            void Move(EntityPtr* entity);
 
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
@@ -180,14 +197,18 @@ namespace Deep {
 
         ECDB::Entt Entity();
 
+        void AddComponent(EntityPtr* entity, ComponentId component);
+
+        void RemoveComponent(EntityPtr* entity, ComponentId component);
+
         ECDB::Archetype& GetArchetype(ComponentId* components, size_t numComponents);
 
     private:
         ECRegistry* const registry;
 
-        std::vector<Archetype*> archetypes;
+        std::unordered_map<ArchetypeBitField, Archetype*> archetypes;
 
-        Archetype rootArchetype;
+        Archetype* rootArchetype;
 
         uint32 firstFreeItemInNewPage = 0;
 

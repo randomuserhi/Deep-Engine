@@ -9,8 +9,8 @@
 namespace Deep {
     ECDB::~ECDB() {
         // Free archetypes
-        for (size_t i = 0; i < archetypes.size(); ++i) {
-            delete archetypes[i];
+        for (const auto& kv : archetypes) {
+            delete kv.second;
         }
 
         // Free entity pages
@@ -71,20 +71,92 @@ namespace Deep {
         return ECDB::Entt{ this, &ptr };
     }
 
+    void ECDB::AddComponent(EntityPtr* entity, ComponentId component) {
+        // TODO(randomuserhi): Thread Safety
+
+        Archetype* arch = entity->archetype;
+
+        if (arch->addMap.find(component) != arch->addMap.end()) {
+            arch->addMap[component]->Move(entity);
+        } else {
+            // Archetype does not exist
+
+            ArchetypeDesc description{ arch->description };
+            description.AddComponent(component);
+
+            // Check if we already have the archetype from a different path
+            if (archetypes.find(description.type) != archetypes.end()) {
+                archetypes[description.type]->Move(entity);
+                return;
+            }
+
+            // Create a new archetype
+            Archetype* newArch = new Archetype(this, std::move(description));
+            arch->addMap.emplace(component, newArch);
+            newArch->removeMap.emplace(component, arch);
+            archetypes.emplace(newArch->description.type, newArch);
+
+            // Move entity to new archetype
+            newArch->Move(entity);
+        }
+    }
+
+    void ECDB::RemoveComponent(EntityPtr* entity, ComponentId component) {
+        // TODO(randomuserhi): Thread Safety
+
+        Archetype* arch = entity->archetype;
+
+        if (arch->removeMap.find(component) != arch->removeMap.end()) {
+            arch->removeMap[component]->Move(entity);
+        } else {
+            // Archetype does not exist
+
+            ArchetypeDesc description{ arch->description };
+            description.RemoveComponent(component);
+
+            // Check if we already have the archetype from a different path
+            if (archetypes.find(description.type) != archetypes.end()) {
+                archetypes[description.type]->Move(entity);
+                return;
+            }
+
+            // Create a new archetype
+            Archetype* newArch = new Archetype(this, std::move(description));
+            arch->removeMap.emplace(component, newArch);
+            newArch->addMap.emplace(component, arch);
+            archetypes.emplace(newArch->description.type, newArch);
+
+            // Move entity to new archetype
+            newArch->Move(entity);
+        }
+    }
+
     ECDB::Archetype& ECDB::GetArchetype(ComponentId* components, size_t numComponents) {
         // TODO(randomuserhi): Thread Safety
 
-        Archetype* arch = &rootArchetype;
+        Archetype* arch = rootArchetype;
         for (size_t i = 0; i < numComponents; ++i) {
-            ComponentId comp = components[i];
+            ComponentId component = components[i];
 
-            if (arch->addMap.find(comp) != arch->addMap.end()) {
-                arch = arch->addMap[comp];
+            if (arch->addMap.find(component) != arch->addMap.end()) {
+                arch = arch->addMap[component];
             } else {
-                // Archetype does not exist, create it
-                Archetype* newArch = new Archetype(this, ArchetypeDesc{ arch->description }.AddComponent(comp));
-                arch->addMap.emplace(comp, newArch);
-                archetypes.push_back(newArch);
+                // Archetype does not exist
+
+                ArchetypeDesc description{ arch->description };
+                description.AddComponent(component);
+
+                // Check if we already have the archetype from a different path
+                if (archetypes.find(description.type) != archetypes.end()) {
+                    arch = archetypes[description.type];
+                    continue;
+                }
+
+                // Create a new archetype
+                Archetype* newArch = new Archetype(this, std::move(description));
+                arch->addMap.emplace(component, newArch);
+                newArch->removeMap.emplace(component, arch);
+                archetypes.emplace(newArch->description.type, newArch);
 
                 arch = newArch;
             }
@@ -95,7 +167,25 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    ECDB::ArchetypeBitField& ECDB::ArchetypeBitField::AddComponent(ComponentId component) {
+    bool operator!=(const ArchetypeBitField& a, const ArchetypeBitField& b) {
+        size_t i = 0;
+        bool smaller = a.bits.size() <= b.bits.size();
+        const std::vector<ArchetypeBitField::Type>& min = smaller ? a.bits : b.bits;
+        const std::vector<ArchetypeBitField::Type>& max = smaller ? b.bits : a.bits;
+        for (; i < min.size(); ++i) {
+            if (min[i] != max[i]) return true;
+        }
+        for (; i < max.size(); ++i) {
+            if (max[i] != 0) return true;
+        }
+        return false;
+    }
+
+    bool operator==(const ArchetypeBitField& a, const ArchetypeBitField& b) {
+        return !(a != b);
+    }
+
+    ArchetypeBitField& ArchetypeBitField::AddComponent(ComponentId component) {
         Deep_Assert(registry->Has(component), "ComponentId does not exist in registry.");
         Deep_Assert(!HasComponent(component), "Type already contains the given component.");
 
@@ -108,7 +198,7 @@ namespace Deep {
         return *this;
     }
 
-    ECDB::ArchetypeBitField& ECDB::ArchetypeBitField::RemoveComponent(ComponentId component) {
+    ArchetypeBitField& ArchetypeBitField::RemoveComponent(ComponentId component) {
         Deep_Assert(HasComponent(component), "Type does not have the given component.");
 
         uint32 i = component / sizeof(Type);
@@ -238,5 +328,9 @@ namespace Deep {
             ++bucket;
         };
         return offsets[bucket];
+    }
+
+    void ECDB::Archetype::Move(EntityPtr* entity) {
+        Deep_Assert(false, "TODO(randomuserhi): ...");
     }
 } // namespace Deep
