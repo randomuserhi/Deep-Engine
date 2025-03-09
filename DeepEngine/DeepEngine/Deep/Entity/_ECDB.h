@@ -18,7 +18,9 @@ namespace Deep {
 
     public:
         struct Entt {
-            Deep_Inline Entt(ECDB* database, EntityPtr* ptr);
+            explicit Deep_Inline Entt(ECDB* database, EntityPtr* ptr);
+
+            explicit Deep_Inline operator EntityPtr* const() const;
 
         private:
             ECDB* const database;
@@ -32,12 +34,12 @@ namespace Deep {
             using Type = uint32;
 
         public:
-            Deep_Inline ArchetypeBitField(ECRegistry* registry);
+            explicit Deep_Inline ArchetypeBitField(ECRegistry* registry);
             Deep_Inline ArchetypeBitField(ArchetypeBitField&) = default;
-            Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept;
+            Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept = default;
 
-            Deep_Inline ArchetypeBitField& operator=(const ArchetypeBitField& ref) = default;
-            Deep_Inline ArchetypeBitField& operator=(ArchetypeBitField&& ref) noexcept = default;
+            Deep_Inline ArchetypeBitField& operator=(const ArchetypeBitField&) = default;
+            Deep_Inline ArchetypeBitField& operator=(ArchetypeBitField&&) noexcept = default;
 
             Deep_Inline bool HasComponent(ComponentId component);
 
@@ -59,9 +61,12 @@ namespace Deep {
             friend class Archetype;
 
         public:
-            Deep_Inline ArchetypeDesc(ECRegistry* registry);
+            explicit Deep_Inline ArchetypeDesc(ECRegistry* registry);
             Deep_Inline ArchetypeDesc(const ArchetypeDesc&) = default;
-            Deep_Inline ArchetypeDesc(ArchetypeDesc&&) noexcept;
+            Deep_Inline ArchetypeDesc(ArchetypeDesc&&) noexcept = default;
+
+            Deep_Inline ArchetypeDesc& operator=(const ArchetypeDesc&) = default;
+            Deep_Inline ArchetypeDesc& operator=(ArchetypeDesc&&) noexcept = default;
 
             ECRegistry* const registry;
 
@@ -92,7 +97,7 @@ namespace Deep {
                 Chunk* next = nullptr;
             };
 
-            Deep_Inline Archetype(ECDB* database);
+            explicit Deep_Inline Archetype(ECDB* database);
             Archetype(ECDB* database, ArchetypeDesc&& description);
             ~Archetype();
 
@@ -158,7 +163,7 @@ namespace Deep {
         };
 
     public:
-        Deep_Inline ECDB(ECRegistry* registry);
+        explicit Deep_Inline ECDB(ECRegistry* registry);
         ~ECDB();
 
         ECDB::Entt Entity();

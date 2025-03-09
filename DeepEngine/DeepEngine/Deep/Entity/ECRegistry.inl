@@ -6,7 +6,7 @@
 namespace Deep {
     template<typename T>
     ComponentId ECRegistry::RegisterComponent(const char* name) {
-        static_assert(std::is_trivially_constructible<T>(), "Component types must be trivially constructable.");
+        static_assert(std::is_trivial<T>(), "Component types must be trivial.");
 
         return RegisterComponent(sizeof(T), alignof(T), name);
     }

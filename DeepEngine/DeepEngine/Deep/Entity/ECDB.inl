@@ -3,6 +3,10 @@
 namespace Deep {
     ECDB::Entt::Entt(ECDB* database, EntityPtr* ptr) :
         ptr(ptr), database(database) {};
+
+    ECDB::Entt::operator EntityPtr* const() const {
+        return ptr;
+    }
 } // namespace Deep
 
 namespace Deep {
@@ -13,9 +17,6 @@ namespace Deep {
 namespace Deep {
     ECDB::ArchetypeBitField::ArchetypeBitField(ECRegistry* registry) :
         registry(registry) {}
-
-    ECDB::ArchetypeBitField::ArchetypeBitField(ArchetypeBitField&& type) noexcept :
-        registry(type.registry), bits(std::move(type.bits)) {}
 
     bool ECDB::ArchetypeBitField::HasComponent(ComponentId component) {
         uint32 i = component / sizeof(Type);
@@ -31,9 +32,6 @@ namespace Deep {
 namespace Deep {
     ECDB::ArchetypeDesc::ArchetypeDesc(ECRegistry* registry) :
         registry(registry), type(registry) {}
-
-    ECDB::ArchetypeDesc::ArchetypeDesc(ArchetypeDesc&& description) noexcept :
-        registry(registry), type(std::move(description.type)), layout(std::move(description.layout)) {}
 
     bool ECDB::ArchetypeDesc::HasComponent(ComponentId component) {
         return type.HasComponent(component);
