@@ -125,7 +125,10 @@ namespace Deep {
 
 namespace Deep {
     ECDB::Archetype::Archetype(ECDB* database, ArchetypeDesc&& desc) :
-        description(std::move(desc)), ids(description.layout.size()), offsets(description.layout.size()) {
+        database(database),
+        description(std::move(desc)),
+        ids(description.layout.size()),
+        offsets(description.layout.size()) {
         for (size_t i = 0; i < description.layout.size(); ++i) {
             const ComponentDesc& comp = description.layout[i];
             Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");

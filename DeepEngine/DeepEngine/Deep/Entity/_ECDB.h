@@ -107,6 +107,8 @@ namespace Deep {
             size_t GetComponentOffset(ComponentId component);
 
         private:
+            ECDB* const database;
+
             // The minimum number of bytes (including padding between members) required to store each component array
             // NOTE(randomuserhi): Not including the extra chunk metadata.
             size_t chunkSize = 0;

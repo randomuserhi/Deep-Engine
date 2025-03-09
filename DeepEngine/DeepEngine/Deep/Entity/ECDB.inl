@@ -40,5 +40,5 @@ namespace Deep {
 
 namespace Deep {
     ECDB::Archetype::Archetype(ECDB* database) :
-        description(database->registry) {}
+        database(database), description(database->registry) {}
 } // namespace Deep
