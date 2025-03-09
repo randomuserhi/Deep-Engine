@@ -65,7 +65,7 @@ namespace Deep {
         storage->next = nullptr;
 
         EntityPtr& ptr = storage->ptr;
-        ptr.archetype = nullptr;
+        ptr.archetype = rootArchetype;
         ptr.chunk = nullptr;
 
         return ECDB::Entt{ this, &ptr };
@@ -73,6 +73,8 @@ namespace Deep {
 
     void ECDB::AddComponent(EntityPtr* entity, ComponentId component) {
         // TODO(randomuserhi): Thread Safety
+
+        Deep_Assert(entity->archetype != nullptr, "Entity does not belong to any archetype.");
 
         Archetype* arch = entity->archetype;
 
@@ -103,6 +105,8 @@ namespace Deep {
 
     void ECDB::RemoveComponent(EntityPtr* entity, ComponentId component) {
         // TODO(randomuserhi): Thread Safety
+
+        Deep_Assert(entity->archetype != nullptr, "Entity does not belong to any archetype.");
 
         Archetype* arch = entity->archetype;
 

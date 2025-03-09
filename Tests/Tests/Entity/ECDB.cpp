@@ -10,7 +10,11 @@ TEST(ECDB, Entity) {
     Deep::ECRegistry registry;
     Deep::ECDB database{ &registry };
 
+    Deep::ComponentId comp = registry.RegisterComponent<Component>();
+
     Deep::Entt ent = database.Entity();
+
+    database.AddComponent(ent, comp);
 }
 
 TEST(ECDB, Archetype) {
