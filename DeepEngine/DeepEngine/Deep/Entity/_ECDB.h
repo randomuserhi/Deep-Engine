@@ -1,6 +1,7 @@
 #pragma once
 
 // TODO(randomuserhi): Remove this include, its unnecessary but VS is being stupid
+#include <Deep/Bithelper.h>
 #include <Deep/Entity.h>
 
 #include <Deep/NonCopyable.h>
@@ -69,9 +70,11 @@ namespace Deep {
 
             Deep_Inline bool HasComponent(ComponentId component) const;
 
-            ArchetypeDesc& AddComponent(ComponentId component);
+            ArchetypeDesc& AddComponent(ComponentId component) &;
+            Deep_Inline ArchetypeDesc&& AddComponent(ComponentId component) &&;
 
-            ArchetypeDesc& RemoveComponent(ComponentId component);
+            ArchetypeDesc& RemoveComponent(ComponentId component) &;
+            Deep_Inline ArchetypeDesc&& RemoveComponent(ComponentId component) &&;
 
             ECRegistry* const registry;
 

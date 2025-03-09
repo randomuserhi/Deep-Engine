@@ -36,6 +36,14 @@ namespace Deep {
     bool ECDB::ArchetypeDesc::HasComponent(ComponentId component) const {
         return type.HasComponent(component);
     }
+
+    ECDB::ArchetypeDesc&& ECDB::ArchetypeDesc::AddComponent(ComponentId component) && {
+        return std::move(AddComponent(component));
+    };
+
+    ECDB::ArchetypeDesc&& ECDB::ArchetypeDesc::RemoveComponent(ComponentId component) && {
+        return std::move(RemoveComponent(component));
+    };
 } // namespace Deep
 
 namespace Deep {

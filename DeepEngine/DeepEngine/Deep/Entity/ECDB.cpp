@@ -82,11 +82,7 @@ namespace Deep {
                 arch = arch->archetypeMap[comp];
             } else {
                 // Archetype does not exist, create it
-
-                ArchetypeDesc description{ arch->description };
-                description.AddComponent(comp);
-
-                Archetype* newArch = new Archetype(this, std::move(description));
+                Archetype* newArch = new Archetype(this, ArchetypeDesc{ arch->description }.AddComponent(comp));
                 arch->archetypeMap.emplace(comp, newArch);
                 archetypes.push_back(newArch);
 
@@ -125,7 +121,7 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    ECDB::ArchetypeDesc& ECDB::ArchetypeDesc::AddComponent(ComponentId component) {
+    ECDB::ArchetypeDesc& ECDB::ArchetypeDesc::AddComponent(ComponentId component) & {
         Deep_Assert(!HasComponent(component), "Type already contains the given component.");
 
         type.AddComponent(component);
@@ -137,7 +133,7 @@ namespace Deep {
         return *this;
     }
 
-    ECDB::ArchetypeDesc& ECDB::ArchetypeDesc::RemoveComponent(ComponentId component) {
+    ECDB::ArchetypeDesc& ECDB::ArchetypeDesc::RemoveComponent(ComponentId component) & {
         Deep_Assert(HasComponent(component), "Type does not contain the given component.");
 
         type.RemoveComponent(component);
