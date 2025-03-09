@@ -95,10 +95,17 @@ namespace Deep {
             //                     archetype with nullptr chunk.
 
         public:
+            static const size_t chunkAllocSize = 16384;
+            static_assert(chunkAllocSize > sizeof(void*), "chunkAllocSize must be larger than a pointer.");
+            static_assert(Deep::IsPowerOf2(chunkAllocSize), "chunkAllocSize must be a power of 2.");
+
+            static constexpr const size_t chunkSize = chunkAllocSize - sizeof(void*);
             struct Chunk {
-                // NOTE(randomuserhi): should appear at the end of the chunk's memory block
+                char data[chunkSize];
                 Chunk* next = nullptr;
             };
+            static_assert(std::is_standard_layout<Chunk>(), "Chunk must be of standard layout.");
+            static_assert(sizeof(Chunk) == chunkAllocSize, "Size of chunk does not match chunkAllocSize.");
 
             explicit Deep_Inline Archetype(ECDB* database);
             Archetype(ECDB* database, ArchetypeDesc&& description);
@@ -106,22 +113,13 @@ namespace Deep {
 
             size_t GetComponentOffset(ComponentId component) const;
 
-            static const size_t chunkAllocSize = 16384;
-            static_assert(Deep::IsPowerOf2(chunkAllocSize), "chunkAllocSize must be a power of 2.");
-
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
 
         private:
             ECDB* const database;
 
-            // The minimum number of bytes (including padding between members) required to store each component array
-            // NOTE(randomuserhi): Not including the extra chunk metadata.
-            size_t chunkSize = 0;
-
-            // The alignment of the chunk (based on its component members)
-            // NOTE(randomuserhi): Not including the extra chunk metadata.
-            size_t chunkAlignment = 0;
+            size_t entitiesPerChunk = 0;
 
             Chunk* firstFree = nullptr;
 

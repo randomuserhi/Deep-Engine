@@ -159,29 +159,67 @@ namespace Deep {
         description(std::move(desc)),
         ids(description.layout.size()),
         offsets(description.layout.size()) {
-        // TODO(randomuserhi): This offset calculation is incorrect - the following is for array of structs instead of struct
-        //                     of arrays
 
-        for (size_t i = 0; i < description.layout.size(); ++i) {
-            const ComponentDesc& comp = description.layout[i];
+        const std::vector<ComponentDesc>& layout = description.layout;
+
+        // If layout contains no data, then there is nothing to do.
+        if (layout.size() == 0) return;
+
+#ifdef DEEP_ENABLE_ASSERTS
+        for (size_t i = 0; i < layout.size(); ++i) {
+            Deep_Assert(layout[i].alignment <= DEEP_CACHE_LINE_SIZE,
+                        "A component has an alignment requirement larger than a cache line. This is unsupported.");
+        }
+#endif
+
+        size_t packedSize = 0;
+        for (size_t i = 0; i < layout.size(); ++i) {
+            packedSize += layout[i].size;
+        }
+
+        // binary search to find optimal entitiesPerChunk
+        size_t upperBound = Archetype::chunkSize / packedSize;
+        size_t lowerBound = 0;
+        entitiesPerChunk = 0;
+
+        while (lowerBound < upperBound) {
+            size_t mid = (lowerBound + upperBound) / 2;
+
+            size_t memSize = 0;
+            for (size_t i = 0; i < layout.size(); ++i) {
+                size_t padding = (DEEP_CACHE_LINE_SIZE - (memSize % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
+                memSize += mid * layout[i].size + padding;
+            }
+
+            if (memSize <= chunkSize) {
+                entitiesPerChunk = mid;
+                lowerBound = mid + 1;
+            } else {
+                upperBound = mid - 1;
+            }
+        }
+
+        Deep_Assert(entitiesPerChunk > 0, "Chunk should be able to fit atleast 1 entity.");
+
+        // Compute pointer offsets for each component array
+        size_t memSize = 0;
+        for (size_t i = 0; i < layout.size(); ++i) {
+            const ComponentDesc& comp = layout[i];
             Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
 
-            // Add member offset entry
-            size_t bucket = comp.id % description.layout.size();
+            // Add component offset entry
+            size_t bucket = comp.id % layout.size();
             while (ids[bucket] != 0) {
                 ++bucket;
             };
             Deep_Assert(comp.id + 1 != 0,
                         "Storing an id of 0 in the bucket is invalid as 0 represents an empty bucket slot.");
             ids[bucket] = comp.id + 1;
-            offsets[bucket] = chunkSize;
+            offsets[bucket] = memSize;
 
-            // Size
-            size_t padding = (comp.alignment - (chunkSize % comp.alignment)) % comp.alignment;
-            chunkSize += padding + comp.size;
-
-            // Alignment
-            chunkAlignment = Deep::Max(chunkAlignment, comp.alignment);
+            // Move to next component array
+            memSize += entitiesPerChunk * comp.size;
+            memSize += (DEEP_CACHE_LINE_SIZE - (memSize % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
         }
     }
 
