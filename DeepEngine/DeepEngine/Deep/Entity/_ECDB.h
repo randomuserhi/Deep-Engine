@@ -151,6 +151,8 @@ namespace Deep {
 
             // TODO(randomuserhi): Needs to somehow associate to the same archetypes as the addMap
             //                     (2 different paths can result in the same archetype now)
+            //                     Probably just iterate database->archetypes to find matching type
+            //                     (number of archs is low enough to linear search)
             std::unordered_map<ComponentId, Archetype*> removeMap;
         };
 
