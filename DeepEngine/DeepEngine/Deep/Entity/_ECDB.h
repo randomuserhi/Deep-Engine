@@ -35,17 +35,17 @@ namespace Deep {
 
         public:
             explicit Deep_Inline ArchetypeBitField(ECRegistry* registry);
-            Deep_Inline ArchetypeBitField(ArchetypeBitField&) = default;
+            Deep_Inline ArchetypeBitField(const ArchetypeBitField&) = default;
             Deep_Inline ArchetypeBitField(ArchetypeBitField&&) noexcept = default;
 
             Deep_Inline ArchetypeBitField& operator=(const ArchetypeBitField&) = default;
             Deep_Inline ArchetypeBitField& operator=(ArchetypeBitField&&) noexcept = default;
 
-            Deep_Inline bool HasComponent(ComponentId component);
+            Deep_Inline bool HasComponent(ComponentId component) const;
 
-            void AddComponent(ComponentId component);
+            ArchetypeBitField& AddComponent(ComponentId component);
 
-            void RemoveComponent(ComponentId component);
+            ArchetypeBitField& RemoveComponent(ComponentId component);
 
         private:
             ECRegistry* const registry;
@@ -56,7 +56,6 @@ namespace Deep {
     public:
         class Archetype;
 
-    private:
         struct ArchetypeDesc {
             friend class Archetype;
 
@@ -68,13 +67,13 @@ namespace Deep {
             Deep_Inline ArchetypeDesc& operator=(const ArchetypeDesc&) = default;
             Deep_Inline ArchetypeDesc& operator=(ArchetypeDesc&&) noexcept = default;
 
+            Deep_Inline bool HasComponent(ComponentId component) const;
+
+            ArchetypeDesc& AddComponent(ComponentId component);
+
+            ArchetypeDesc& RemoveComponent(ComponentId component);
+
             ECRegistry* const registry;
-
-            Deep_Inline bool HasComponent(ComponentId component);
-
-            void AddComponent(ComponentId component);
-
-            void RemoveComponent(ComponentId component);
 
         private:
             ArchetypeBitField type;
@@ -85,8 +84,9 @@ namespace Deep {
             std::vector<ComponentDesc> layout;
         };
 
-    public:
         class Archetype final : NonCopyable {
+            friend class ECDB;
+
             // NOTE(randomuserhi): Handle edge case where archetype is of size 0 (entity with just tags, no components)
             //                     Pretty much just don't allocate any memory at all and the EntityPtr just points to this
             //                     archetype with nullptr chunk.
@@ -101,10 +101,13 @@ namespace Deep {
             Archetype(ECDB* database, ArchetypeDesc&& description);
             ~Archetype();
 
+            size_t GetComponentOffset(ComponentId component) const;
+
+            static const size_t chunkAllocSize = 16384;
+            static_assert(Deep::IsPowerOf2(chunkAllocSize), "chunkAllocSize must be a power of 2.");
+
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
-
-            size_t GetComponentOffset(ComponentId component);
 
         private:
             ECDB* const database;
@@ -170,12 +173,14 @@ namespace Deep {
 
         ECDB::Entt Entity();
 
+        ECDB::Archetype& GetArchetype(ComponentId* components, size_t numComponents);
+
     private:
         ECRegistry* const registry;
 
         std::vector<Archetype*> archetypes;
 
-        std::unordered_map<ComponentId, Archetype*> archetypeMap;
+        Archetype rootArchetype;
 
         uint32 firstFreeItemInNewPage = 0;
 

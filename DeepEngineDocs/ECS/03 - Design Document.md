@@ -160,11 +160,11 @@ Transform& t = entity.GetComponent<Transform>(registry);
 Transform& t = entity.GetComponent(registry.GetComponent<Transform>());
 Transform& t = db.GetComponent(entity, registry.GetComponent<Transform>());
 
-Transform* t = entity.GetComponent<Transform>(registry);
+Transform* t = &entity.GetComponent<Transform>(registry);
 
 // Above is equivalent to:
-Transform* t = entity.GetComponent(registry.GetComponent<Transform>());
-Transform* t = db.GetComponent(entity, registry.GetComponent<Transform>());
+Transform* t = &entity.GetComponent(registry.GetComponent<Transform>());
+Transform* t = &db.GetComponent(entity, registry.GetComponent<Transform>());
 ```
 
 ```cpp
@@ -175,13 +175,13 @@ ComponentId components[3] = {
 
 // If archetype doesnt exist, db will create it
 Deep::ECDB::Archetype& arch = db.GetArchetype(components);
-Deep::ECDB::Archetype* arch = db.GetArchetype(components);
+Deep::ECDB::Archetype* arch = &db.GetArchetype(components);
 
 Deep::ECDB::ArchetypeType type;
 type.AddComponent(registry.Get<Transform>());
 
 Deep::ECDB::Archetype& arch = db.GetArchetype(type);
-Deep::ECDB::Archetype* arch = db.GetArchetype(type);
+Deep::ECDB::Archetype* arch = &db.GetArchetype(type);
 
 Deep::Ent entity = arch.Entity(); // Creates an entity inside of this
 							      // archetype directly.
@@ -203,28 +203,25 @@ arch.Remove(entity); // Removes the entity from this archetype, effectively
                      // removing all components from the entity.
 
 // Get a given component for an entity
-Transform* t = arch.GetComponent<Transform>(entity);
 Transform& t = arch.GetComponent<Transform>(entity);
+Transform* t = &arch.GetComponent<Transform>(entity);
 
 // An overload exists where you can pass a cached offset to minimize pointer
 // chasing during lookup of component values:
 size_t transformOffset = arch.GetComponentOffset(registry.Get<Transform>());
-Transform* t = arch.GetComponent<Transform>(entity, transformOffset);
 Transform& t = arch.GetComponent<Transform>(entity, transformOffset);
+Transform* t = &arch.GetComponent<Transform>(entity, transformOffset);
 
 // Effectively the same as:
-Transform* t = reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index;
-
-// TODO(randomuserhi): API for getting chunks (either free / allocated ones)
+Transform& t = *(reinterpret_cast<Transform*>(entity.chunk + transformOffset) + entity.index);
 
 // Archetypes that share the same memory layout can directly take chunks
 // from each other (this allows quickly changing archetypes of entire chunks
 // as its simply moving a pointer vs copying data to move each entity)
-arch0.TakeChunk(arch1.chunk);
-
-// NOTE(randomuserhi): It is good practice in general to trade chunks to prevent
-//                     an archetype from getting overloaded / starved of chunks
-arch1.TakeChunk(arch0.firstFree); // Trade back a free chunk 
+//
+// The method internally trades a free chunk with the given chunk to prevent
+// overloading an archetype with a bunch of chunks and starving the other.
+arch0.TradeChunk(arch1.chunk);
 ```
 
 ### Modding and Portability

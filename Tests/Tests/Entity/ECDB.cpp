@@ -2,10 +2,32 @@
 #include <Deep.h>
 #include <Deep/Entity.h>
 
-// TODO(randomuserhi): Split this test up
+struct Component {
+    int a;
+};
+
 TEST(ECDB, Entity) {
     Deep::ECRegistry registry;
     Deep::ECDB database{ &registry };
 
     Deep::Entt ent = database.Entity();
+}
+
+TEST(ECDB, Archetype) {
+    Deep::ECRegistry registry;
+    Deep::ECDB database{ &registry };
+
+    Deep::ComponentId comp[] = { registry.RegisterComponent<Component>(), registry.RegisterComponent<Component>() };
+
+    Deep::ECDB::Archetype& arch = database.GetArchetype(comp, 2);
+
+    const Deep::ECDB::ArchetypeDesc& desc = arch.description;
+
+    // Verify archetype type
+    EXPECT_TRUE(desc.HasComponent(comp[0]));
+    EXPECT_TRUE(desc.HasComponent(comp[1]));
+
+    // Verify member offsets
+    // EXPECT_EQ(arch.GetComponentOffset(comp[0]), 0);
+    // EXPECT_EQ(arch.GetComponentOffset(comp[1]), 4);
 }

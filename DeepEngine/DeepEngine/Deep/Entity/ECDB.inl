@@ -11,14 +11,14 @@ namespace Deep {
 
 namespace Deep {
     ECDB::ECDB(ECRegistry* registry) :
-        registry(registry) {}
+        registry(registry), rootArchetype(this) {}
 } // namespace Deep
 
 namespace Deep {
     ECDB::ArchetypeBitField::ArchetypeBitField(ECRegistry* registry) :
         registry(registry) {}
 
-    bool ECDB::ArchetypeBitField::HasComponent(ComponentId component) {
+    bool ECDB::ArchetypeBitField::HasComponent(ComponentId component) const {
         uint32 i = component / sizeof(Type);
 
         if (i < bits.size()) {
@@ -33,7 +33,7 @@ namespace Deep {
     ECDB::ArchetypeDesc::ArchetypeDesc(ECRegistry* registry) :
         registry(registry), type(registry) {}
 
-    bool ECDB::ArchetypeDesc::HasComponent(ComponentId component) {
+    bool ECDB::ArchetypeDesc::HasComponent(ComponentId component) const {
         return type.HasComponent(component);
     }
 } // namespace Deep

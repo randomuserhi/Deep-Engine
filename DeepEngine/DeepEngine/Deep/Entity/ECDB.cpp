@@ -70,10 +70,36 @@ namespace Deep {
 
         return ECDB::Entt{ this, &ptr };
     }
+
+    ECDB::Archetype& ECDB::GetArchetype(ComponentId* components, size_t numComponents) {
+        // TODO(randomuserhi): Thread Safety
+
+        Archetype* arch = &rootArchetype;
+        for (size_t i = 0; i < numComponents; ++i) {
+            ComponentId comp = components[i];
+
+            if (arch->archetypeMap.find(comp) != arch->archetypeMap.end()) {
+                arch = arch->archetypeMap[comp];
+            } else {
+                // Archetype does not exist, create it
+
+                ArchetypeDesc description{ arch->description };
+                description.AddComponent(comp);
+
+                Archetype* newArch = new Archetype(this, std::move(description));
+                arch->archetypeMap.emplace(comp, newArch);
+                archetypes.push_back(newArch);
+
+                arch = newArch;
+            }
+        }
+
+        return *arch;
+    }
 } // namespace Deep
 
 namespace Deep {
-    void ECDB::ArchetypeBitField::AddComponent(ComponentId component) {
+    ECDB::ArchetypeBitField& ECDB::ArchetypeBitField::AddComponent(ComponentId component) {
         Deep_Assert(registry->Has(component), "ComponentId does not exist in registry.");
         Deep_Assert(!HasComponent(component), "Type already contains the given component.");
 
@@ -82,20 +108,24 @@ namespace Deep {
             bits.emplace_back(0u);
         }
         bits[i] |= (1u << (component % sizeof(Type)));
+
+        return *this;
     }
 
-    void ECDB::ArchetypeBitField::RemoveComponent(ComponentId component) {
+    ECDB::ArchetypeBitField& ECDB::ArchetypeBitField::RemoveComponent(ComponentId component) {
         Deep_Assert(HasComponent(component), "Type does not have the given component.");
 
         uint32 i = component / sizeof(Type);
         if (i < bits.size()) {
             bits[i] &= ~(1u << (component % sizeof(Type)));
         }
+
+        return *this;
     }
 } // namespace Deep
 
 namespace Deep {
-    void ECDB::ArchetypeDesc::AddComponent(ComponentId component) {
+    ECDB::ArchetypeDesc& ECDB::ArchetypeDesc::AddComponent(ComponentId component) {
         Deep_Assert(!HasComponent(component), "Type already contains the given component.");
 
         type.AddComponent(component);
@@ -103,9 +133,11 @@ namespace Deep {
         if (ECRegistry::IsComponent(component)) {
             layout.push_back(registry->Get(component));
         }
+
+        return *this;
     }
 
-    void ECDB::ArchetypeDesc::RemoveComponent(ComponentId component) {
+    ECDB::ArchetypeDesc& ECDB::ArchetypeDesc::RemoveComponent(ComponentId component) {
         Deep_Assert(HasComponent(component), "Type does not contain the given component.");
 
         type.RemoveComponent(component);
@@ -120,6 +152,8 @@ namespace Deep {
                 }
             }
         }
+
+        return *this;
     }
 } // namespace Deep
 
@@ -129,6 +163,9 @@ namespace Deep {
         description(std::move(desc)),
         ids(description.layout.size()),
         offsets(description.layout.size()) {
+        // TODO(randomuserhi): This offset calculation is incorrect - the following is for array of structs instead of struct
+        //                     of arrays
+
         for (size_t i = 0; i < description.layout.size(); ++i) {
             const ComponentDesc& comp = description.layout[i];
             Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
@@ -144,7 +181,7 @@ namespace Deep {
             offsets[bucket] = chunkSize;
 
             // Size
-            size_t padding = comp.alignment - (chunkSize % comp.alignment);
+            size_t padding = (comp.alignment - (chunkSize % comp.alignment)) % comp.alignment;
             chunkSize += padding + comp.size;
 
             // Alignment
@@ -162,7 +199,7 @@ namespace Deep {
         firstFree = nullptr;
     }
 
-    size_t ECDB::Archetype::GetComponentOffset(ComponentId component) {
+    size_t ECDB::Archetype::GetComponentOffset(ComponentId component) const {
         size_t bucket = component % description.layout.size();
         while (ids[bucket] != component + 1) {
             ++bucket;
