@@ -20,7 +20,7 @@ namespace Deep {
         struct Entt {
             explicit Deep_Inline Entt(ECDB* database, EntityPtr* ptr);
 
-            explicit Deep_Inline operator EntityPtr* const() const;
+            Deep_Inline operator ECDB::EntityPtr* const() const;
 
         private:
             ECDB* const database;

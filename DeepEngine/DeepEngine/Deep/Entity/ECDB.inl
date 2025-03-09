@@ -4,7 +4,7 @@ namespace Deep {
     ECDB::Entt::Entt(ECDB* database, EntityPtr* ptr) :
         ptr(ptr), database(database) {};
 
-    ECDB::Entt::operator EntityPtr* const() const {
+    ECDB::Entt::operator ECDB::EntityPtr* const() const {
         return ptr;
     }
 } // namespace Deep
