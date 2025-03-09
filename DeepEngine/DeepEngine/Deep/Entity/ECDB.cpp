@@ -177,18 +177,17 @@ namespace Deep {
             packedSize += layout[i].size;
         }
 
-        // binary search to find optimal entitiesPerChunk
+        // Binary search to find optimal entitiesPerChunk
         size_t upperBound = Archetype::chunkSize / packedSize;
         size_t lowerBound = 0;
-        entitiesPerChunk = 0;
 
         while (lowerBound < upperBound) {
             size_t mid = (lowerBound + upperBound) / 2;
 
-            size_t memSize = 0;
-            for (size_t i = 0; i < layout.size(); ++i) {
+            size_t memSize = mid * layout[0].size;
+            for (size_t i = 1; i < layout.size(); ++i) {
                 size_t padding = (DEEP_CACHE_LINE_SIZE - (memSize % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
-                memSize += mid * layout[i].size + padding;
+                memSize += padding + mid * layout[i].size;
             }
 
             if (memSize <= chunkSize) {
@@ -202,7 +201,7 @@ namespace Deep {
         Deep_Assert(entitiesPerChunk > 0, "Chunk should be able to fit atleast 1 entity.");
 
         // Compute pointer offsets for each component array
-        size_t memSize = 0;
+        size_t offset = 0;
         for (size_t i = 0; i < layout.size(); ++i) {
             const ComponentDesc& comp = layout[i];
             Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
@@ -215,11 +214,11 @@ namespace Deep {
             Deep_Assert(comp.id + 1 != 0,
                         "Storing an id of 0 in the bucket is invalid as 0 represents an empty bucket slot.");
             ids[bucket] = comp.id + 1;
-            offsets[bucket] = memSize;
+            offsets[bucket] = offset;
 
             // Move to next component array
-            memSize += entitiesPerChunk * comp.size;
-            memSize += (DEEP_CACHE_LINE_SIZE - (memSize % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
+            offset += entitiesPerChunk * comp.size;
+            offset += (DEEP_CACHE_LINE_SIZE - (offset % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
         }
     }
 
