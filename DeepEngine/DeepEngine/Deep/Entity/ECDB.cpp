@@ -78,12 +78,12 @@ namespace Deep {
         for (size_t i = 0; i < numComponents; ++i) {
             ComponentId comp = components[i];
 
-            if (arch->archetypeMap.find(comp) != arch->archetypeMap.end()) {
-                arch = arch->archetypeMap[comp];
+            if (arch->addMap.find(comp) != arch->addMap.end()) {
+                arch = arch->addMap[comp];
             } else {
                 // Archetype does not exist, create it
                 Archetype* newArch = new Archetype(this, ArchetypeDesc{ arch->description }.AddComponent(comp));
-                arch->archetypeMap.emplace(comp, newArch);
+                arch->addMap.emplace(comp, newArch);
                 archetypes.push_back(newArch);
 
                 arch = newArch;

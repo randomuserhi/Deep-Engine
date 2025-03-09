@@ -147,7 +147,8 @@ namespace Deep {
             std::vector<ComponentId> ids;
             std::vector<size_t> offsets;
 
-            std::unordered_map<ComponentId, Archetype*> archetypeMap;
+            std::unordered_map<ComponentId, Archetype*> addMap;
+            std::unordered_map<ComponentId, Archetype*> removeMap;
         };
 
     private:
