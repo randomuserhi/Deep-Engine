@@ -148,6 +148,9 @@ namespace Deep {
             std::vector<size_t> offsets;
 
             std::unordered_map<ComponentId, Archetype*> addMap;
+
+            // TODO(randomuserhi): Needs to somehow associate to the same archetypes as the addMap
+            //                     (2 different paths can result in the same archetype now)
             std::unordered_map<ComponentId, Archetype*> removeMap;
         };
 
