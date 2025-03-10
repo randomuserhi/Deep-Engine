@@ -21,6 +21,9 @@ namespace Deep {
 
         Deep_Inline const ComponentDesc& Get(ComponentId id) const;
 
+        // NOTE(randomuserhi): Does not distinguish between tag/component type, only verifies that the id exists.
+        //                     This means that if you are looking for a tag of id (32), passing (32) or
+        //                     (32 | tagBit) is valid.
         Deep_Inline bool Has(ComponentId id) const;
 
         Deep_Inline static bool IsTag(ComponentId id);
