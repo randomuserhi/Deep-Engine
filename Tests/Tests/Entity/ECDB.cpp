@@ -39,7 +39,7 @@ TEST(ECDB, Entity) {
     Deep::ECDB::Archetype& root = database.GetRootArchetype();
 
     // Check metadata matches
-    const Deep::ECDB::Archetype::Metadata rootMeta = root.GetMetadata(entt);
+    const Deep::ECDB::Archetype::Metadata& rootMeta = root.GetMetadata(entt);
     EXPECT_EQ(rootMeta.entt, entt);
 
     // Check entity archetype changes
@@ -50,8 +50,30 @@ TEST(ECDB, Entity) {
     Deep::ECDB::Archetype& arch = database.GetArchetype(compArr, 1);
 
     // Check metadata matches
-    const Deep::ECDB::Archetype::Metadata metadata = arch.GetMetadata(entt);
+    const Deep::ECDB::Archetype::Metadata& metadata = arch.GetMetadata(entt);
     EXPECT_EQ(metadata.entt, entt);
+
+    {
+        Component& c = arch.GetComponent<Component>(entt, comp);
+        c.a = 10;
+    }
+
+    Deep::ComponentId tag = registry.RegisterTag();
+    entt.AddComponent(tag);
+
+    {
+        Deep::ComponentId tagArr[] = { comp, tag };
+        Deep::ECDB::Archetype& tagArch = database.GetArchetype(tagArr, 2);
+
+        Component& c = tagArch.GetComponent<Component>(entt, comp);
+        EXPECT_EQ(c.a, 10);
+    }
+
+    entt.RemoveComponent(comp);
+    entt.RemoveComponent(tag);
+
+    // Check metadata matches
+    EXPECT_EQ(rootMeta.entt, entt);
 }
 
 TEST(ECDB, Archetype) {
@@ -69,6 +91,6 @@ TEST(ECDB, Archetype) {
     EXPECT_TRUE(desc.HasComponent(comp[1]));
 
     // Verify component array offsets (Each should be aligned to DEEP_CACHE_LINE_SIZE)
-    EXPECT_EQ(arch.GetComponentOffset(comp[0]), 8192);
-    EXPECT_EQ(arch.GetComponentOffset(comp[1]), 12288);
+    EXPECT_EQ(arch.GetComponentOffset(comp[0]).offset, 8192);
+    EXPECT_EQ(arch.GetComponentOffset(comp[1]).offset, 12288);
 }

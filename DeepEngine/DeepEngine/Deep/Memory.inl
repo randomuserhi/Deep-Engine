@@ -35,4 +35,8 @@ namespace Deep {
         free(block);
 #endif
     }
+
+    void* Memcpy(void* dest, void* src, size_t size) {
+        return std::memcpy(dest, src, size);
+    }
 } // namespace Deep

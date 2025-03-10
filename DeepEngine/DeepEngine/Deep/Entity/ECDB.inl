@@ -12,6 +12,11 @@ namespace Deep {
         database->AddComponent(ptr, component);
         return *this;
     }
+
+    ECDB::Entt& ECDB::Entt::RemoveComponent(ComponentId component) {
+        database->RemoveComponent(ptr, component);
+        return *this;
+    }
 } // namespace Deep
 
 namespace Deep {
@@ -27,10 +32,12 @@ namespace Deep {
         registry(registry) {}
 
     bool ArchetypeBitField::HasComponent(ComponentId component) const {
-        uint32 i = component / sizeof(Type);
+        component = ECRegistry::StripTagBit(component);
+
+        uint32 i = component / ArchetypeBitField::bitsPerType;
 
         if (i < bits.size()) {
-            return (bits[i] & (1u << (component % sizeof(Type)))) != 0u;
+            return (bits[i] & (1u << (component % ArchetypeBitField::bitsPerType))) != 0u;
         }
 
         return false;
@@ -55,7 +62,7 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    const ECDB::Archetype::Metadata ECDB::Archetype::GetMetadata(EntityPtr* entity) const {
+    const ECDB::Archetype::Metadata& ECDB::Archetype::GetMetadata(EntityPtr* entity) const {
         Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype");
 
         Metadata* metadata = reinterpret_cast<Metadata*>(entity->chunk);
@@ -63,8 +70,35 @@ namespace Deep {
         return metadata[entity->index];
     }
 
+    size_t ECDB::Archetype::Size() const {
+        return size;
+    }
+
     ECDB::Archetype& ECDB::GetRootArchetype() {
         return *rootArchetype;
+    }
+
+    void ECDB::Archetype::Remove(EntityPtr* entity) {
+        database->rootArchetype->Move(entity);
+    }
+
+    void* ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentOffset offset) const {
+        Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype.");
+        return entity->chunk->data + offset.offset + entity->index * offset.size;
+    }
+
+    template<typename T>
+    T& ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentOffset offset) const {
+        return *reinterpret_cast<T*>(GetComponent(entity, offset));
+    }
+
+    void* ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentId component) const {
+        return GetComponent(entity, GetComponentOffset(component));
+    }
+
+    template<typename T>
+    T& ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentId component) const {
+        return *reinterpret_cast<T*>(GetComponent(entity, GetComponentOffset(component)));
     }
 } // namespace Deep
 

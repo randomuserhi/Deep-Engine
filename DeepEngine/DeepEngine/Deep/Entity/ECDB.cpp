@@ -80,6 +80,8 @@ namespace Deep {
 
         Archetype* arch = entity->archetype;
 
+        Deep_Assert(!arch->description.HasComponent(component), "Entity already has this component.");
+
         if (arch->addMap.find(component) != arch->addMap.end()) {
             arch->addMap[component]->Move(entity);
         } else {
@@ -197,11 +199,13 @@ namespace Deep {
         Deep_Assert(registry->Has(component), "ComponentId does not exist in registry.");
         Deep_Assert(!HasComponent(component), "Type already contains the given component.");
 
-        uint32 i = component / sizeof(Type);
+        component = ECRegistry::StripTagBit(component);
+
+        uint32 i = component / ArchetypeBitField::bitsPerType;
         while (i >= bits.size()) {
             bits.emplace_back(0u);
         }
-        bits[i] |= (1u << (component % sizeof(Type)));
+        bits[i] |= (1u << (component % ArchetypeBitField::bitsPerType));
 
         return *this;
     }
@@ -209,9 +213,11 @@ namespace Deep {
     ArchetypeBitField& ArchetypeBitField::RemoveComponent(ComponentId component) {
         Deep_Assert(HasComponent(component), "Type does not have the given component.");
 
-        uint32 i = component / sizeof(Type);
+        component = ECRegistry::StripTagBit(component);
+
+        uint32 i = component / ArchetypeBitField::bitsPerType;
         if (i < bits.size()) {
-            bits[i] &= ~(1u << (component % sizeof(Type)));
+            bits[i] &= ~(1u << (component % ArchetypeBitField::bitsPerType));
         }
 
         return *this;
@@ -316,7 +322,7 @@ namespace Deep {
             Deep_Assert(comp.id + 1 != 0,
                         "Storing an id of 0 in the bucket is invalid as 0 represents an empty bucket slot.");
             ids[bucket] = comp.id + 1;
-            offsets[bucket] = offset;
+            offsets[bucket] = { offset, comp.size };
 
             // Move to next component array
             offset += entitiesPerChunk * comp.size;
@@ -333,7 +339,7 @@ namespace Deep {
         firstFree = nullptr;
     }
 
-    size_t ECDB::Archetype::GetComponentOffset(ComponentId component) const {
+    ECDB::Archetype::ComponentOffset ECDB::Archetype::GetComponentOffset(ComponentId component) const {
         size_t bucket = component % description.layout.size();
         while (ids[bucket] != component + 1) {
             ++bucket;
@@ -341,10 +347,63 @@ namespace Deep {
         return offsets[bucket];
     }
 
-    void ECDB::Archetype::Remove(EntityPtr* entity) {
-        Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype");
+    void ECDB::Archetype::Deallocate(EntityPtr* entity) {
+        // TODO(randomuserhi): Thread safety
 
-        Deep_Assert(false, "TODO(randomuserhi): Remove entity from archetype.");
+        Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype.");
+        Deep_Assert(size > 0 && firstFreeItemInNewChunk > 0, "This archetype doesn't contain any entities.");
+        Deep_Assert(tail != nullptr, "This archetype doesn't have any chunks allocated.");
+
+        size_t index = firstFreeItemInNewChunk - 1;
+        if (tail != entity->chunk || index != entity->index) {
+            // Entity from the middle was removed, need to fill slot with last entity
+
+            // Move component data
+            for (size_t i = 0; i < description.layout.size(); ++i) {
+                const ComponentDesc& comp = description.layout[i];
+
+                size_t offset = entity->archetype->GetComponentOffset(comp.id).offset;
+
+                char* src = tail->data + offset + comp.size * index;
+                char* dest = entity->chunk->data + offset + comp.size * entity->index;
+                Memcpy(dest, src, comp.size);
+            }
+
+            // Move entity pointer
+            Metadata& metadata = reinterpret_cast<Metadata*>(tail->data)[index];
+            EntityPtr* entt = metadata.entt;
+            entt->chunk = entity->chunk;
+            entt->index = entity->index;
+        } else {
+            // Last entity was removed, don't need to do move anything
+#ifdef DEEP_ENABLE_ASSERTS
+            Metadata& metadata = reinterpret_cast<Metadata*>(tail->data)[index];
+            metadata.entt = nullptr;
+#endif
+        }
+
+        // Remove last entity from chunk, freeing it to the free list
+        if (--firstFreeItemInNewChunk == 0) {
+            // Chunk no longer has any entities, free it
+
+            Chunk* temp = tail->next;
+
+            tail->next = firstFree;
+            firstFree = tail;
+
+            tail = temp;
+
+            firstFreeItemInNewChunk = entitiesPerChunk;
+        }
+
+        // Decrement size
+        --size;
+
+#ifdef DEEP_ENABLE_ASSERTS
+        entity->archetype = nullptr;
+        entity->chunk = nullptr;
+        entity->index = 0;
+#endif
     }
 
     void ECDB::Archetype::Move(EntityPtr* entity) {
@@ -402,13 +461,25 @@ namespace Deep {
         Deep_Assert(chunk != nullptr, "Allocated chunk should not be a nullptr.");
 
         // Assign metadata
-        Metadata* metadata = reinterpret_cast<Metadata*>(chunk);
+        Metadata* metadata = reinterpret_cast<Metadata*>(chunk->data);
         metadata[firstFreeItemInNewChunk].entt = entity;
 
         if (entity->archetype != nullptr) {
-            Deep_Assert(false, "TODO(randomuserhi): Copy data to this archetype from old archetype component by component.");
+            // Copy data to this archetype from old archetype component by component.
 
-            entity->archetype->Remove(entity);
+            const ArchetypeDesc& description = entity->archetype->description;
+            for (size_t i = 0; i < description.layout.size(); ++i) {
+                const ComponentDesc& comp = description.layout[i];
+
+                if (this->description.HasComponent(comp.id)) {
+                    char* src = entity->chunk->data + entity->archetype->GetComponentOffset(comp.id).offset
+                                + comp.size * entity->index;
+                    char* dest = chunk->data + GetComponentOffset(comp.id).offset + comp.size * firstFreeItemInNewChunk;
+                    Memcpy(dest, src, comp.size);
+                }
+            }
+
+            entity->archetype->Deallocate(entity);
         }
 
         // Update entity ptr

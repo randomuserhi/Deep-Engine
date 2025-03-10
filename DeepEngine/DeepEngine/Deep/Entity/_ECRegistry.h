@@ -30,6 +30,9 @@ namespace Deep {
 
         Deep_Inline static bool IsComponent(ComponentId id);
 
+        // Strips the tag/component bit to provide the id value.
+        Deep_Inline static ComponentId StripTagBit(ComponentId id);
+
     private:
         static const ComponentId tagBit = 1 << 31;
 

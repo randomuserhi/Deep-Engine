@@ -15,6 +15,7 @@ namespace Deep {
 
     private:
         using Type = uint32;
+        static const size_t bitsPerType = 32;
 
     public:
         explicit Deep_Inline ArchetypeBitField(ECRegistry* registry);
@@ -70,6 +71,8 @@ namespace Deep {
             Deep_Inline operator ECDB::EntityPtr* const() const;
 
             Deep_Inline Entt& AddComponent(ComponentId component);
+
+            Deep_Inline Entt& RemoveComponent(ComponentId component);
 
         private:
             ECDB* const database;
@@ -132,24 +135,43 @@ namespace Deep {
             static_assert(sizeof(Metadata) % alignof(Metadata) == 0,
                           "Size of Metadata must be a multiple of its alignment for proper packing.");
 
+            struct ComponentOffset {
+                size_t offset;
+                size_t size;
+            };
+
         public:
             explicit Deep_Inline Archetype(ECDB* database);
             Archetype(ECDB* database, ArchetypeDesc&& description);
             ~Archetype();
 
-            size_t GetComponentOffset(ComponentId component) const;
+            ComponentOffset GetComponentOffset(ComponentId component) const;
 
             // NOTE(randomuserhi): return const & if metadata gets large enough
-            Deep_Inline const Metadata GetMetadata(EntityPtr* entity) const;
+            Deep_Inline const Metadata& GetMetadata(EntityPtr* entity) const;
+
+            Deep_Inline void* GetComponent(EntityPtr* entity, ComponentOffset offset) const;
+
+            Deep_Inline void* GetComponent(EntityPtr* entity, ComponentId component) const;
+
+            template<typename T>
+            Deep_Inline T& GetComponent(EntityPtr* entity, ComponentId component) const;
+
+            template<typename T>
+            Deep_Inline T& GetComponent(EntityPtr* entity, ComponentOffset offset) const;
 
             void Move(EntityPtr* entity);
 
-            void Remove(EntityPtr* entity);
+            Deep_Inline void Remove(EntityPtr* entity);
+
+            Deep_Inline size_t Size() const;
 
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
 
         private:
+            void Deallocate(EntityPtr* entity);
+
             ECDB* const database;
 
             // Number of entities occupying this archetype
@@ -182,7 +204,7 @@ namespace Deep {
             //                     during initialization.
             // TODO(randomuserhi): Use a single allocated block (where ids and offsets are adjacent) instead of 2 vectors
             std::vector<ComponentId> ids;
-            std::vector<size_t> offsets;
+            std::vector<ComponentOffset> offsets;
 
             std::unordered_map<ComponentId, Archetype*> addMap;
 
