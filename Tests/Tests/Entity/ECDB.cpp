@@ -8,7 +8,7 @@ TEST(ArchetypeBitField, Hash) {
     Deep::ArchetypeBitField b{ &registry };
 
     for (size_t i = 0; i < 64; ++i) {
-        registry.RegisterTag();
+        registry.RegisterComponent(1, 1);
     }
 
     a.AddComponent(34);
