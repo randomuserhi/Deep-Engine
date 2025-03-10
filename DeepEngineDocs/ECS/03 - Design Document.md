@@ -94,6 +94,7 @@ Entities are stored in archetypes such that entities made up of the same compone
 
 **Chunks**
 - Each archetype allocates entities in chunks, this is to prevent having to move entities during a resize operation and instead chunks can be allocated/reused. 
+- A chunk always contains a list of references to the entity handle. This allows association of the slot in a chunk with its handle.
 - These chunks utilize a [Free List](https://en.wikipedia.org/wiki/Free_list) to manage reuse of old chunks
 - These chunks are of fixed size (*not count*) such that they offer a good balance for cache efficiency (Probably follow Unity's footsteps with 16kib chunk sizes):
 	- *Small Chunks* - Too many chunks can result in overhead crossing chunk borders (pointer chasing)
@@ -201,6 +202,7 @@ arch.MoveNoCopy(entity); // Moves `entity` directly into this archetype
 
 arch.Remove(entity); // Removes the entity from this archetype, effectively
                      // removing all components from the entity.
+                     // Entity gets placed in the root archetype.
 
 // Get a given component for an entity
 Transform& t = arch.GetComponent<Transform>(entity);

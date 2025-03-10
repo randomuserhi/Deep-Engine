@@ -2,8 +2,8 @@
  * ECDB
  */
 
-#include <Deep/Math.h>
 #include <Deep/Entity.h>
+#include <Deep/Math.h>
 #include <Deep/Memory.h>
 
 namespace Deep {
@@ -65,8 +65,10 @@ namespace Deep {
         storage->next = nullptr;
 
         EntityPtr& ptr = storage->ptr;
-        ptr.archetype = rootArchetype;
-        ptr.chunk = nullptr;
+        ptr.archetype = nullptr;
+
+        // Move the entity into the root archetype
+        rootArchetype->Move(&ptr);
 
         return ECDB::Entt{ this, &ptr };
     }
@@ -256,7 +258,7 @@ namespace Deep {
 
         const std::vector<ComponentDesc>& layout = description.layout;
 
-        // If layout contains no data, then there is nothing to do.
+        // If layout contains no data, then chunks only contain Metadata and there is nothing to do.
         if (layout.size() == 0) return;
 
 #ifdef DEEP_ENABLE_ASSERTS
@@ -266,7 +268,7 @@ namespace Deep {
         }
 #endif
 
-        size_t packedSize = 0;
+        size_t packedSize = sizeof(Metadata);
         for (size_t i = 0; i < layout.size(); ++i) {
             packedSize += layout[i].size;
         }
@@ -274,12 +276,13 @@ namespace Deep {
         // Binary search to find optimal entitiesPerChunk
         size_t upperBound = Archetype::chunkSize / packedSize;
         size_t lowerBound = 0;
+        entitiesPerChunk = 0;
 
         while (lowerBound < upperBound) {
             size_t mid = (lowerBound + upperBound) / 2;
 
-            size_t memSize = mid * layout[0].size;
-            for (size_t i = 1; i < layout.size(); ++i) {
+            size_t memSize = mid * sizeof(Metadata);
+            for (size_t i = 0; i < layout.size(); ++i) {
                 size_t padding = (DEEP_CACHE_LINE_SIZE - (memSize % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
                 memSize += padding + mid * layout[i].size;
             }
@@ -295,10 +298,13 @@ namespace Deep {
         Deep_Assert(entitiesPerChunk > 0, "Chunk should be able to fit atleast 1 entity.");
 
         // Compute pointer offsets for each component array
-        size_t offset = 0;
+        size_t offset = entitiesPerChunk * sizeof(Metadata);
         for (size_t i = 0; i < layout.size(); ++i) {
             const ComponentDesc& comp = layout[i];
             Deep_Assert(ECRegistry::IsComponent(comp.id), "Layout should only consist of components, not tags.");
+
+            // Apply padding as necessary
+            offset += (DEEP_CACHE_LINE_SIZE - (offset % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
 
             // Add component offset entry
             size_t bucket = comp.id % layout.size();
@@ -312,7 +318,6 @@ namespace Deep {
 
             // Move to next component array
             offset += entitiesPerChunk * comp.size;
-            offset += (DEEP_CACHE_LINE_SIZE - (offset % DEEP_CACHE_LINE_SIZE)) % DEEP_CACHE_LINE_SIZE;
         }
     }
 
@@ -334,18 +339,20 @@ namespace Deep {
         return offsets[bucket];
     }
 
+    void ECDB::Archetype::Remove(EntityPtr* entity) {
+        Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype");
+
+        Deep_Assert(false, "TODO(randomuserhi): Remove entity from archetype.");
+    }
+
     void ECDB::Archetype::Move(EntityPtr* entity) {
         if (entity->archetype != nullptr) {
             Deep_Assert(false, "TODO(randomuserhi): Remove entity from old archetype");
         }
 
-        if (entitiesPerChunk > 0) {
-            Deep_Assert(false, "TODO(randomuserhi): Assign entity to chunk and copy data");
-        } else {
-            // Entites do not occupy any data (no chunks needed)
+        Deep_Assert(false, "TODO(randomuserhi): Move entity to archetype.");
 
-            entity->archetype = this;
-            entity->chunk = nullptr;
-        }
+        entity->archetype = this; // Temporary - A lot of other stuff needs to happen like allocating a chunk and assigning
+                                  // the metadata etc...
     }
 } // namespace Deep

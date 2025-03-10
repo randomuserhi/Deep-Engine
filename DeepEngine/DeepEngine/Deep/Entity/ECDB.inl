@@ -2,7 +2,7 @@
 
 namespace Deep {
     ECDB::Entt::Entt(ECDB* database, EntityPtr* ptr) :
-        ptr(ptr), database(database) {};
+        ptr(ptr), database(database){};
 
     ECDB::Entt::operator ECDB::EntityPtr* const() const {
         return ptr;
@@ -57,4 +57,9 @@ namespace Deep {
 namespace Deep {
     ECDB::Archetype::Archetype(ECDB* database) :
         database(database), description(database->registry) {}
+} // namespace Deep
+
+namespace Deep {
+    ECDB::EntityPage::EntityPage(EntityPage* next) :
+        next(next) {}
 } // namespace Deep

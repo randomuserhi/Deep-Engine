@@ -55,6 +55,6 @@ TEST(ECDB, Archetype) {
     EXPECT_TRUE(desc.HasComponent(comp[1]));
 
     // Verify component array offsets (Each should be aligned to DEEP_CACHE_LINE_SIZE)
-    EXPECT_EQ(arch.GetComponentOffset(comp[0]), 0);
-    EXPECT_EQ(arch.GetComponentOffset(comp[1]), 8192);
+    EXPECT_EQ(arch.GetComponentOffset(comp[0]), 8192);
+    EXPECT_EQ(arch.GetComponentOffset(comp[1]), 12288);
 }

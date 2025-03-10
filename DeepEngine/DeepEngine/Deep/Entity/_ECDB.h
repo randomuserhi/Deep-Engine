@@ -109,10 +109,6 @@ namespace Deep {
         class Archetype final : NonCopyable {
             friend class ECDB;
 
-            // NOTE(randomuserhi): Handle edge case where archetype is of size 0 (entity with just tags, no components)
-            //                     Pretty much just don't allocate any memory at all and the EntityPtr just points to this
-            //                     archetype with nullptr chunk.
-
         public:
             static const size_t chunkAllocSize = 16384;
             static_assert(chunkAllocSize > sizeof(void*), "chunkAllocSize must be larger than a pointer.");
@@ -126,6 +122,15 @@ namespace Deep {
             static_assert(std::is_standard_layout<Chunk>(), "Chunk must be of standard layout.");
             static_assert(sizeof(Chunk) == chunkAllocSize, "Size of chunk does not match chunkAllocSize.");
 
+        private:
+            struct Metadata {
+                EntityPtr* entt;
+            };
+            static_assert(std::is_standard_layout<Metadata>(), "Metadata must be of standard layout.");
+            static_assert(sizeof(Metadata) % alignof(Metadata) == 0,
+                          "Size of Metadata must be a multiple of its alignment for proper packing.");
+
+        public:
             explicit Deep_Inline Archetype(ECDB* database);
             Archetype(ECDB* database, ArchetypeDesc&& description);
             ~Archetype();
@@ -134,13 +139,17 @@ namespace Deep {
 
             void Move(EntityPtr* entity);
 
+            void Remove(EntityPtr* entity);
+
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
 
         private:
             ECDB* const database;
 
-            size_t entitiesPerChunk = 0;
+            size_t size = 0;
+
+            size_t entitiesPerChunk = Archetype::chunkSize / sizeof(Metadata);
 
             Chunk* firstFree = nullptr;
 
@@ -188,11 +197,17 @@ namespace Deep {
                 Storage* next;
             };
 
-            static const size_t pageSize = 85;
+            EntityPage() = default;
+            Deep_Inline EntityPage(EntityPage* next);
 
-            EntityPage* next;
+            static const size_t pageSize = 127;
 
             Storage entityLookup[pageSize];
+
+            EntityPage* next = nullptr;
+
+        private:
+            char _padding[sizeof(Storage) - sizeof(EntityPage*)];
         };
 
     public:
