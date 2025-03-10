@@ -46,7 +46,7 @@ struct std::hash<Deep::ArchetypeBitField> {
         std::size_t hash = 0;
 
         for (size_t i = 0; i < k.bits.size(); ++i) {
-            hash ^= std::hash<Deep::ArchetypeBitField::Type>()(k.bits[i]);
+            hash ^= std::hash<Deep::ArchetypeBitField::Type>()(k.bits[i]) ^ (i * 0xabefcedf);
         }
 
         return hash;
