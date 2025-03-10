@@ -46,8 +46,7 @@ namespace Deep {
                 } else {
                     // Allocated page is full
 
-                    EntityPage* newPage = new EntityPage;
-                    newPage->next = nullptr;
+                    EntityPage* newPage = new EntityPage{};
                     entityPages = newPage;
 
                     storage = &(entityPages->entityLookup[0]);
@@ -57,8 +56,7 @@ namespace Deep {
             } else {
                 // No pages allocated
 
-                entityPages = new EntityPage;
-                entityPages->next = nullptr;
+                entityPages = new EntityPage{};
 
                 storage = &(entityPages->entityLookup[firstFreeItemInNewPage++]);
             }
