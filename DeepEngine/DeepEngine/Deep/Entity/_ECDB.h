@@ -147,6 +147,7 @@ namespace Deep {
         private:
             ECDB* const database;
 
+            // Number of entities occupying this archetype
             size_t size = 0;
 
             size_t entitiesPerChunk = Archetype::chunkSize / sizeof(Metadata);
