@@ -2,6 +2,29 @@
 #include <Deep.h>
 #include <Deep/Entity.h>
 
+TEST(ArchetypeBitField, Hash) {
+    Deep::ECRegistry registry;
+    Deep::ArchetypeBitField a{ &registry };
+    Deep::ArchetypeBitField b{ &registry };
+
+    for (size_t i = 0; i < 64; ++i) {
+        registry.RegisterTag();
+    }
+
+    a.AddComponent(34);
+    EXPECT_NE(std::hash<Deep::ArchetypeBitField>{}(a), std::hash<Deep::ArchetypeBitField>{}(b));
+
+    a.RemoveComponent(34);
+    EXPECT_EQ(std::hash<Deep::ArchetypeBitField>{}(a), std::hash<Deep::ArchetypeBitField>{}(b));
+
+    a.AddComponent(1);
+    b.AddComponent(1);
+    EXPECT_EQ(std::hash<Deep::ArchetypeBitField>{}(a), std::hash<Deep::ArchetypeBitField>{}(b));
+
+    b.RemoveComponent(1);
+    EXPECT_NE(std::hash<Deep::ArchetypeBitField>{}(a), std::hash<Deep::ArchetypeBitField>{}(b));
+}
+
 struct Component {
     int a;
 };
