@@ -194,12 +194,6 @@ arch.Move(entity); // Moves `entity` directly into this archetype.
                    // Performs no move if entity is already in this
                    // archetype.
 
-arch.MoveNoCopy(entity); // Moves `entity` directly into this archetype
-						 // without copying any data from old archetype.
-					     // - Allows for manual memcopy which can be optimal
-					     //   depending on layout. 
-					     //   (otherwise its 1 memcopy call per component)
-
 arch.Remove(entity); // Removes the entity from this archetype, effectively
                      // removing all components from the entity.
                      // Entity gets placed in the root archetype.

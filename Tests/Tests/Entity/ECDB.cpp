@@ -29,15 +29,29 @@ struct Component {
     int a;
 };
 
+// TODO(randomuserhi): Make this neater -> split by scoping
 TEST(ECDB, Entity) {
     Deep::ECRegistry registry;
     Deep::ECDB database{ &registry };
 
+    Deep::Entt entt = database.Entity();
+
+    Deep::ECDB::Archetype& root = database.GetRootArchetype();
+
+    // Check metadata matches
+    const Deep::ECDB::Archetype::Metadata rootMeta = root.GetMetadata(entt);
+    EXPECT_EQ(rootMeta.entt, entt);
+
+    // Check entity archetype changes
     Deep::ComponentId comp = registry.RegisterComponent<Component>();
+    entt.AddComponent(comp);
 
-    Deep::Entt ent = database.Entity();
+    Deep::ComponentId compArr[] = { comp };
+    Deep::ECDB::Archetype& arch = database.GetArchetype(compArr, 1);
 
-    ent.AddComponent(comp);
+    // Check metadata matches
+    const Deep::ECDB::Archetype::Metadata metadata = arch.GetMetadata(entt);
+    EXPECT_EQ(metadata.entt, entt);
 }
 
 TEST(ECDB, Archetype) {

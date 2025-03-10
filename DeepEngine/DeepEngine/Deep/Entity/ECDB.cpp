@@ -46,7 +46,8 @@ namespace Deep {
                 } else {
                     // Allocated page is full
 
-                    EntityPage* newPage = new EntityPage{ entityPages };
+                    EntityPage* newPage = new EntityPage;
+                    newPage->next = nullptr;
                     entityPages = newPage;
 
                     storage = &(entityPages->entityLookup[0]);
@@ -56,7 +57,8 @@ namespace Deep {
             } else {
                 // No pages allocated
 
-                entityPages = new EntityPage{ nullptr };
+                entityPages = new EntityPage;
+                entityPages->next = nullptr;
 
                 storage = &(entityPages->entityLookup[firstFreeItemInNewPage++]);
             }
@@ -139,6 +141,8 @@ namespace Deep {
 
     ECDB::Archetype& ECDB::GetArchetype(ComponentId* components, size_t numComponents) {
         // TODO(randomuserhi): Thread Safety
+
+        if (components == nullptr) return *rootArchetype;
 
         Archetype* arch = rootArchetype;
         for (size_t i = 0; i < numComponents; ++i) {
@@ -322,10 +326,10 @@ namespace Deep {
     }
 
     ECDB::Archetype::~Archetype() {
-        while (chunks != nullptr) {
-            Archetype::Chunk* temp = chunks;
-            chunks = chunks->next;
-            Free(chunks);
+        while (tail != nullptr) {
+            Archetype::Chunk* temp = tail;
+            tail = tail->next;
+            Free(tail);
         }
 
         firstFree = nullptr;
@@ -346,13 +350,76 @@ namespace Deep {
     }
 
     void ECDB::Archetype::Move(EntityPtr* entity) {
-        if (entity->archetype != nullptr) {
-            Deep_Assert(false, "TODO(randomuserhi): Remove entity from old archetype");
+        // TODO(randomuserhi): Thread safety
+
+        // Obtain chunk to place entity in
+        Chunk* chunk;
+
+        if (tail != nullptr) {
+            // Chunks are available in chunk list
+
+            if (firstFreeItemInNewChunk < entitiesPerChunk) {
+                // Fit entity at the tail end of chunk list
+
+                chunk = tail;
+            } else {
+                // Tail chunk is full, need a new chunk
+
+                if (firstFree != nullptr) {
+                    // Take chunk from free list
+
+                    chunk = firstFree;
+                    firstFree = firstFree->next;
+                } else {
+                    // Free list is empty, allocate a new chunk
+
+                    chunk = new Chunk;
+                }
+
+                firstFreeItemInNewChunk = 0;
+
+                // Append chunk to list
+                chunk->next = tail;
+                tail = chunk;
+            }
+        } else {
+            // Chunk list is empty
+
+            if (firstFree != nullptr) {
+                // Take chunk from free list
+
+                chunk = firstFree;
+                firstFree = firstFree->next;
+            } else {
+                // Free list is empty, allocate a new chunk
+
+                chunk = new Chunk;
+            }
+
+            firstFreeItemInNewChunk = 0;
+
+            tail = chunk;
         }
 
-        Deep_Assert(false, "TODO(randomuserhi): Move entity to archetype.");
+        Deep_Assert(chunk != nullptr, "Allocated chunk should not be a nullptr.");
 
-        entity->archetype = this; // Temporary - A lot of other stuff needs to happen like allocating a chunk and assigning
-                                  // the metadata etc...
+        // Assign metadata
+        Metadata* metadata = reinterpret_cast<Metadata*>(chunk);
+        metadata[firstFreeItemInNewChunk].entt = entity;
+
+        if (entity->archetype != nullptr) {
+            Deep_Assert(false, "TODO(randomuserhi): Copy data to this archetype from old archetype component by component.");
+
+            entity->archetype->Remove(entity);
+        }
+
+        // Update entity ptr
+        entity->archetype = this;
+        entity->chunk = chunk;
+        entity->index = firstFreeItemInNewChunk;
+
+        // Increment indices
+        ++firstFreeItemInNewChunk;
+        ++size;
     }
 } // namespace Deep

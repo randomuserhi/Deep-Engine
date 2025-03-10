@@ -122,7 +122,6 @@ namespace Deep {
             static_assert(std::is_standard_layout<Chunk>(), "Chunk must be of standard layout.");
             static_assert(sizeof(Chunk) == chunkAllocSize, "Size of chunk does not match chunkAllocSize.");
 
-        private:
             struct Metadata {
                 EntityPtr* entt;
             };
@@ -136,6 +135,9 @@ namespace Deep {
             ~Archetype();
 
             size_t GetComponentOffset(ComponentId component) const;
+
+            // NOTE(randomuserhi): return const & if metadata gets large enough
+            Deep_Inline const Metadata GetMetadata(EntityPtr* entity) const;
 
             void Move(EntityPtr* entity);
 
@@ -152,9 +154,12 @@ namespace Deep {
 
             size_t entitiesPerChunk = Archetype::chunkSize / sizeof(Metadata);
 
+            size_t firstFreeItemInNewChunk = 0;
+
             Chunk* firstFree = nullptr;
 
-            Chunk* chunks = nullptr;
+            // NOTE(randomuserhi): The singly linked list is organised backwards (from tail -> head)
+            Chunk* tail = nullptr;
 
             // Instead of the above, finding the offset of a component within a chunk is done using the 2 buckets
             // `ids` and `offsets`. Each item in `ids` and `offsets` correspond to each other so `offsets[0]` is the offset
@@ -198,9 +203,6 @@ namespace Deep {
                 Storage* next;
             };
 
-            EntityPage() = default;
-            Deep_Inline EntityPage(EntityPage* next);
-
             static const size_t pageSize = 127;
 
             Storage entityLookup[pageSize];
@@ -221,6 +223,8 @@ namespace Deep {
 
         void RemoveComponent(EntityPtr* entity, ComponentId component);
 
+        Deep_Inline ECDB::Archetype& GetRootArchetype();
+
         ECDB::Archetype& GetArchetype(ComponentId* components, size_t numComponents);
 
     private:
@@ -230,7 +234,7 @@ namespace Deep {
 
         Archetype* rootArchetype;
 
-        uint32 firstFreeItemInNewPage = 0;
+        size_t firstFreeItemInNewPage = 0;
 
         EntityPage::Storage* firstFree = nullptr;
 
