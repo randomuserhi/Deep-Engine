@@ -14,7 +14,7 @@ TEST(ECDB, Entity) {
 
     Deep::Entt ent = database.Entity();
 
-    database.AddComponent(ent, comp);
+    ent.AddComponent(comp);
 }
 
 TEST(ECDB, Archetype) {

@@ -7,6 +7,11 @@ namespace Deep {
     ECDB::Entt::operator ECDB::EntityPtr* const() const {
         return ptr;
     }
+
+    ECDB::Entt& ECDB::Entt::AddComponent(ComponentId component) {
+        database->AddComponent(ptr, component);
+        return *this;
+    }
 } // namespace Deep
 
 namespace Deep {

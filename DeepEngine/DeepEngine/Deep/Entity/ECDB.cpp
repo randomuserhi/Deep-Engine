@@ -335,6 +335,17 @@ namespace Deep {
     }
 
     void ECDB::Archetype::Move(EntityPtr* entity) {
-        Deep_Assert(false, "TODO(randomuserhi): ...");
+        if (entity->archetype != nullptr) {
+            Deep_Assert(false, "TODO(randomuserhi): Remove entity from old archetype");
+        }
+
+        if (entitiesPerChunk > 0) {
+            Deep_Assert(false, "TODO(randomuserhi): Assign entity to chunk and copy data");
+        } else {
+            // Entites do not occupy any data (no chunks needed)
+
+            entity->archetype = this;
+            entity->chunk = nullptr;
+        }
     }
 } // namespace Deep

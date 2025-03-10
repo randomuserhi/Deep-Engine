@@ -46,7 +46,9 @@ struct std::hash<Deep::ArchetypeBitField> {
         std::size_t hash = 0;
 
         for (size_t i = 0; i < k.bits.size(); ++i) {
-            hash ^= std::hash<Deep::ArchetypeBitField::Type>()(k.bits[i]) ^ (i * 0xabefcedf);
+            if (k.bits[i] != 0) {
+                hash ^= std::hash<Deep::ArchetypeBitField::Type>()(k.bits[i]) ^ (i * 0xabefcedf);
+            }
         }
 
         return hash;
@@ -66,6 +68,8 @@ namespace Deep {
             explicit Deep_Inline Entt(ECDB* database, EntityPtr* ptr);
 
             Deep_Inline operator ECDB::EntityPtr* const() const;
+
+            Deep_Inline Entt& AddComponent(ComponentId component);
 
         private:
             ECDB* const database;
