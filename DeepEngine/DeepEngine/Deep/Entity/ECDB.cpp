@@ -375,16 +375,16 @@ namespace Deep {
             entt->chunk = entity->chunk;
             entt->index = entity->index;
         } else {
-            // Last entity was removed, don't need to do move anything
+            // Last entity was removed, don't need to fill the slot
 #ifdef DEEP_ENABLE_ASSERTS
             Metadata& metadata = reinterpret_cast<Metadata*>(tail->data)[index];
             metadata.entt = nullptr;
 #endif
         }
 
-        // Remove last entity from chunk, freeing it to the free list
+        // Remove last entity from chunk (it has been moved to fill a slot)
         if (--firstFreeItemInNewChunk == 0) {
-            // Chunk no longer has any entities, free it
+            // Final chunk no longer has any entities, release it to free list
 
             Chunk* temp = tail->next;
 

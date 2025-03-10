@@ -21,6 +21,7 @@ The implementation works at compile-time *and* runtime to support modding where 
 - [x] Add/Remove Components from Entities
 - [x] Add/Remove Tags to Entities
 - [x] Reference Specific Entities
+- [ ] Iterating
 - [ ] Queries (Iterating query results)
 - [ ] Register Shared Components
 - [ ] Add/Remove Shared Components
@@ -128,6 +129,7 @@ The handle / reference then points to the item in the lookup table which is fixe
 
 Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=gaj4SY4KNR4
 - versioning prevents accidental reuse of an entity which has changed due to a move either from deletion or change in archetype
+#### Iterating
 #### Queries
 
 ### Proposed API
@@ -219,7 +221,6 @@ Transform& t = *(reinterpret_cast<Transform*>(entity.chunk + transformOffset) + 
 // overloading an archetype with a bunch of chunks and starving the other.
 arch0.TradeChunk(arch1.chunk);
 ```
-
 ### Modding and Portability
 
 As mentioned before, `ECDB` is implemented to work at runtime to support modding. For this reason, components are not tied to types as they can have differences in struct layout across DLL boundaries (or environments). 
