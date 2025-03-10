@@ -116,7 +116,10 @@ namespace Deep {
 
             static constexpr const size_t chunkSize = chunkAllocSize - sizeof(void*);
             struct Chunk {
+                // NOTE(randomuserhi): Data should remain uninitialized until allocated.
+                //                     It is also a placeholder for the allocated components.
                 char data[chunkSize];
+
                 Chunk* next = nullptr;
             };
             static_assert(std::is_standard_layout<Chunk>(), "Chunk must be of standard layout.");
@@ -205,6 +208,7 @@ namespace Deep {
 
             static const size_t pageSize = 127;
 
+            // NOTE(randomuserhi): These should remain uninitialized until allocated
             Storage entityLookup[pageSize];
 
             EntityPage* next = nullptr;
