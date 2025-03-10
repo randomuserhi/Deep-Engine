@@ -351,7 +351,7 @@ namespace Deep {
         // TODO(randomuserhi): Thread safety
 
         Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype.");
-        Deep_Assert(size > 0 && firstFreeItemInNewChunk > 0, "This archetype doesn't contain any entities.");
+        Deep_Assert(numEntities > 0 && firstFreeItemInNewChunk > 0, "This archetype doesn't contain any entities.");
         Deep_Assert(tail != nullptr, "This archetype doesn't have any chunks allocated.");
 
         size_t index = firstFreeItemInNewChunk - 1;
@@ -397,7 +397,7 @@ namespace Deep {
         }
 
         // Decrement size
-        --size;
+        --numEntities;
 
 #ifdef DEEP_ENABLE_ASSERTS
         entity->archetype = nullptr;
@@ -489,6 +489,6 @@ namespace Deep {
 
         // Increment indices
         ++firstFreeItemInNewChunk;
-        ++size;
+        ++numEntities;
     }
 } // namespace Deep

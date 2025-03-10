@@ -164,7 +164,7 @@ namespace Deep {
 
             Deep_Inline void Remove(EntityPtr* entity);
 
-            Deep_Inline size_t Size() const;
+            Deep_Inline size_t size() const;
 
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
@@ -175,7 +175,7 @@ namespace Deep {
             ECDB* const database;
 
             // Number of entities occupying this archetype
-            size_t size = 0;
+            size_t numEntities = 0;
 
             size_t entitiesPerChunk = Archetype::chunkSize / sizeof(Metadata);
 

@@ -70,8 +70,8 @@ namespace Deep {
         return metadata[entity->index];
     }
 
-    size_t ECDB::Archetype::Size() const {
-        return size;
+    size_t ECDB::Archetype::size() const {
+        return numEntities;
     }
 
     ECDB::Archetype& ECDB::GetRootArchetype() {
