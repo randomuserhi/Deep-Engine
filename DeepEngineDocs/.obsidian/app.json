@@ -1,4 +1,5 @@
 {
   "readableLineLength": true,
-  "showLineNumber": false
+  "showLineNumber": false,
+  "showUnsupportedFiles": true
 }
