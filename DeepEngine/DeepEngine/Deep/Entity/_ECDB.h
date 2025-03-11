@@ -152,12 +152,12 @@ namespace Deep {
 
             Deep_Inline size_t GetChunkSize(Chunk* chunk) const;
 
-            static Deep_Inline Metadata* GetMetas(Chunk* chunk);
+            static Deep_Inline Metadata* GetMetaList(Chunk* chunk);
 
-            static Deep_Inline void* GetComponents(Chunk* chunk, ComponentOffset offset);
+            static Deep_Inline void* GetCompList(Chunk* chunk, ComponentOffset offset);
 
             template<typename T>
-            static Deep_Inline T* GetComponents(Chunk* chunk, ComponentOffset offset);
+            static Deep_Inline T* GetCompList(Chunk* chunk, ComponentOffset offset);
 
             Deep_Inline void* GetComponent(EntityPtr* entity, ComponentOffset offset) const;
 

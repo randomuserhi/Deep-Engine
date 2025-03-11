@@ -106,17 +106,17 @@ namespace Deep {
         return chunk != tail ? entitiesPerChunk : firstFreeItemInNewChunk;
     }
 
-    ECDB::Archetype::Metadata* ECDB::Archetype::GetMetas(Chunk* chunk) {
+    ECDB::Archetype::Metadata* ECDB::Archetype::GetMetaList(Chunk* chunk) {
         return reinterpret_cast<ECDB::Archetype::Metadata*>(chunk->data);
     }
 
-    void* ECDB::Archetype::GetComponents(Chunk* chunk, ComponentOffset offset) {
+    void* ECDB::Archetype::GetCompList(Chunk* chunk, ComponentOffset offset) {
         return chunk->data + offset.offset;
     }
 
     template<typename T>
-    T* ECDB::Archetype::GetComponents(Chunk* chunk, ComponentOffset offset) {
-        return reinterpret_cast<T*>(GetComponents(chunk, offset));
+    T* ECDB::Archetype::GetCompList(Chunk* chunk, ComponentOffset offset) {
+        return reinterpret_cast<T*>(GetCompList(chunk, offset));
     }
 
     void* ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentOffset offset) const {
