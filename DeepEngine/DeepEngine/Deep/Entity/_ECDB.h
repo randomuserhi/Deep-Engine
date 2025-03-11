@@ -113,21 +113,7 @@ namespace Deep {
             friend class ECDB;
 
         public:
-            static const size_t chunkAllocSize = 16384;
-            static_assert(chunkAllocSize > sizeof(void*), "chunkAllocSize must be larger than a pointer.");
-            static_assert(Deep::IsPowerOf2(chunkAllocSize), "chunkAllocSize must be a power of 2.");
-
-            static constexpr const size_t chunkSize = chunkAllocSize - sizeof(void*);
-            struct alignas(DEEP_CACHE_LINE_SIZE) Chunk {
-                // NOTE(randomuserhi): Data should remain uninitialized until allocated.
-                //                     It is also a placeholder for the allocated components.
-                char data[chunkSize];
-
-                Chunk* next = nullptr;
-            };
-            static_assert(alignof(Chunk) == DEEP_CACHE_LINE_SIZE, "Chunks should be aligned to cache line boundaries.");
-            static_assert(std::is_standard_layout<Chunk>(), "Chunk must be of standard layout.");
-            static_assert(sizeof(Chunk) == chunkAllocSize, "Size of chunk does not match chunkAllocSize.");
+            using Chunk = uint8;
 
             struct Metadata {
                 EntityPtr* entt;
@@ -182,15 +168,24 @@ namespace Deep {
 
             Deep_Inline Chunk* chunks() const;
 
+            Deep_Inline Chunk* GetNextChunk(Chunk* chunk) const;
+
         private:
+            Deep_Inline void SetNextChunk(Chunk* chunk, Chunk* next);
+
             void Deallocate(EntityPtr* entity);
 
             ECDB* const database;
 
+            // NOTE(randomuserhi): The same as the size of the data-region of the chunk
+            //                     The pointer to the next chunk appears right after the data-region
+            //                     and the data region is aligned properly.
+            const size_t chunkSize;
+
+            size_t entitiesPerChunk = chunkSize / sizeof(Metadata);
+
             // Number of entities occupying this archetype
             size_t numEntities = 0;
-
-            size_t entitiesPerChunk = Archetype::chunkSize / sizeof(Metadata);
 
             size_t firstFreeItemInNewChunk = 0;
 
@@ -256,7 +251,7 @@ namespace Deep {
         };
 
     public:
-        explicit Deep_Inline ECDB(ECRegistry* registry);
+        explicit Deep_Inline ECDB(ECRegistry* registry, size_t chunkSize = 16384);
         ~ECDB();
 
         ECDB::Entt Entity();
@@ -273,6 +268,8 @@ namespace Deep {
         EntityPtr* AllocateEntity();
 
         ECRegistry* const registry;
+
+        const size_t chunkSize;
 
         std::unordered_map<ArchetypeBitField, Archetype*> archetypes;
 

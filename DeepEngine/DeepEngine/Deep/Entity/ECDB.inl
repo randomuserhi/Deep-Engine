@@ -20,8 +20,8 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    ECDB::ECDB(ECRegistry* registry) :
-        registry(registry) {
+    ECDB::ECDB(ECRegistry* registry, size_t chunkSize) :
+        registry(registry), chunkSize(chunkSize) {
         rootArchetype = new Archetype(this);
         archetypes.emplace(rootArchetype->description.type, rootArchetype);
     }
@@ -97,7 +97,7 @@ namespace Deep {
                     found = true;
                     break;
                 }
-                tail = tail->next;
+                tail = GetNextChunk(tail);
             }
             Deep_Assert(found, "Chunk does not exist in this archetype.");
         }
@@ -108,12 +108,12 @@ namespace Deep {
 
     const ECDB::Archetype::Metadata* ECDB::Archetype::GetMetaList(Chunk* chunk) {
         Deep_Assert(chunk != nullptr, "Chunk cannot be a nullptr.");
-        return reinterpret_cast<const ECDB::Archetype::Metadata*>(chunk->data);
+        return reinterpret_cast<const ECDB::Archetype::Metadata*>(chunk);
     }
 
     void* ECDB::Archetype::GetCompList(Chunk* chunk, ComponentOffset offset) {
         Deep_Assert(chunk != nullptr, "Chunk cannot be a nullptr.");
-        return chunk->data + offset.offset;
+        return chunk + offset.offset;
     }
 
     template<typename T>
@@ -123,7 +123,7 @@ namespace Deep {
 
     void* ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentOffset offset) const {
         Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype.");
-        return entity->chunk->data + offset.offset + entity->index * offset.size;
+        return entity->chunk + offset.offset + entity->index * offset.size;
     }
 
     template<typename T>
@@ -139,9 +139,17 @@ namespace Deep {
     T& ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentId component) const {
         return *reinterpret_cast<T*>(GetComponent(entity, GetComponentOffset(component)));
     }
+
+    ECDB::Archetype::Chunk* ECDB::Archetype::GetNextChunk(Chunk* chunk) const {
+        return *reinterpret_cast<Chunk**>(chunk + chunkSize);
+    }
+
+    void ECDB::Archetype::SetNextChunk(Chunk* chunk, Chunk* next) {
+        *reinterpret_cast<Chunk**>(chunk + chunkSize) = next;
+    }
 } // namespace Deep
 
 namespace Deep {
     ECDB::Archetype::Archetype(ECDB* database) :
-        database(database), description(database->registry) {}
+        database(database), description(database->registry), chunkSize(database->chunkSize) {}
 } // namespace Deep

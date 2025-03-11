@@ -1,8 +1,7 @@
-#define DEEP_ENABLE_ASSERTS
-
 #include <iostream>
 
 #include <Deep.h>
+#include <Deep/Entity.h>
 #include <Deep/Net.h>
 #include <Deep/Math.h>
 #include <Deep/Threading.h>
@@ -11,98 +10,87 @@
 #include <chrono>
 #include <thread>
 
-#define THREADED
+#include <random>
+
+struct RigidBody {
+    Deep::Vec3 position;
+    Deep::Vec3 velocity;
+};
 
 int main() {
-    Deep::JobSystem jobSystem{ static_cast<int>(8 - 1), 2048, 1024 };
+    std::random_device rd;  // Seed generator
+    std::mt19937 gen(rd()); // Mersenne Twister RNG
+    std::uniform_real_distribution<float> rand(-1.0f, 1.0f);
 
-    constexpr size_t count = 1000000000;
-    constexpr size_t slice = 500000;
-    static_assert(count % slice == 0, "");
+    Deep::JobSystem jobSystem{ 8, 2048, 1024 };
 
-    Deep::Vec3* positions = new Deep::Vec3[count];
-    Deep::Vec3* velocities = new Deep::Vec3[count];
-
-    for (size_t i = 0; i < count; ++i) {
-        positions[i] = Deep::Vec3::zero;
-        velocities[i] = Deep::Vec3::left;
-    }
-
-#ifdef THREADED
-    Deep::Barrier barrier = jobSystem.AcquireBarrier();
-#endif
-
-    auto start = std::chrono::system_clock::now();
-
-#ifdef THREADED
-    for (size_t i = 0; i < count / slice; ++i) {
-        barrier.AddJob(jobSystem.Enqueue([slice, i, &positions, &velocities]() {
-            for (size_t j = i * slice; j < i * slice + slice; ++j) {
-                positions[j] += velocities[j];
-            }
-        }));
-    }
-
-    barrier.Wait();
-#else
-    {
-        size_t i;
-#pragma omp parallel for
-        for (i = 0; i < count; ++i) {
-            positions[i] += velocities[i];
-        }
-    }
-#endif
-
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << elapsed.count() << "ms\n";
-
-    for (size_t i = 0; i < 5; ++i) {
-        std::cout << positions[i].x << "\n";
-    }
-    std::cout << "...\n";
-    for (size_t i = count - 6; i < count; ++i) {
-        std::cout << positions[i].x << "\n";
-    }
-
-    /*std::cout << "Hello World!" << "\n";
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
     socket.Open();
     int32 res = socket.Connect(Deep::IPv4(127, 0, 0, 1, 23152));
     Deep::IPv4 address;
     socket.GetPeerName(address);
-    std::cout << static_cast<uint32>(address.a) //
-        << ":" << static_cast<uint32>(address.b) //
-        << ":" << static_cast<uint32>(address.c) //
-        << ":" << static_cast<uint32>(address.d) //
-        << ":" << address.port << "\n";
+    std::cout << static_cast<uint32>(address.a)        //
+              << ":" << static_cast<uint32>(address.b) //
+              << ":" << static_cast<uint32>(address.c) //
+              << ":" << static_cast<uint32>(address.d) //
+              << ":" << address.port << "\n";
 
-    const uint8 data[] = "That's crazy";
+    Deep::ECRegistry _registry{};
+    Deep::ECDB database{ &_registry, 16384 * 8 };
+    Deep::ECStaticRegistry registry{ &_registry };
 
-    std::cout << sizeof data << "\n";
+    Deep::ComponentId comp_RigidBody = registry.RegisterComponent<RigidBody>();
+    Deep::ECDB::Archetype& arch_RigidBody = database.GetArchetype(&comp_RigidBody, 1);
+    Deep::ECDB::Archetype::ComponentOffset offset_RigidBody = arch_RigidBody.GetComponentOffset(comp_RigidBody);
 
-    Deep::Vec3 up{ 0, 1, 0 };
-    Deep::Vec3 axis{ 0, 0, 1 };
-    Deep::Quat rotateLeft{ axis, PI / 2.0f };
-    Deep::Vec3 right = rotateLeft * up;
-    std::cout << rotateLeft.w //
-        << "," << rotateLeft.x //
-        << "," << rotateLeft.y //
-        << "," << rotateLeft.z //
-        << "\n";
-    std::cout << right.x //
-        << "," << right.y //
-        << "," << right.z //
-        << "\n";
+    size_t numObjects = 1000000;
+    for (size_t i = 0; i < numObjects; ++i) {
+        arch_RigidBody.Entity();
+    }
 
-    std::cout << "\n";
+    for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
+        RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
+        for (size_t i = 0; i < arch_RigidBody.GetChunkSize(c); ++i) {
+            RigidBody& rb = comps[i];
+            rb.position = { rand(gen), rand(gen), rand(gen) };
+            rb.velocity = { rand(gen), rand(gen), rand(gen) };
+        }
+    }
 
     while (true) {
+        auto start = std::chrono::system_clock::now();
+
+        Deep::Barrier barrier = jobSystem.AcquireBarrier();
+        for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
+            jobSystem.Enqueue([offset_RigidBody, c, &arch_RigidBody]() {
+                RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
+                for (size_t i = 0; i < arch_RigidBody.GetChunkSize(c); ++i) {
+                    RigidBody& rb = comps[i];
+                    rb.position += rb.velocity;
+                }
+            });
+        }
+        barrier.Wait();
+
+        auto end = std::chrono::system_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << elapsed.count() << "ms\n";
+
         Deep::PacketWriter packet;
-        packet.Write(static_cast<uint16>(sizeof data));
-        packet.Write(data, sizeof data);
+
+        // packet.Write(static_cast<int32>(arch_RigidBody.size()));
+        packet.Write(1000);
+        size_t count = 0;
+        for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); count < 1000 && c != nullptr;
+             c = arch_RigidBody.GetNextChunk(c)) {
+            RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
+            for (size_t i = 0; count < 1000 && i < arch_RigidBody.GetChunkSize(c); ++i) {
+                RigidBody& rb = comps[i];
+                packet.Write(rb.position);
+                ++count;
+            }
+        }
 
         socket.Send(packet);
 
@@ -111,5 +99,5 @@ int main() {
     };
 
     socket.Close();
-    Deep::ShutdownSockets();*/
+    Deep::ShutdownSockets();
 }

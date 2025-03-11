@@ -94,7 +94,7 @@ TEST(ECDB, EntityIteration) {
         size_t size = 0;
 
         Deep::ECDB::Archetype::ComponentOffset offset = arch.GetComponentOffset(comp);
-        for (Deep::ECDB::Archetype::Chunk* c = arch.chunks(); c != nullptr; c = c->next) {
+        for (Deep::ECDB::Archetype::Chunk* c = arch.chunks(); c != nullptr; c = arch.GetNextChunk(c)) {
             Component* comps = arch.GetCompList<Component>(c, offset);
             for (size_t i = 0; i < arch.GetChunkSize(c); ++i, ++size) {
                 Component& t = comps[i];
@@ -107,7 +107,7 @@ TEST(ECDB, EntityIteration) {
 
     {
         Deep::ECDB::Archetype::ComponentOffset offset = arch.GetComponentOffset(comp);
-        for (Deep::ECDB::Archetype::Chunk* c = arch.chunks(); c != nullptr; c = c->next) {
+        for (Deep::ECDB::Archetype::Chunk* c = arch.chunks(); c != nullptr; c = arch.GetNextChunk(c)) {
             Component* comps = arch.GetCompList<Component>(c, offset);
             for (size_t i = 0; i < arch.GetChunkSize(c); ++i) {
                 Component& t = comps[i];

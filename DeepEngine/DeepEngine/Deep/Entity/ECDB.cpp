@@ -271,7 +271,11 @@ namespace Deep {
         database(database),
         description(std::move(desc)),
         ids(description.layout.size()),
-        offsets(description.layout.size()) {
+        offsets(description.layout.size()),
+        chunkSize(database->chunkSize) {
+
+        Deep_Assert(chunkSize > 0, "chunkSize must be non zero.");
+        Deep_Assert(Deep::IsPowerOf2(chunkSize), "chunkSize must be a power of 2.");
 
         const std::vector<ComponentDesc>& layout = description.layout;
 
@@ -291,7 +295,7 @@ namespace Deep {
         }
 
         // Binary search to find optimal entitiesPerChunk
-        size_t upperBound = Archetype::chunkSize / packedSize;
+        size_t upperBound = chunkSize / packedSize;
         size_t lowerBound = 0;
         entitiesPerChunk = 0;
 
@@ -342,15 +346,15 @@ namespace Deep {
         // Delete chunks in use
         while (tail != nullptr) {
             Archetype::Chunk* temp = tail;
-            tail = tail->next;
-            delete temp;
+            tail = GetNextChunk(tail);
+            AlignedFree(temp);
         }
 
         // Delete free list
         while (firstFree != nullptr) {
             Archetype::Chunk* temp = firstFree;
-            firstFree = firstFree->next;
-            delete temp;
+            firstFree = GetNextChunk(firstFree);
+            AlignedFree(temp);
         }
     }
 
@@ -388,20 +392,20 @@ namespace Deep {
 
                 size_t offset = entity->archetype->GetComponentOffset(comp.id).offset;
 
-                char* src = tail->data + offset + comp.size * index;
-                char* dest = entity->chunk->data + offset + comp.size * entity->index;
+                uint8* src = tail + offset + comp.size * index;
+                uint8* dest = entity->chunk + offset + comp.size * entity->index;
                 Memcpy(dest, src, comp.size);
             }
 
             // Move entity pointer
-            Metadata& metadata = reinterpret_cast<Metadata*>(tail->data)[index];
+            Metadata& metadata = reinterpret_cast<Metadata*>(tail)[index];
             EntityPtr* entt = metadata.entt;
             entt->chunk = entity->chunk;
             entt->index = entity->index;
         } else {
             // Last entity was removed, don't need to fill the slot
 #ifdef DEEP_ENABLE_ASSERTS
-            Metadata& metadata = reinterpret_cast<Metadata*>(tail->data)[index];
+            Metadata& metadata = reinterpret_cast<Metadata*>(tail)[index];
             metadata.entt = nullptr;
 #endif
         }
@@ -410,9 +414,9 @@ namespace Deep {
         if (--firstFreeItemInNewChunk == 0) {
             // Final chunk no longer has any entities, release it to free list
 
-            Chunk* temp = tail->next;
+            Chunk* temp = GetNextChunk(tail);
 
-            tail->next = firstFree;
+            SetNextChunk(tail, firstFree);
             firstFree = tail;
 
             tail = temp;
@@ -450,17 +454,18 @@ namespace Deep {
                     // Take chunk from free list
 
                     chunk = firstFree;
-                    firstFree = firstFree->next;
+                    firstFree = GetNextChunk(firstFree);
                 } else {
                     // Free list is empty, allocate a new chunk
 
-                    chunk = new Chunk{};
+                    chunk = reinterpret_cast<Chunk*>(AlignedMalloc(chunkSize + sizeof(Chunk*), DEEP_CACHE_LINE_SIZE));
+                    SetNextChunk(chunk, nullptr);
                 }
 
                 firstFreeItemInNewChunk = 0;
 
                 // Append chunk to list
-                chunk->next = tail;
+                SetNextChunk(chunk, tail);
                 tail = chunk;
             }
         } else {
@@ -470,11 +475,12 @@ namespace Deep {
                 // Take chunk from free list
 
                 chunk = firstFree;
-                firstFree = firstFree->next;
+                firstFree = GetNextChunk(firstFree);
             } else {
                 // Free list is empty, allocate a new chunk
 
-                chunk = new Chunk{};
+                chunk = reinterpret_cast<Chunk*>(AlignedMalloc(chunkSize + sizeof(Chunk*), DEEP_CACHE_LINE_SIZE));
+                SetNextChunk(chunk, nullptr);
             }
 
             firstFreeItemInNewChunk = 0;
@@ -485,7 +491,7 @@ namespace Deep {
         Deep_Assert(chunk != nullptr, "Allocated chunk should not be a nullptr.");
 
         // Assign metadata
-        Metadata* metadata = reinterpret_cast<Metadata*>(chunk->data);
+        Metadata* metadata = reinterpret_cast<Metadata*>(chunk);
         metadata[firstFreeItemInNewChunk].entt = entity;
 
         if (entity->archetype != nullptr) {
@@ -496,9 +502,9 @@ namespace Deep {
                 const ComponentDesc& comp = description.layout[i];
 
                 if (this->description.HasComponent(comp.id)) {
-                    char* src = entity->chunk->data + entity->archetype->GetComponentOffset(comp.id).offset
-                                + comp.size * entity->index;
-                    char* dest = chunk->data + GetComponentOffset(comp.id).offset + comp.size * firstFreeItemInNewChunk;
+                    uint8* src =
+                        entity->chunk + entity->archetype->GetComponentOffset(comp.id).offset + comp.size * entity->index;
+                    uint8* dest = chunk + GetComponentOffset(comp.id).offset + comp.size * firstFreeItemInNewChunk;
                     Memcpy(dest, src, comp.size);
                 }
             }
