@@ -45,7 +45,7 @@ namespace Deep {
             From from;
         };
 
-        FromTo convert;
+        FromTo convert{};
         convert.from = value;
         return convert.to;
     }
