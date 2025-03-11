@@ -22,7 +22,7 @@ int main() {
     std::mt19937 gen(rd()); // Mersenne Twister RNG
     std::uniform_real_distribution<float> rand(-1.0f, 1.0f);
 
-    Deep::JobSystem jobSystem{ 8, 2048, 1024 };
+    Deep::JobSystem jobSystem{ 8, 4096, 1024 };
 
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
