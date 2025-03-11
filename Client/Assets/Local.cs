@@ -13,7 +13,7 @@ public class Local : MonoBehaviour {
             objects.Add(Instantiate(prefab).GetComponent<SmoothTransform>());
         }
 
-        while (positions.Count < 1000000) {
+        while (positions.Count < 2000000) {
             positions.Add(new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)));
             velocities.Add(new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)));
         }

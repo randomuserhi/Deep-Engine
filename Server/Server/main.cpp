@@ -37,17 +37,23 @@ int main() {
               << ":" << address.port << "\n";
 
     Deep::ECRegistry _registry{};
-    Deep::ECDB database{ &_registry, 16384 * 8 };
+    Deep::ECDB database{ &_registry, 16384 * 32 };
     Deep::ECStaticRegistry registry{ &_registry };
 
     Deep::ComponentId comp_RigidBody = registry.RegisterComponent<RigidBody>();
     Deep::ECDB::Archetype& arch_RigidBody = database.GetArchetype(&comp_RigidBody, 1);
     Deep::ECDB::Archetype::ComponentOffset offset_RigidBody = arch_RigidBody.GetComponentOffset(comp_RigidBody);
 
-    size_t numObjects = 1000000;
+    size_t numObjects = 2000000;
     for (size_t i = 0; i < numObjects; ++i) {
         arch_RigidBody.Entity();
     }
+
+    size_t numChunks = 0;
+    for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
+        ++numChunks;
+    }
+    std::cout << numChunks << " num chunks\n";
 
     for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
         RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
@@ -105,7 +111,7 @@ int main() {
         }
 
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(50ms);
     };
 
     socket.Close();
