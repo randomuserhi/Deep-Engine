@@ -9,8 +9,11 @@ public class Local : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        while (objects.Count < 1000000) {
+        while (objects.Count < 4000) {
             objects.Add(Instantiate(prefab).GetComponent<SmoothTransform>());
+        }
+
+        while (positions.Count < 1000000) {
             positions.Add(new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)));
             velocities.Add(new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)));
         }
@@ -18,8 +21,11 @@ public class Local : MonoBehaviour {
 
     // Update is called once per frame
     void FixedUpdate() {
-        for (int i = 0; i < objects.Count; i++) {
+        for (int i = 0; i < positions.Count; i++) {
             positions[i] += velocities[i];
+        }
+
+        for (int i = 0; i < objects.Count; i++) {
             objects[i].targetPosition = positions[i];
         }
     }
