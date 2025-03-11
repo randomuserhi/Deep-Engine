@@ -146,7 +146,7 @@ namespace Deep {
             // TODO(randomuserhi): More optimal barrier job queue...
 
             // Job queue for the barrier
-            static constexpr uint32 maxJobs = 2048;
+            static constexpr uint32 maxJobs = 4096;
             static_assert(IsPowerOf2(maxJobs), "Maximum job count must be a power of 2 due to bit operations.");
             std::atomic<Job*> jobs[maxJobs];
 
