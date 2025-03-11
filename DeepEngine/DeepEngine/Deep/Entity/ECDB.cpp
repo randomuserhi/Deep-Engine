@@ -339,13 +339,19 @@ namespace Deep {
     }
 
     ECDB::Archetype::~Archetype() {
+        // Delete chunks in use
         while (tail != nullptr) {
             Archetype::Chunk* temp = tail;
             tail = tail->next;
             delete temp;
         }
 
-        firstFree = nullptr;
+        // Delete free list
+        while (firstFree != nullptr) {
+            Archetype::Chunk* temp = firstFree;
+            firstFree = firstFree->next;
+            delete temp;
+        }
     }
 
     ECDB::Entt ECDB::Archetype::Entity() {
