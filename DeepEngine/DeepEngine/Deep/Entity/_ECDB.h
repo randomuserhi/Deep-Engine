@@ -9,6 +9,11 @@
 #include <unordered_map>
 #include <vector>
 
+// TODO(randomuserhi):
+// - API to trade chunks between archetypes that share the same layout
+//   (This allows fast bulk moving of entities between archetypes)
+// - Refactor chunk API for better iteration
+
 namespace Deep {
     struct ArchetypeBitField {
         friend struct std::hash<Deep::ArchetypeBitField>;
