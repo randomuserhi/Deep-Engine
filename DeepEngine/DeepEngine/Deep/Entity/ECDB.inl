@@ -62,7 +62,7 @@ namespace Deep {
 } // namespace Deep
 
 namespace Deep {
-    const ECDB::Archetype::Metadata& ECDB::Archetype::GetMetadata(EntityPtr* entity) const {
+    const ECDB::Archetype::Metadata& ECDB::Archetype::GetMeta(EntityPtr* entity) const {
         Deep_Assert(entity->archetype == this, "Entity does not belong to this archetype");
 
         Metadata* metadata = reinterpret_cast<Metadata*>(entity->chunk);
@@ -74,12 +74,49 @@ namespace Deep {
         return numEntities;
     }
 
+    ECDB::Archetype::Chunk* ECDB::Archetype::chunks() const {
+        return tail;
+    }
+
     ECDB::Archetype& ECDB::GetRootArchetype() {
         return *rootArchetype;
     }
 
     void ECDB::Archetype::Remove(EntityPtr* entity) {
         database->rootArchetype->Move(entity);
+    }
+
+    size_t ECDB::Archetype::GetChunkSize(Chunk* chunk) const {
+        Deep_Assert(chunk != nullptr, "Chunk was a nullptr.");
+#ifdef DEEP_ENABLE_ASSERTS
+        {
+            bool found = false;
+            Chunk* tail = this->tail;
+            while (tail != nullptr) {
+                if (tail == chunk) {
+                    found = true;
+                    break;
+                }
+                tail = tail->next;
+            }
+            Deep_Assert(found, "Chunk does not exist in this archetype.");
+        }
+#endif
+
+        return chunk != tail ? entitiesPerChunk : firstFreeItemInNewChunk;
+    }
+
+    ECDB::Archetype::Metadata* ECDB::Archetype::GetMetas(Chunk* chunk) {
+        return reinterpret_cast<ECDB::Archetype::Metadata*>(chunk->data);
+    }
+
+    void* ECDB::Archetype::GetComponents(Chunk* chunk, ComponentOffset offset) {
+        return chunk->data + offset.offset;
+    }
+
+    template<typename T>
+    T* ECDB::Archetype::GetComponents(Chunk* chunk, ComponentOffset offset) {
+        return reinterpret_cast<T*>(GetComponents(chunk, offset));
     }
 
     void* ECDB::Archetype::GetComponent(EntityPtr* entity, ComponentOffset offset) const {

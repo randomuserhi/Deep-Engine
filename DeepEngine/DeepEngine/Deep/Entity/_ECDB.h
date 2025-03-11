@@ -148,8 +148,16 @@ namespace Deep {
 
             ComponentOffset GetComponentOffset(ComponentId component) const;
 
-            // NOTE(randomuserhi): return const & if metadata gets large enough
-            Deep_Inline const Metadata& GetMetadata(EntityPtr* entity) const;
+            Deep_Inline const Metadata& GetMeta(EntityPtr* entity) const;
+
+            Deep_Inline size_t GetChunkSize(Chunk* chunk) const;
+
+            static Deep_Inline Metadata* GetMetas(Chunk* chunk);
+
+            static Deep_Inline void* GetComponents(Chunk* chunk, ComponentOffset offset);
+
+            template<typename T>
+            static Deep_Inline T* GetComponents(Chunk* chunk, ComponentOffset offset);
 
             Deep_Inline void* GetComponent(EntityPtr* entity, ComponentOffset offset) const;
 
@@ -161,6 +169,8 @@ namespace Deep {
             template<typename T>
             Deep_Inline T& GetComponent(EntityPtr* entity, ComponentOffset offset) const;
 
+            ECDB::Entt Entity();
+
             void Move(EntityPtr* entity);
 
             Deep_Inline void Remove(EntityPtr* entity);
@@ -169,6 +179,8 @@ namespace Deep {
 
             // Describes the archetype (type + layout)
             const ArchetypeDesc description;
+
+            Deep_Inline Chunk* chunks() const;
 
         private:
             void Deallocate(EntityPtr* entity);
@@ -224,6 +236,9 @@ namespace Deep {
         };
 
         struct EntityPage {
+            // TODO(randomuserhi): For concurrent access, each Storage in entityLookup should be aligned to
+            //                     DEEP_CACHE_LINE_SIZE
+
             struct Storage {
                 EntityPtr ptr;
                 Storage* next;
@@ -255,6 +270,8 @@ namespace Deep {
         ECDB::Archetype& GetArchetype(ComponentId* components, size_t numComponents);
 
     private:
+        EntityPtr* AllocateEntity();
+
         ECRegistry* const registry;
 
         std::unordered_map<ArchetypeBitField, Archetype*> archetypes;

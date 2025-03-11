@@ -132,6 +132,20 @@ Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=ga
 #### Iterating
 
 Iterating of archetypes is done in chunks starting from the tail.
+
+```cpp
+Deep::ECDB::Archetype& arch = db.GetArchetype(...);
+Deep::ECDB::Archetype::ComponentOffset transformOffset = arch.GetComponentOffset(registry.GetComponent<Transform>());
+
+for (Deep::ECDB::Archetype::Chunk* c = arch.tail; c != nullptr; c = c.next) {
+	Transform* transforms = Deep::ECDB::Archetype::GetComponents<Transform>(c, trnasformOffset);
+	for (size_t i = 0; i < arch.GetChunkSize(c); ++i) {
+		Transform& t = transforms[i];
+
+		t.position = { 1, 2, 3 };
+	}
+}
+```
 #### Queries
 
 Queries store a list of archetypes that match its query. Iterating a query involves iterating each archetype.

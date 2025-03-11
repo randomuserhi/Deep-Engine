@@ -39,7 +39,7 @@ TEST(ECDB, Entity) {
     Deep::ECDB::Archetype& root = database.GetRootArchetype();
 
     // Check metadata matches
-    const Deep::ECDB::Archetype::Metadata& rootMeta = root.GetMetadata(entt);
+    const Deep::ECDB::Archetype::Metadata& rootMeta = root.GetMeta(entt);
     EXPECT_EQ(rootMeta.entt, entt);
 
     // Check entity archetype changes
@@ -50,7 +50,7 @@ TEST(ECDB, Entity) {
     Deep::ECDB::Archetype& arch = database.GetArchetype(compArr, 1);
 
     // Check metadata matches
-    const Deep::ECDB::Archetype::Metadata& metadata = arch.GetMetadata(entt);
+    const Deep::ECDB::Archetype::Metadata& metadata = arch.GetMeta(entt);
     EXPECT_EQ(metadata.entt, entt);
 
     {
@@ -74,6 +74,45 @@ TEST(ECDB, Entity) {
 
     // Check metadata matches
     EXPECT_EQ(rootMeta.entt, entt);
+}
+
+TEST(ECDB, EntityIteration) {
+    Deep::ECRegistry registry;
+    Deep::ECDB database{ &registry };
+
+    Deep::ComponentId comp = registry.RegisterComponent<Component>();
+    Deep::ComponentId compArr[] = { comp };
+    Deep::ECDB::Archetype& arch = database.GetArchetype(compArr, 1);
+
+    for (size_t i = 0; i < 10000; ++i) {
+        arch.Entity();
+    }
+
+    {
+        size_t size = 0;
+
+        Deep::ECDB::Archetype::ComponentOffset offset = arch.GetComponentOffset(comp);
+        for (Deep::ECDB::Archetype::Chunk* c = arch.chunks(); c != nullptr; c = c->next) {
+            Component* comps = Deep::ECDB::Archetype::GetComponents<Component>(c, offset);
+            for (size_t i = 0; i < arch.GetChunkSize(c); ++i, ++size) {
+                Component& t = comps[i];
+                t.a = i;
+            }
+        }
+
+        EXPECT_EQ(size, 10000);
+    }
+
+    {
+        Deep::ECDB::Archetype::ComponentOffset offset = arch.GetComponentOffset(comp);
+        for (Deep::ECDB::Archetype::Chunk* c = arch.chunks(); c != nullptr; c = c->next) {
+            Component* comps = Deep::ECDB::Archetype::GetComponents<Component>(c, offset);
+            for (size_t i = 0; i < arch.GetChunkSize(c); ++i) {
+                Component& t = comps[i];
+                EXPECT_EQ(t.a, i);
+            }
+        }
+    }
 }
 
 TEST(ECDB, Archetype) {

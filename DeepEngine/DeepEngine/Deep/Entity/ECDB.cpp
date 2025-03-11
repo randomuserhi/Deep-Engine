@@ -6,6 +6,8 @@
 #include <Deep/Math.h>
 #include <Deep/Memory.h>
 
+// TODO(randomuserhi): Refactor for readability (don't restructure if-statements based on likelyhood)
+
 namespace Deep {
     ECDB::~ECDB() {
         // Free archetypes
@@ -23,7 +25,7 @@ namespace Deep {
         firstFree = nullptr;
     }
 
-    ECDB::Entt ECDB::Entity() {
+    ECDB::EntityPtr* ECDB::AllocateEntity() {
         // TODO(randomuserhi): Support Concurrency (lock-free)
 
         EntityPage::Storage* storage;
@@ -67,10 +69,16 @@ namespace Deep {
         EntityPtr& ptr = storage->ptr;
         ptr.archetype = nullptr;
 
-        // Move the entity into the root archetype
-        rootArchetype->Move(&ptr);
+        return &ptr;
+    }
 
-        return ECDB::Entt{ this, &ptr };
+    ECDB::Entt ECDB::Entity() {
+        EntityPtr* ptr = AllocateEntity();
+
+        // Move the entity into the root archetype
+        rootArchetype->Move(ptr);
+
+        return ECDB::Entt{ this, ptr };
     }
 
     void ECDB::AddComponent(EntityPtr* entity, ComponentId component) {
@@ -333,10 +341,19 @@ namespace Deep {
         while (tail != nullptr) {
             Archetype::Chunk* temp = tail;
             tail = tail->next;
-            Free(tail);
+            delete temp;
         }
 
         firstFree = nullptr;
+    }
+
+    ECDB::Entt ECDB::Archetype::Entity() {
+        EntityPtr* ptr = database->AllocateEntity();
+
+        // Move the entity into the root archetype
+        Move(ptr);
+
+        return ECDB::Entt{ database, ptr };
     }
 
     ECDB::Archetype::ComponentOffset ECDB::Archetype::GetComponentOffset(ComponentId component) const {
@@ -430,7 +447,7 @@ namespace Deep {
                 } else {
                     // Free list is empty, allocate a new chunk
 
-                    chunk = new Chunk;
+                    chunk = new Chunk{};
                 }
 
                 firstFreeItemInNewChunk = 0;
@@ -450,7 +467,7 @@ namespace Deep {
             } else {
                 // Free list is empty, allocate a new chunk
 
-                chunk = new Chunk;
+                chunk = new Chunk{};
             }
 
             firstFreeItemInNewChunk = 0;
