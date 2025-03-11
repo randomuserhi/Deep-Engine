@@ -68,6 +68,7 @@ namespace Deep {
 
         EntityPtr& ptr = storage->ptr;
         ptr.archetype = nullptr;
+        ptr.chunk = nullptr;
 
         return &ptr;
     }

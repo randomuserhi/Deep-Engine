@@ -87,7 +87,7 @@ namespace Deep {
     }
 
     size_t ECDB::Archetype::GetChunkSize(Chunk* chunk) const {
-        Deep_Assert(chunk != nullptr, "Chunk was a nullptr.");
+        Deep_Assert(chunk != nullptr, "Chunk cannot be a nullptr.");
 #ifdef DEEP_ENABLE_ASSERTS
         {
             bool found = false;
@@ -107,10 +107,12 @@ namespace Deep {
     }
 
     ECDB::Archetype::Metadata* ECDB::Archetype::GetMetaList(Chunk* chunk) {
+        Deep_Assert(chunk != nullptr, "Chunk cannot be a nullptr.");
         return reinterpret_cast<ECDB::Archetype::Metadata*>(chunk->data);
     }
 
     void* ECDB::Archetype::GetCompList(Chunk* chunk, ComponentOffset offset) {
+        Deep_Assert(chunk != nullptr, "Chunk cannot be a nullptr.");
         return chunk->data + offset.offset;
     }
 
