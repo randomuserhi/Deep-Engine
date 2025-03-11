@@ -130,7 +130,11 @@ The handle / reference then points to the item in the lookup table which is fixe
 Use of Entity Versioning and Index recycling: https://www.youtube.com/watch?v=gaj4SY4KNR4
 - versioning prevents accidental reuse of an entity which has changed due to a move either from deletion or change in archetype
 #### Iterating
+
+Iterating of archetypes is done in chunks starting from the tail.
 #### Queries
+
+Queries store a list of archetypes that match its query. Iterating a query involves iterating each archetype.
 
 ### Proposed API
 

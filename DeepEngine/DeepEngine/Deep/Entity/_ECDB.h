@@ -118,13 +118,14 @@ namespace Deep {
             static_assert(Deep::IsPowerOf2(chunkAllocSize), "chunkAllocSize must be a power of 2.");
 
             static constexpr const size_t chunkSize = chunkAllocSize - sizeof(void*);
-            struct Chunk {
+            struct alignas(DEEP_CACHE_LINE_SIZE) Chunk {
                 // NOTE(randomuserhi): Data should remain uninitialized until allocated.
                 //                     It is also a placeholder for the allocated components.
                 char data[chunkSize];
 
                 Chunk* next = nullptr;
             };
+            static_assert(alignof(Chunk) == DEEP_CACHE_LINE_SIZE, "Chunks should be aligned to cache line boundaries.");
             static_assert(std::is_standard_layout<Chunk>(), "Chunk must be of standard layout.");
             static_assert(sizeof(Chunk) == chunkAllocSize, "Size of chunk does not match chunkAllocSize.");
 
