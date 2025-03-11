@@ -152,7 +152,7 @@ namespace Deep {
 
             Deep_Inline size_t GetChunkSize(Chunk* chunk) const;
 
-            static Deep_Inline Metadata* GetMetaList(Chunk* chunk);
+            static Deep_Inline const Metadata* GetMetaList(Chunk* chunk);
 
             static Deep_Inline void* GetCompList(Chunk* chunk, ComponentOffset offset);
 

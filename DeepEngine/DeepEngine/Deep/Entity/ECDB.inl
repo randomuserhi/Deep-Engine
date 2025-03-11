@@ -106,9 +106,9 @@ namespace Deep {
         return chunk != tail ? entitiesPerChunk : firstFreeItemInNewChunk;
     }
 
-    ECDB::Archetype::Metadata* ECDB::Archetype::GetMetaList(Chunk* chunk) {
+    const ECDB::Archetype::Metadata* ECDB::Archetype::GetMetaList(Chunk* chunk) {
         Deep_Assert(chunk != nullptr, "Chunk cannot be a nullptr.");
-        return reinterpret_cast<ECDB::Archetype::Metadata*>(chunk->data);
+        return reinterpret_cast<const ECDB::Archetype::Metadata*>(chunk->data);
     }
 
     void* ECDB::Archetype::GetCompList(Chunk* chunk, ComponentOffset offset) {
