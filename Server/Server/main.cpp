@@ -59,40 +59,50 @@ int main() {
     }
 
     while (true) {
-        auto start = std::chrono::system_clock::now();
+        {
+            auto start = std::chrono::system_clock::now();
 
-        Deep::Barrier barrier = jobSystem.AcquireBarrier();
-        for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
-            jobSystem.Enqueue([offset_RigidBody, c, &arch_RigidBody]() {
-                RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
-                for (size_t i = 0; i < arch_RigidBody.GetChunkSize(c); ++i) {
-                    RigidBody& rb = comps[i];
-                    rb.position += rb.velocity;
-                }
-            });
-        }
-        barrier.Wait();
-
-        auto end = std::chrono::system_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << elapsed.count() << "ms\n";
-
-        Deep::PacketWriter packet;
-
-        // packet.Write(static_cast<int32>(arch_RigidBody.size()));
-        packet.Write(1000);
-        size_t count = 0;
-        for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); count < 1000 && c != nullptr;
-             c = arch_RigidBody.GetNextChunk(c)) {
-            RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
-            for (size_t i = 0; count < 1000 && i < arch_RigidBody.GetChunkSize(c); ++i) {
-                RigidBody& rb = comps[i];
-                packet.Write(rb.position);
-                ++count;
+            Deep::Barrier barrier = jobSystem.AcquireBarrier();
+            for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr;
+                 c = arch_RigidBody.GetNextChunk(c)) {
+                jobSystem.Enqueue([offset_RigidBody, c, &arch_RigidBody]() {
+                    RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
+                    for (size_t i = 0; i < arch_RigidBody.GetChunkSize(c); ++i) {
+                        RigidBody& rb = comps[i];
+                        rb.position += rb.velocity;
+                    }
+                });
             }
+            barrier.Wait();
+
+            auto end = std::chrono::system_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            std::cout << elapsed.count() << "ms frame time - ";
         }
 
-        socket.Send(packet);
+        {
+            auto start = std::chrono::system_clock::now();
+            Deep::PacketWriter packet;
+
+            // packet.Write(static_cast<int32>(arch_RigidBody.size()));
+            packet.Write(4000);
+            size_t count = 0;
+            for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); count < 4000 && c != nullptr;
+                 c = arch_RigidBody.GetNextChunk(c)) {
+                RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
+                for (size_t i = 0; count < 4000 && i < arch_RigidBody.GetChunkSize(c); ++i) {
+                    RigidBody& rb = comps[i];
+                    packet.WriteHalf(rb.position);
+                    ++count;
+                }
+            }
+
+            socket.Send(packet);
+
+            auto end = std::chrono::system_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            std::cout << elapsed.count() << "ms net time\n";
+        }
 
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(100ms);

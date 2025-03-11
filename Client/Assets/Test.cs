@@ -28,7 +28,7 @@ internal class Test : MonoBehaviour {
         }
 
         for (int i = 0; i < numObjects; ++i) {
-            objects[i].targetPosition = BitHelper.ReadVector3(result.Buffer, ref _i);
+            objects[i].targetPosition = BitHelper.ReadHalfVector3(result.Buffer, ref _i);
         }
 
         _ = Listen();
