@@ -9,11 +9,11 @@ public class Local : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        while (objects.Count < 4000) {
+        while (objects.Count < 10000) {
             objects.Add(Instantiate(prefab).GetComponent<SmoothTransform>());
         }
 
-        while (positions.Count < 2000000) {
+        while (positions.Count < 10000000) {
             positions.Add(new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)));
             velocities.Add(new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f)));
         }
