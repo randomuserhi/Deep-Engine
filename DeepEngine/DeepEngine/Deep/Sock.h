@@ -50,10 +50,14 @@ namespace Deep {
 
         int32 Open();
         int32 Close();
+
         int32 Bind(uint16 port = 0);
         int32 Connect(const IPv4 address);
+
+        // NOTE(randomuserhi): When using `Bind`, these methods will error, use SendTo instead.
         int32 Send(const uint8* data, size_t dataSize);
         Deep_Inline int32 Send(const PacketWriter& packet);
+
         int32 SendTo(const uint8* data, size_t dataSize, const IPv4 address);
         Deep_Inline int32 SendTo(const PacketWriter& packet, const IPv4 address);
 
