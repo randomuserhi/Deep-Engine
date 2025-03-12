@@ -13,6 +13,7 @@
 struct Net {
     // TODO(randomuserhi):
     // - Handle disconnects
+    // - Design a proper protocol (currently only supports raw UDP)
 
     Deep::UDPSocket socket;
     std::vector<Deep::IPv4> clients;
