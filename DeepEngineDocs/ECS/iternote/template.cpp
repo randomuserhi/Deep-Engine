@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <Deep.h>
+#include <Deep/Memory.h>
 #include <Deep/Net.h>
 #include <Deep/Math.h>
 
@@ -15,6 +16,9 @@ struct Net {
 
     Deep::UDPSocket socket;
     std::vector<Deep::IPv4> clients;
+
+    constexpr static const size_t bufferSize = 4096;
+    uint8* buffer;
 
     void AddClient(Deep::IPv4 client) {
         for (auto c : clients) {
@@ -32,12 +36,11 @@ struct Net {
 };
 
 Deep_Inline void NetTick(Net& net) {
-    constexpr const size_t bufferSize = 4096;
-    uint8 buffer[bufferSize];
     size_t bytesReceived = 0;
     Deep::IPv4 fromAddress;
 
-    while (net.socket.Receive(buffer, bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR && bytesReceived > 0) {
+    while (net.socket.Receive(net.buffer, Net::bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR
+           && bytesReceived > 0) {
         net.AddClient(fromAddress);
         std::cout << "Received " << bytesReceived << " bytes.\n";
     }
@@ -54,16 +57,13 @@ int main() {
     Deep::InitializeSockets();
 
     Net net;
+    net.buffer = reinterpret_cast<uint8*>(Deep::Malloc(Net::bufferSize));
+
     net.socket.Open();
     int32 res = net.socket.Bind(23152);
     Deep::IPv4 address;
     net.socket.GetSockName(address);
-    std::cout << static_cast<uint32>(address.a)        //
-              << ":" << static_cast<uint32>(address.b) //
-              << ":" << static_cast<uint32>(address.c) //
-              << ":" << static_cast<uint32>(address.d) //
-              << ":" << address.port << "\n"
-              << "conn: " << res << "\n";
+    std::cout << "Server running on port " << address.port << "\n";
 
     // Main Tick Loop
     constexpr const int32 tickRate = 60; // Server runs at 60 ticks per second
@@ -101,5 +101,7 @@ int main() {
 
     // Cleanup
     net.socket.Close();
+    Deep::Free(net.buffer);
+
     Deep::ShutdownSockets();
 }
