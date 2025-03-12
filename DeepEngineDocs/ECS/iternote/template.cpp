@@ -7,57 +7,28 @@
 // https://stackoverflow.com/a/62047818/9642458
 #include <chrono>
 #include <thread>
-#include <vector>
 
-struct Net {
-    // TODO(randomuserhi):
-    // - Handle disconnects
-
-    Deep::UDPSocket socket;
-    std::vector<Deep::IPv4> clients;
-
-    void AddClient(Deep::IPv4 client) {
-        for (auto c : clients) {
-            if (c == client) return;
-        }
-        clients.push_back(client);
-    }
-
-    void Send(const Deep::PacketWriter& packet, int32* woResults = nullptr) {
-        for (size_t i = 0; i < clients.size(); ++i) {
-            int32 result = socket.SendTo(packet.data(), packet.size(), clients[i]);
-            if (woResults != nullptr) woResults[i] = result;
-        }
-    }
-};
-
-Deep_Inline void NetTick(Net& net) {
+Deep_Inline void NetTick(Deep::UDPSocket& socket) {
     constexpr const size_t bufferSize = 4096;
     uint8 buffer[bufferSize];
     size_t bytesReceived = 0;
     Deep::IPv4 fromAddress;
 
-    while (net.socket.Receive(buffer, bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR && bytesReceived > 0) {
-        net.AddClient(fromAddress);
-        std::cout << "Received " << bytesReceived << " bytes.\n";
+    while (socket.Receive(buffer, bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR && bytesReceived > 0) {
+        std::cout << "Received " << bytesReceived << " bytes\n";
     }
 }
 
-Deep_Inline void Tick(Net& net, float32 dt) {
-    Deep::PacketWriter packet{};
-    const uint8 msg[] = "hello";
-    packet.Write(msg, sizeof msg);
-    net.Send(packet);
-}
+Deep_Inline void Tick(float32 dt) {}
 
 int main() {
+    // Create server socket
     Deep::InitializeSockets();
-
-    Net net;
-    net.socket.Open();
-    int32 res = net.socket.Bind(23152);
+    Deep::UDPSocket socket;
+    socket.Open();
+    int32 res = socket.Bind(23152);
     Deep::IPv4 address;
-    net.socket.GetSockName(address);
+    socket.GetSockName(address);
     std::cout << static_cast<uint32>(address.a)        //
               << ":" << static_cast<uint32>(address.b) //
               << ":" << static_cast<uint32>(address.c) //
@@ -76,10 +47,10 @@ int main() {
         start = now;
 
         // Network tick
-        NetTick(net);
+        NetTick(socket);
 
         // Perform tick
-        Tick(net, dt);
+        Tick(dt);
 
         auto end = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -99,7 +70,6 @@ int main() {
         }
     };
 
-    // Cleanup
-    net.socket.Close();
+    socket.Close();
     Deep::ShutdownSockets();
 }

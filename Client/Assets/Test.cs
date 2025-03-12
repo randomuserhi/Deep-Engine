@@ -1,6 +1,6 @@
-﻿using Deep.Net;
-using System.Collections.Generic;
+﻿using System.Linq;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -8,30 +8,22 @@ internal class Test : MonoBehaviour {
     private UdpClient client;
 
     private void Start() {
-        client = new UdpClient(23152);
-        _ = Listen();
+        client = new UdpClient("127.0.0.1", 23152);
+        _ = Listen().ConfigureAwait(false);
 
         Debug.Log("started");
     }
 
-    public GameObject prefab;
-    private List<SmoothTransform> objects = new List<SmoothTransform>();
-
     private async Task Listen() {
         UdpReceiveResult result = await client.ReceiveAsync();
 
-        int _i = 0;
-        int numObjects = BitHelper.ReadInt(result.Buffer, ref _i);
+        Debug.Log($"Received: {result.Buffer.Count()} bytes.");
+        _ = Listen().ConfigureAwait(false);
+    }
 
-        while (objects.Count < numObjects) {
-            objects.Add(Instantiate(prefab).GetComponent<SmoothTransform>());
-        }
-
-        for (int i = 0; i < numObjects; ++i) {
-            objects[i].targetPosition = BitHelper.ReadHalfVector3(result.Buffer, ref _i);
-        }
-
-        _ = Listen();
+    private void Update() {
+        byte[] test = Encoding.ASCII.GetBytes("client");
+        client.Send(test, test.Length);
     }
 
     private void OnApplicationQuit() {

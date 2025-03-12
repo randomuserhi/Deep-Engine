@@ -172,7 +172,7 @@ namespace Deep {
 
         const SOCKET& socketFD = __impl__.socketFD;
 
-        SocketAddr fromSockAddr = ToSocketAddr(woFromAddress);
+        SocketAddr fromSockAddr;
         socklen_t fromLength = sizeof fromSockAddr;
 
         int32 result = recvfrom(socketFD, reinterpret_cast<char*>(buffer), static_cast<int>(maxBufferSize), 0,
@@ -180,9 +180,11 @@ namespace Deep {
 
         woBytesReceived = Deep::Max(0, result);
 
-        if (result < 0 && WSAGetLastError() != WSAEWOULDBLOCK) {
+        if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
             return DEEP_SOCKET_ERROR;
         }
+
+        FromSocketAddr(fromSockAddr, woFromAddress);
 
         return DEEP_SOCKET_NOERROR;
     }

@@ -56,6 +56,8 @@ namespace Deep {
         Deep_Inline int32 Send(const PacketWriter& packet);
         int32 SendTo(const uint8* data, size_t dataSize, const IPv4 address);
         Deep_Inline int32 SendTo(const PacketWriter& packet, const IPv4 address);
+
+        // NOTE(randomuserhi): On error, woFromAddress will remain untouched.
         int32 Receive(uint8* buffer, const size_t maxBufferSize, size_t& woBytesReceived, IPv4& woFromAddress);
 
     private:
