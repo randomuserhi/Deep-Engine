@@ -4,7 +4,7 @@ namespace Deep {
     int32 UDPSocket::Send(const PacketWriter& packet) {
         return Send(packet.data(), packet.size());
     }
-    int32 UDPSocket::SendTo(const PacketWriter& packet) {
-        return Send(packet.data(), packet.size());
+    int32 UDPSocket::SendTo(const PacketWriter& packet, const IPv4 address) {
+        return SendTo(packet.data(), packet.size(), address);
     }
 } // namespace Deep

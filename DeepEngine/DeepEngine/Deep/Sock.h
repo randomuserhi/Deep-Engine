@@ -44,9 +44,9 @@ namespace Deep {
         UDPSocket() :
             __impl__() {}
 
-        int32 GetSockName(IPv4& address);
+        int32 GetSockName(IPv4& woAddress);
 
-        int32 GetPeerName(IPv4& address);
+        int32 GetPeerName(IPv4& woAddress);
 
         int32 Open();
         int32 Close();
@@ -55,8 +55,8 @@ namespace Deep {
         int32 Send(const uint8* data, size_t dataSize);
         Deep_Inline int32 Send(const PacketWriter& packet);
         int32 SendTo(const uint8* data, size_t dataSize, const IPv4 address);
-        Deep_Inline int32 SendTo(const PacketWriter& packet);
-        int32 Receive(uint8* buffer, const size_t maxBufferSize, size_t& bytesReceived, IPv4& fromAddress);
+        Deep_Inline int32 SendTo(const PacketWriter& packet, const IPv4 address);
+        int32 Receive(uint8* buffer, const size_t maxBufferSize, size_t& woBytesReceived, IPv4& woFromAddress);
 
     private:
         __impl__::UDPSocket __impl__;

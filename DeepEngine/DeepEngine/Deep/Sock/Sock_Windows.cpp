@@ -29,14 +29,14 @@ namespace Deep {
 
         return address;
     }
-    int32 FromSocketAddr(const SocketAddr sockAddr, IPv4& format) {
+    int32 FromSocketAddr(const SocketAddr sockAddr, IPv4& woFormat) {
         if (sockAddr.sa.sa_family == AF_INET) {
             const uint32 bitAddress = ntohl(sockAddr.sa_in.sin_addr.s_addr);
-            format.a = (bitAddress & 0xFF000000) >> 24;
-            format.b = (bitAddress & 0x00FF0000) >> 16;
-            format.c = (bitAddress & 0x0000FF00) >> 8;
-            format.d = (bitAddress & 0x000000FF);
-            format.port = ntohs(sockAddr.sa_in.sin_port);
+            woFormat.a = (bitAddress & 0xFF000000) >> 24;
+            woFormat.b = (bitAddress & 0x00FF0000) >> 16;
+            woFormat.c = (bitAddress & 0x0000FF00) >> 8;
+            woFormat.d = (bitAddress & 0x000000FF);
+            woFormat.port = ntohs(sockAddr.sa_in.sin_port);
 
             return DEEP_SOCKET_NOERROR;
         }
@@ -57,18 +57,18 @@ namespace Deep {
         return result == SOCKET_ERROR ? DEEP_SOCKET_ERROR : DEEP_SOCKET_NOERROR;
     }
 
-    int32 UDPSocket::GetSockName(IPv4& address) {
+    int32 UDPSocket::GetSockName(IPv4& woAddress) {
         SocketAddr sockAddr;
         socklen_t assignedAddressLen = sizeof sockAddr;
         if (getsockname(__impl__.socketFD, &sockAddr.sa, &assignedAddressLen) != NO_ERROR) return DEEP_SOCKET_ERROR;
-        return FromSocketAddr(sockAddr, address);
+        return FromSocketAddr(sockAddr, woAddress);
     }
 
-    int32 UDPSocket::GetPeerName(IPv4& address) {
+    int32 UDPSocket::GetPeerName(IPv4& woAddress) {
         SocketAddr sockAddr;
         socklen_t assignedAddressLen = sizeof sockAddr;
         if (getpeername(__impl__.socketFD, &sockAddr.sa, &assignedAddressLen) != NO_ERROR) return DEEP_SOCKET_ERROR;
-        return FromSocketAddr(sockAddr, address);
+        return FromSocketAddr(sockAddr, woAddress);
     }
 
     int32 UDPSocket::Open() {
@@ -81,6 +81,13 @@ namespace Deep {
         socketFD = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
         if (socketFD == INVALID_SOCKET) {
+            return DEEP_SOCKET_ERROR;
+        }
+
+        // Set socket to be non-blocking
+        DWORD nonBlocking = 1;
+        if (ioctlsocket(socketFD, FIONBIO, &nonBlocking) == SOCKET_ERROR) {
+            // Failed to set socket to non-blocking
             return DEEP_SOCKET_ERROR;
         }
 
@@ -121,13 +128,6 @@ namespace Deep {
             return DEEP_SOCKET_ERROR;
         }
 
-        // Set socket to be non-blocking
-        DWORD nonBlocking = 1;
-        if (ioctlsocket(socketFD, FIONBIO, &nonBlocking) != 0) {
-            // Failed to set socket to non-blocking
-            return DEEP_SOCKET_ERROR;
-        }
-
         return DEEP_SOCKET_NOERROR;
     }
 
@@ -147,7 +147,7 @@ namespace Deep {
 
         const SOCKET& socketFD = __impl__.socketFD;
         const int32 sentBytes = send(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0);
-        if (sentBytes == SOCKET_ERROR) {
+        if (sentBytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
             return DEEP_SOCKET_ERROR;
         }
         return DEEP_SOCKET_NOERROR;
@@ -161,24 +161,26 @@ namespace Deep {
         const SocketAddr sockAddr = ToSocketAddr(address);
         const int32 sentBytes = sendto(socketFD, reinterpret_cast<const char*>(data), static_cast<int>(dataSize), 0,
                                        &sockAddr.sa, sizeof sockAddr);
-        if (sentBytes == SOCKET_ERROR) {
+        if (sentBytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
             return DEEP_SOCKET_ERROR;
         }
         return DEEP_SOCKET_NOERROR;
     }
 
-    int32 UDPSocket::Receive(uint8* buffer, const size_t maxBufferSize, size_t& bytesReceived, IPv4& fromAddress) {
+    int32 UDPSocket::Receive(uint8* buffer, const size_t maxBufferSize, size_t& woBytesReceived, IPv4& woFromAddress) {
         Deep_Assert(maxBufferSize < INT_MAX, "Size of buffer cannot be larger than INT_MAX.");
 
         const SOCKET& socketFD = __impl__.socketFD;
 
-        SocketAddr fromSockAddr = ToSocketAddr(fromAddress);
+        SocketAddr fromSockAddr = ToSocketAddr(woFromAddress);
         socklen_t fromLength = sizeof fromSockAddr;
 
-        bytesReceived = recvfrom(socketFD, reinterpret_cast<char*>(buffer), static_cast<int>(maxBufferSize), 0,
-                                 &fromSockAddr.sa, &fromLength);
+        int32 result = recvfrom(socketFD, reinterpret_cast<char*>(buffer), static_cast<int>(maxBufferSize), 0,
+                                &fromSockAddr.sa, &fromLength);
 
-        if (bytesReceived < 0) {
+        woBytesReceived = Deep::Max(0, result);
+
+        if (result < 0 && WSAGetLastError() != WSAEWOULDBLOCK) {
             return DEEP_SOCKET_ERROR;
         }
 

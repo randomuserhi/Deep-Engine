@@ -1,29 +1,28 @@
 #include <iostream>
 
 #include <Deep.h>
-#include <Deep/Entity.h>
 #include <Deep/Net.h>
 #include <Deep/Math.h>
-#include <Deep/Threading.h>
 
 // https://stackoverflow.com/a/62047818/9642458
 #include <chrono>
 #include <thread>
 
-#include <random>
+Deep_Inline void NetTick(Deep::UDPSocket& socket) {
+    constexpr const size_t bufferSize = 4096;
+    uint8 buffer[bufferSize];
+    size_t bytesReceived = 0;
+    Deep::IPv4 fromAddress;
 
-struct RigidBody {
-    Deep::Vec3 position;
-    Deep::Vec3 velocity;
-};
+    while (socket.Receive(buffer, bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR && bytesReceived > 0) {
+        std::cout << "Received " << bytesReceived << " bytes\n";
+    }
+}
+
+Deep_Inline void Tick(float32 dt) {}
 
 int main() {
-    std::random_device rd;  // Seed generator
-    std::mt19937 gen(rd()); // Mersenne Twister RNG
-    std::uniform_real_distribution<float> rand(-1.0f, 1.0f);
-
-    Deep::JobSystem jobSystem{ 8, 4096, 1024 };
-
+    // Create server socket
     Deep::InitializeSockets();
     Deep::UDPSocket socket;
     socket.Open();
@@ -34,84 +33,38 @@ int main() {
               << ":" << static_cast<uint32>(address.b) //
               << ":" << static_cast<uint32>(address.c) //
               << ":" << static_cast<uint32>(address.d) //
-              << ":" << address.port << "\n";
+              << ":" << address.port << "\n"
+              << "conn: " << res << "\n";
 
-    Deep::ECRegistry _registry{};
-    Deep::ECDB database{ &_registry, 16384 * 8 };
-    Deep::ECStaticRegistry registry{ &_registry };
-
-    Deep::ComponentId comp_RigidBody = registry.RegisterComponent<RigidBody>();
-    Deep::ECDB::Archetype& arch_RigidBody = database.GetArchetype(&comp_RigidBody, 1);
-    Deep::ECDB::Archetype::ComponentOffset offset_RigidBody = arch_RigidBody.GetComponentOffset(comp_RigidBody);
-
-    size_t numObjects = 10000000;
-    for (size_t i = 0; i < numObjects; ++i) {
-        arch_RigidBody.Entity();
-    }
-
-    size_t numChunks = 0;
-    for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
-        ++numChunks;
-    }
-    std::cout << numChunks << " num chunks\n";
-
-    for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr; c = arch_RigidBody.GetNextChunk(c)) {
-        RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
-        for (size_t i = 0; i < arch_RigidBody.GetChunkSize(c); ++i) {
-            RigidBody& rb = comps[i];
-            rb.position = { rand(gen), rand(gen), rand(gen) };
-            rb.velocity = { rand(gen), rand(gen), rand(gen) };
-        }
-    }
-
+    // Main Tick Loop
+    constexpr const int32 tickRate = 60; // Server runs at 60 ticks per second
+    constexpr const int32 totalFrameTime = 1000 / tickRate;
+    auto start = std::chrono::system_clock::now();
     while (true) {
-        {
-            auto start = std::chrono::system_clock::now();
+        auto now = std::chrono::system_clock::now();
+        float32 dt =
+            static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count()) / 1000.0f;
+        start = now;
 
-            Deep::Barrier barrier = jobSystem.AcquireBarrier();
-            for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); c != nullptr;
-                 c = arch_RigidBody.GetNextChunk(c)) {
-                jobSystem.Enqueue([offset_RigidBody, c, &arch_RigidBody]() {
-                    RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
-                    for (size_t i = 0; i < arch_RigidBody.GetChunkSize(c); ++i) {
-                        RigidBody& rb = comps[i];
-                        rb.position += rb.velocity;
-                    }
-                });
-            }
-            barrier.Wait();
+        // Network tick
+        NetTick(socket);
 
-            auto end = std::chrono::system_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            std::cout << elapsed.count() << "ms frame time - ";
-        }
+        // Perform tick
+        Tick(dt);
 
-        {
-            auto start = std::chrono::system_clock::now();
-            Deep::PacketWriter packet;
+        auto end = std::chrono::system_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << elapsed.count() << "ms tick time\n";
 
-            // packet.Write(static_cast<int32>(arch_RigidBody.size()));
-            packet.Write(10000);
-            size_t count = 0;
-            for (Deep::ECDB::Archetype::Chunk* c = arch_RigidBody.chunks(); count < 10000 && c != nullptr;
-                 c = arch_RigidBody.GetNextChunk(c)) {
-                RigidBody* comps = arch_RigidBody.GetCompList<RigidBody>(c, offset_RigidBody);
-                for (size_t i = 0; count < 10000 && i < arch_RigidBody.GetChunkSize(c); ++i) {
-                    RigidBody& rb = comps[i];
-                    packet.WriteHalf(rb.position);
-                    ++count;
-                }
-            }
-
-            socket.Send(packet);
-
-            auto end = std::chrono::system_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            std::cout << elapsed.count() << "ms net time\n";
-        }
-
+        // Spin lock for any wait time until next frame
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(50ms);
+        const long long timeleft = Deep::Max(totalFrameTime - elapsed.count(), 0ll);
+        while (std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
+                   .time_since_epoch()
+                   .count()
+               < std::chrono::time_point_cast<std::chrono::milliseconds>(end).time_since_epoch().count() + timeleft) {
+            // std::this_thread::sleep_for(std::chrono::microseconds{ 1 });
+        }
     };
 
     socket.Close();
