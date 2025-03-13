@@ -15,13 +15,19 @@ struct Net {
     // - Handle disconnects
     // - Design a proper protocol (currently only supports raw UDP)
 
-    Deep::UDPSocket socket;
-    std::vector<Deep::IPv4> clients;
+    Net(int32 port, size_t bufferSize = 4096) :
+        bufferSize(bufferSize), buffer(reinterpret_cast<uint8*>(Deep::Malloc(bufferSize))) {
+        socket.Open();
+        socket.Bind(23152);
+    };
 
-    constexpr static const size_t bufferSize = 4096;
-    uint8* buffer;
+    ~Net() {
+        socket.Close();
+        Deep::Free(buffer);
+    }
 
     void AddClient(Deep::IPv4 client) {
+        // NOTE(randomuserhi): A linear loop is used as number of clients is low
         for (auto c : clients) {
             if (c == client) return;
         }
@@ -34,20 +40,26 @@ struct Net {
             if (woResults != nullptr) woResults[i] = result;
         }
     }
+
+    Deep::UDPSocket socket;
+    std::vector<Deep::IPv4> clients;
+
+    const size_t bufferSize;
+    uint8* const buffer;
 };
 
-Deep_Inline void NetTick(Net& net) {
+static Deep_Inline void NetTick(Net& net) {
     size_t bytesReceived = 0;
     Deep::IPv4 fromAddress;
 
-    while (net.socket.Receive(net.buffer, Net::bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR
+    while (net.socket.Receive(net.buffer, net.bufferSize, bytesReceived, fromAddress) == DEEP_SOCKET_NOERROR
            && bytesReceived > 0) {
         net.AddClient(fromAddress);
         std::cout << "Received " << bytesReceived << " bytes.\n";
     }
 }
 
-Deep_Inline void Tick(Net& net, float32 dt) {
+static Deep_Inline void Tick(Net& net, float32 dt) {
     Deep::PacketWriter packet{};
     const uint8 msg[] = "hello";
     packet.Write(msg, sizeof msg);
@@ -57,11 +69,8 @@ Deep_Inline void Tick(Net& net, float32 dt) {
 int main() {
     Deep::InitializeSockets();
 
-    Net net;
-    net.buffer = reinterpret_cast<uint8*>(Deep::Malloc(Net::bufferSize));
+    Net net{ 23152 };
 
-    net.socket.Open();
-    int32 res = net.socket.Bind(23152);
     Deep::IPv4 address;
     net.socket.GetSockName(address);
     std::cout << "Server running on port " << address.port << "\n";
@@ -100,9 +109,7 @@ int main() {
         }
     };
 
-    // Cleanup
-    net.socket.Close();
-    Deep::Free(net.buffer);
-
     Deep::ShutdownSockets();
+
+    return 0;
 }
