@@ -44,25 +44,25 @@ namespace Deep {
         UDPSocket() :
             __impl__() {}
 
-        int32 GetSockName(IPv4& woAddress);
+        int32 GetSockName(IPv4& woAddress) const;
 
-        int32 GetPeerName(IPv4& woAddress);
+        int32 GetPeerName(IPv4& woAddress) const;
 
         int32 Open();
         int32 Close();
 
-        int32 Bind(uint16 port = 0);
-        int32 Connect(const IPv4 address);
+        int32 Bind(uint16 port = 0) const;
+        int32 Connect(IPv4 address) const;
 
         // NOTE(randomuserhi): When using `Bind`, these methods will error, use SendTo instead.
-        int32 Send(const uint8* data, size_t dataSize);
-        Deep_Inline int32 Send(const PacketWriter& packet);
+        int32 Send(const uint8* data, size_t dataSize) const;
+        Deep_Inline int32 Send(const PacketWriter& packet) const;
 
-        int32 SendTo(const uint8* data, size_t dataSize, const IPv4 address);
-        Deep_Inline int32 SendTo(const PacketWriter& packet, const IPv4 address);
+        int32 SendTo(const uint8* data, size_t dataSize, IPv4 address) const;
+        Deep_Inline int32 SendTo(const PacketWriter& packet, IPv4 address) const;
 
         // NOTE(randomuserhi): On error, woFromAddress will remain untouched.
-        int32 Receive(uint8* buffer, const size_t maxBufferSize, size_t& woBytesReceived, IPv4& woFromAddress);
+        int32 Receive(uint8* buffer, size_t maxBufferSize, size_t& woBytesReceived, IPv4& woFromAddress) const;
 
     private:
         __impl__::UDPSocket __impl__;

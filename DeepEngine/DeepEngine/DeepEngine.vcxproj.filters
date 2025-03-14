@@ -126,6 +126,9 @@
     <ClInclude Include="Deep\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Deep\Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\Entity\ECDB.cpp">
@@ -218,6 +221,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Deep\Entity.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Deep\Time.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

@@ -62,15 +62,17 @@ namespace Deep {
     }
 
     void PacketWriter::Write(Vec3 value) {
-        buffer.reserve(buffer.size() + sizeof(float32) * 3);
         Write(value.x);
         Write(value.y);
         Write(value.z);
     }
     void PacketWriter::WriteHalf(Vec3 value) {
-        buffer.reserve(buffer.size() + sizeof(float32) * 3);
         WriteHalf(value.x);
         WriteHalf(value.y);
         WriteHalf(value.z);
+    }
+
+    void PacketWriter::Clear() {
+        buffer.clear();
     }
 } // namespace Deep

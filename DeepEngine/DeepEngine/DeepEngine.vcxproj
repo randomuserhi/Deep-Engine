@@ -55,6 +55,7 @@
     <ClInclude Include="Deep\Memory\FixedSizeFreeList.h" />
     <ClInclude Include="Deep\Threading\JobSystem.h" />
     <ClInclude Include="Deep\Threading\Semaphore.h" />
+    <ClInclude Include="Deep\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deep\Deep.cpp" />
@@ -101,6 +102,7 @@
     <None Include="Deep\Memory\FixedSizeFreeList.inl" />
     <None Include="Deep\Threading\JobSystem.inl" />
     <None Include="Deep\Threading\Semaphore.inl" />
+    <None Include="Deep\Time.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

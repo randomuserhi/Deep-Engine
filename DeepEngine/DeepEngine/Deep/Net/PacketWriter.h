@@ -34,6 +34,8 @@ namespace Deep {
         Deep_Inline void WriteHalf(Vec3 value);
         void WriteHalf(Quat value);
 
+        Deep_Inline void Clear();
+
     private:
         std::vector<uint8> buffer;
     };
