@@ -50,7 +50,7 @@ public:
         return socket.SendTo(data, size, rwClient.address);
     }
 
-    Deep_Inline int32 Receive(size_t woBytesReceived, Deep::IPv4 woFromAddress) {
+    Deep_Inline int32 Receive(size_t& woBytesReceived, Deep::IPv4& woFromAddress) {
         int32 result = socket.Receive(buffer, bufferSize, woBytesReceived, woFromAddress);
         if (result != DEEP_SOCKET_NOERROR) return result;
 
