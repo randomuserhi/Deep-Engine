@@ -21,3 +21,8 @@ inline bool sequence_greater_than( uint16_t s1, uint16_t s2 ) {
 	       ( ( s1 < s2 ) && ( s2 - s1 > 32768 ) ); 
 }
 ```
+
+#### 3 Net examples
+- Handmade (the above)
+- [GameNetworkingSockets](https://github.com/ValveSoftware/GameNetworkingSockets/)
+- Steamworks API (Steam Relay)
