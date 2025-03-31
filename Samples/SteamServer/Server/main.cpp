@@ -15,7 +15,38 @@
 
 class Net {
     // TODO(randomuserhi):
+
+    Net(uint16 port) {
+        interface = SteamNetworkingSockets();
+
+        SteamNetworkingIPAddr serverLocalAddr;
+        serverLocalAddr.Clear();
+        serverLocalAddr.m_port = port;
+
+        SteamNetworkingConfigValue_t opt;
+        opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
+                   (void*)SteamNetConnectionStatusChangedCallback);
+
+        /*listenSock = m_pInterface->CreateListenSocketIP(serverLocalAddr, 1, &opt);
+        if (m_hListenSock == k_HSteamListenSocket_Invalid) FatalError("Failed to listen on port %d", nPort);
+        pollGroup = m_pInterface->CreatePollGroup();
+        if (m_hPollGroup == k_HSteamNetPollGroup_Invalid) FatalError("Failed to listen on port %d", nPort);
+        Printf("Server listening on port %d\n", nPort);*/
+    }
+
+    ~Net() {}
+
+private:
+    ISteamNetworkingSockets* interface;
+
+    void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pInfo) {}
+
+    static Net* instance;
+    static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo) {
+        instance->OnSteamNetConnectionStatusChanged(pInfo);
+    }
 };
+Net* Net::instance = nullptr;
 
 static Deep_Inline void NetTick(Net& net) {
     // TODO(randomuserhi):
