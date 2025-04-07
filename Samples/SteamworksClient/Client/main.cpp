@@ -16,7 +16,7 @@
 #include <thread>
 #include <vector>
 
-#define SERVER_STEAM_ID 76561198815023875u
+#define SERVER_STEAM_ID 0u
 
 class Net {
 public:
@@ -156,7 +156,7 @@ int main() {
     SteamNetworkingIdentity serverAddr;
     serverAddr.Clear();
     serverAddr.m_eType = k_ESteamNetworkingIdentityType_SteamID;
-    serverAddr.SetSteamID(CSteamID{ SERVER_STEAM_ID });
+    serverAddr.SetSteamID(CSteamID{ (uint64)SERVER_STEAM_ID });
     Net net{ serverAddr, 0 };
 
     // Main Tick Loop
