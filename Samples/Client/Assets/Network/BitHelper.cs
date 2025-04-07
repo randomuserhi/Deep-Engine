@@ -5,6 +5,50 @@ using System.Text;
 using UnityEngine;
 
 namespace Deep.Net {
+    public class ByteBuffer {
+        internal ArraySegment<byte> _array = new byte[1024];
+        internal ArraySegment<byte> Array => new ArraySegment<byte>(_array.Array!, _array.Offset, count);
+
+        public ByteBuffer() {
+            _array = new byte[1024];
+        }
+
+        public ByteBuffer(ArraySegment<byte> array) {
+            this._array = array;
+        }
+
+        internal byte this[int index] {
+            get { return _array[index]; }
+            set { _array[index] = value; }
+        }
+
+        internal int count = 0;
+        public int Count => count;
+
+        public void Clear() {
+            count = 0;
+        }
+
+        internal void Copy(ByteBuffer other) {
+            _array = new byte[other.count];
+            System.Array.Copy(other._array.Array!, other._array.Offset, _array.Array!, _array.Offset, other.count);
+        }
+
+        internal void Reserve(int size, bool increment = false) {
+            if (_array.Count - count < size) {
+                byte[] newArray = new byte[Mathf.Max(_array.Count * 2, count + size)];
+                System.Array.Copy(_array.Array!, _array.Offset, newArray, 0, _array.Count);
+                _array = newArray;
+            }
+            if (increment) count += size;
+        }
+
+        internal void Shrink() {
+            _array = new byte[1024];
+            GC.Collect();
+        }
+    }
+
     internal static class BitHelper {
         public class BitHelperBufferTooLarge : Exception {
             public BitHelperBufferTooLarge(string message) : base(message) { }
@@ -148,6 +192,150 @@ namespace Deep.Net {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe void _WriteBytes(byte* source, int size, ArraySegment<byte> destination, int index) {
+            for (int i = 0; i < size;) {
+                destination[index++] = source[i++];
+            }
+        }
+
+        public static unsafe void WriteBytes(byte value, ArraySegment<byte> destination, int index) {
+            destination[index++] = value;
+        }
+
+        public static void WriteBytes(bool value, ArraySegment<byte> destination, int index) {
+            WriteBytes((byte)(value ? 1 : 0), destination, index);
+        }
+
+        public static unsafe void WriteBytes(ulong value, ArraySegment<byte> destination, int index) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(ulong), destination, index);
+        }
+
+        public static unsafe void WriteBytes(uint value, ArraySegment<byte> destination, int index) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(uint), destination, index);
+        }
+
+        public static unsafe void WriteBytes(ushort value, ArraySegment<byte> destination, int index) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(ushort), destination, index);
+        }
+
+        public static unsafe void WriteBytes(long value, ArraySegment<byte> destination, int index) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(long), destination, index);
+        }
+
+        public static unsafe void WriteBytes(int value, ArraySegment<byte> destination, int index) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(int), destination, index);
+        }
+
+        public static unsafe void WriteBytes(short value, ArraySegment<byte> destination, int index) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(short), destination, index);
+        }
+
+        public static unsafe void WriteBytes(float value, ArraySegment<byte> destination, int index) {
+            int to32 = *((int*)&value);
+            if (!BitConverter.IsLittleEndian) to32 = ReverseEndianness(to32);
+            _WriteBytes((byte*)&to32, sizeof(int), destination, index);
+        }
+
+        public static unsafe void WriteBytes(string value, ArraySegment<byte> destination, int index) {
+            byte[] temp = Encoding.UTF8.GetBytes(value);
+            if (temp.Length > ushort.MaxValue) throw new BitHelperBufferTooLarge($"String value is too large, byte length must be smaller than {ushort.MaxValue}.");
+            WriteBytes((ushort)temp.Length, destination, index);
+            Array.Copy(temp, 0, destination.Array!, destination.Offset + index, temp.Length);
+            index += temp.Length;
+        }
+
+        public static unsafe void WriteBytes(ArraySegment<byte> buffer, ArraySegment<byte> destination, int index) {
+            WriteBytes(buffer.Count, destination, index);
+            Array.Copy(buffer.Array!, buffer.Offset, destination.Array!, destination.Offset + index, buffer.Count);
+            index += buffer.Count;
+        }
+
+        // Special function to halve precision of float
+        public static void WriteHalf(float value, ArraySegment<byte> destination, int index) {
+            WriteBytes(FloatToHalf(value), destination, index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe void _WriteBytes(byte* bytes, int size, ByteBuffer buffer) {
+            buffer.Reserve(size);
+            for (int i = 0; i < size; ++i) {
+                buffer[buffer.count++] = bytes[i];
+            }
+        }
+
+        public static unsafe void WriteBytes(byte value, ByteBuffer buffer) {
+            buffer.Reserve(1);
+            buffer[buffer.count++] = value;
+        }
+
+        public static void WriteBytes(bool value, ByteBuffer buffer) {
+            WriteBytes((byte)(value ? 1 : 0), buffer);
+        }
+
+        public static unsafe void WriteBytes(ulong value, ByteBuffer buffer) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(ulong), buffer);
+        }
+
+        public static unsafe void WriteBytes(uint value, ByteBuffer buffer) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(uint), buffer);
+        }
+
+        public static unsafe void WriteBytes(ushort value, ByteBuffer buffer) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(ushort), buffer);
+        }
+
+        public static unsafe void WriteBytes(long value, ByteBuffer buffer) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(long), buffer);
+        }
+
+        public static unsafe void WriteBytes(int value, ByteBuffer buffer) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(int), buffer);
+        }
+
+        public static unsafe void WriteBytes(short value, ByteBuffer buffer) {
+            if (!BitConverter.IsLittleEndian) value = ReverseEndianness(value);
+            _WriteBytes((byte*)&value, sizeof(short), buffer);
+        }
+
+        public static unsafe void WriteBytes(float value, ByteBuffer buffer) {
+            int to32 = *((int*)&value);
+            if (!BitConverter.IsLittleEndian) to32 = ReverseEndianness(to32);
+            _WriteBytes((byte*)&to32, sizeof(int), buffer);
+        }
+
+        public static unsafe void WriteBytes(string value, ByteBuffer buffer) {
+            byte[] temp = Encoding.UTF8.GetBytes(value);
+            if (value.Length > ushort.MaxValue) throw new BitHelperBufferTooLarge($"String value is too large, length must be smaller than {ushort.MaxValue}.");
+            WriteBytes((ushort)temp.Length, buffer);
+            buffer.Reserve(temp.Length);
+            Array.Copy(temp, 0, buffer._array.Array!, buffer._array.Offset + buffer.count, temp.Length);
+            buffer.count += temp.Length;
+        }
+
+        public static unsafe void WriteBytes(ArraySegment<byte> bytes, ByteBuffer buffer, bool includeCount = true) {
+            if (includeCount) WriteBytes(bytes.Count, buffer);
+            buffer.Reserve(bytes.Count);
+            Array.Copy(bytes.Array!, bytes.Offset, buffer._array.Array!, buffer._array.Offset + buffer.count, bytes.Count);
+            buffer.count += bytes.Count;
+        }
+
+        // Special function to halve precision of float
+        public static void WriteHalf(float value, ByteBuffer buffer) {
+            WriteBytes(FloatToHalf(value), buffer);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void _WriteBytes(byte* bytes, int size, FileStream fs) {
             for (int i = 0; i < size; ++i) {
                 fs.WriteByte(bytes[i]);
@@ -248,7 +436,6 @@ namespace Deep.Net {
         public static float Quantize(float x) {
             return HalfToFloat(FloatToHalf(x));
         }
-
 
         public static byte ReadByte(ArraySegment<byte> source, ref int index) {
             return source[index++];
@@ -355,7 +542,117 @@ namespace Deep.Net {
 
         public static string ReadString(ArraySegment<byte> source, ref int index) {
             int length = ReadUShort(source, ref index);
-            string temp = Encoding.ASCII.GetString(source.Array!, source.Offset + index, length);
+            string temp = Encoding.UTF8.GetString(source.Array!, source.Offset + index, length);
+            index += length;
+            return temp;
+        }
+
+        public static byte ReadByte(ArraySegment<byte> source, int index) {
+            return source[index++];
+        }
+
+        public static bool ReadBool(ArraySegment<byte> source, int index) {
+            return ReadByte(source, ref index) != 0;
+        }
+
+        public static unsafe ulong ReadULong(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(ulong);
+
+                ulong result = *(ulong*)ptr;
+                if (!BitConverter.IsLittleEndian) {
+                    result = ReverseEndianness(result);
+                }
+                return result;
+            }
+        }
+
+        public static unsafe long ReadLong(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(long);
+
+                long result = *(long*)ptr;
+                if (!BitConverter.IsLittleEndian) {
+                    result = ReverseEndianness(result);
+                }
+                return result;
+            }
+        }
+
+        public static unsafe uint ReadUInt(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(uint);
+
+                uint result = *(uint*)ptr;
+                if (!BitConverter.IsLittleEndian) {
+                    result = ReverseEndianness(result);
+                }
+                return result;
+            }
+        }
+
+        public static unsafe int ReadInt(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(int);
+
+                int result = *(int*)ptr;
+                if (!BitConverter.IsLittleEndian) {
+                    result = ReverseEndianness(result);
+                }
+                return result;
+            }
+        }
+
+        public static unsafe ushort ReadUShort(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(ushort);
+
+                ushort result = *(ushort*)ptr;
+                if (!BitConverter.IsLittleEndian) {
+                    result = ReverseEndianness(result);
+                }
+                return result;
+            }
+        }
+
+        public static unsafe short ReadShort(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(short);
+
+                short result = *(short*)(ptr);
+                if (!BitConverter.IsLittleEndian) {
+                    result = ReverseEndianness(result);
+                }
+                return result;
+            }
+        }
+
+        public static float ReadHalf(ArraySegment<byte> source, int index) {
+            return HalfToFloat(ReadUShort(source, ref index));
+        }
+
+        public static unsafe float ReadFloat(ArraySegment<byte> source, int index) {
+            fixed (byte* converted = source.Array!) {
+                byte* ptr = converted + source.Offset + index;
+                index += sizeof(float);
+
+                if (!BitConverter.IsLittleEndian) {
+                    int value = ReverseEndianness(*(int*)ptr);
+                    return *((float*)&value);
+                }
+                return *(float*)ptr;
+            }
+        }
+
+        public static string ReadString(ArraySegment<byte> source, int index) {
+            int length = ReadUShort(source, ref index);
+            string temp = Encoding.UTF8.GetString(source.Array!, source.Offset + index, length);
             index += length;
             return temp;
         }
@@ -364,6 +661,11 @@ namespace Deep.Net {
 
         public const int SizeOfVector3 = sizeof(float) * 3;
         public static void WriteBytes(Vector3 value, byte[] destination, ref int index) {
+            WriteBytes(value.x, destination, ref index);
+            WriteBytes(value.y, destination, ref index);
+            WriteBytes(value.z, destination, ref index);
+        }
+        public static void WriteBytes(Vector3 value, byte[] destination, int index) {
             WriteBytes(value.x, destination, ref index);
             WriteBytes(value.y, destination, ref index);
             WriteBytes(value.z, destination, ref index);
@@ -432,6 +734,145 @@ namespace Deep.Net {
                     WriteBytes(-value.x, destination, ref index);
                     WriteBytes(-value.y, destination, ref index);
                     WriteBytes(-value.z, destination, ref index);
+                }
+                break;
+            }
+        }
+        public static void WriteBytes(Quaternion value, byte[] destination, int index) {
+            value = value.normalized;
+
+            float largest = value.x;
+            byte i = 0;
+            if (value.y > largest) {
+                largest = value.y;
+                i = 1;
+            }
+            if (value.z > largest) {
+                largest = value.z;
+                i = 2;
+            }
+            if (value.w > largest) {
+                largest = value.w;
+                i = 3;
+            }
+
+            WriteBytes(i, destination, ref index);
+            switch (i) {
+            case 0:
+                if (value.x >= 0) {
+                    WriteBytes(value.y, destination, ref index);
+                    WriteBytes(value.z, destination, ref index);
+                    WriteBytes(value.w, destination, ref index);
+                } else {
+                    WriteBytes(-value.y, destination, ref index);
+                    WriteBytes(-value.z, destination, ref index);
+                    WriteBytes(-value.w, destination, ref index);
+                }
+                break;
+            case 1:
+                if (value.y >= 0) {
+                    WriteBytes(value.x, destination, ref index);
+                    WriteBytes(value.z, destination, ref index);
+                    WriteBytes(value.w, destination, ref index);
+                } else {
+                    WriteBytes(-value.x, destination, ref index);
+                    WriteBytes(-value.z, destination, ref index);
+                    WriteBytes(-value.w, destination, ref index);
+                }
+                break;
+            case 2:
+                if (value.z >= 0) {
+                    WriteBytes(value.x, destination, ref index);
+                    WriteBytes(value.y, destination, ref index);
+                    WriteBytes(value.w, destination, ref index);
+                } else {
+                    WriteBytes(-value.x, destination, ref index);
+                    WriteBytes(-value.y, destination, ref index);
+                    WriteBytes(-value.w, destination, ref index);
+                }
+                break;
+            case 3:
+                if (value.w >= 0) {
+                    WriteBytes(value.x, destination, ref index);
+                    WriteBytes(value.y, destination, ref index);
+                    WriteBytes(value.z, destination, ref index);
+                } else {
+                    WriteBytes(-value.x, destination, ref index);
+                    WriteBytes(-value.y, destination, ref index);
+                    WriteBytes(-value.z, destination, ref index);
+                }
+                break;
+            }
+        }
+
+        public static void WriteBytes(Vector3 value, ByteBuffer buffer) {
+            WriteBytes(value.x, buffer);
+            WriteBytes(value.y, buffer);
+            WriteBytes(value.z, buffer);
+        }
+
+        public static void WriteBytes(Quaternion value, ByteBuffer buffer) {
+            value = value.normalized;
+
+            float largest = value.x;
+            byte i = 0;
+            if (value.y > largest) {
+                largest = value.y;
+                i = 1;
+            }
+            if (value.z > largest) {
+                largest = value.z;
+                i = 2;
+            }
+            if (value.w > largest) {
+                largest = value.w;
+                i = 3;
+            }
+
+            WriteBytes(i, buffer);
+            switch (i) {
+            case 0:
+                if (value.x >= 0) {
+                    WriteBytes(value.y, buffer);
+                    WriteBytes(value.z, buffer);
+                    WriteBytes(value.w, buffer);
+                } else {
+                    WriteBytes(-value.y, buffer);
+                    WriteBytes(-value.z, buffer);
+                    WriteBytes(-value.w, buffer);
+                }
+                break;
+            case 1:
+                if (value.y >= 0) {
+                    WriteBytes(value.x, buffer);
+                    WriteBytes(value.z, buffer);
+                    WriteBytes(value.w, buffer);
+                } else {
+                    WriteBytes(-value.x, buffer);
+                    WriteBytes(-value.z, buffer);
+                    WriteBytes(-value.w, buffer);
+                }
+                break;
+            case 2:
+                if (value.z >= 0) {
+                    WriteBytes(value.x, buffer);
+                    WriteBytes(value.y, buffer);
+                    WriteBytes(value.w, buffer);
+                } else {
+                    WriteBytes(-value.x, buffer);
+                    WriteBytes(-value.y, buffer);
+                    WriteBytes(-value.w, buffer);
+                }
+                break;
+            case 3:
+                if (value.w >= 0) {
+                    WriteBytes(value.x, buffer);
+                    WriteBytes(value.y, buffer);
+                    WriteBytes(value.z, buffer);
+                } else {
+                    WriteBytes(-value.x, buffer);
+                    WriteBytes(-value.y, buffer);
+                    WriteBytes(-value.z, buffer);
                 }
                 break;
             }
@@ -513,8 +954,43 @@ namespace Deep.Net {
         public static Vector3 ReadVector3(ArraySegment<byte> source, ref int index) {
             return new Vector3(ReadFloat(source, ref index), ReadFloat(source, ref index), ReadFloat(source, ref index));
         }
+        public static Vector3 ReadVector3(ArraySegment<byte> source, int index) {
+            return new Vector3(ReadFloat(source, ref index), ReadFloat(source, ref index), ReadFloat(source, ref index));
+        }
 
         public static Quaternion ReadQuaternion(ArraySegment<byte> source, ref int index) {
+            byte i = ReadByte(source, ref index);
+            float x = 0, y = 0, z = 0, w = 0;
+            switch (i) {
+            case 0:
+                y = ReadFloat(source, ref index);
+                z = ReadFloat(source, ref index);
+                w = ReadFloat(source, ref index);
+                x = Mathf.Sqrt(Mathf.Clamp01(1f - y * y - z * z - w * w));
+                break;
+            case 1:
+                x = ReadFloat(source, ref index);
+                z = ReadFloat(source, ref index);
+                w = ReadFloat(source, ref index);
+                y = Mathf.Sqrt(Mathf.Clamp01(1f - x * x - z * z - w * w));
+                break;
+            case 2:
+                x = ReadFloat(source, ref index);
+                y = ReadFloat(source, ref index);
+                w = ReadFloat(source, ref index);
+                z = Mathf.Sqrt(Mathf.Clamp01(1f - x * x - y * y - w * w));
+                break;
+            case 3:
+                x = ReadFloat(source, ref index);
+                y = ReadFloat(source, ref index);
+                z = ReadFloat(source, ref index);
+                w = Mathf.Sqrt(Mathf.Clamp01(1f - x * x - y * y - z * z));
+                break;
+            }
+            return new Quaternion(x, y, z, w);
+        }
+
+        public static Quaternion ReadQuaternion(ArraySegment<byte> source, int index) {
             byte i = ReadByte(source, ref index);
             float x = 0, y = 0, z = 0, w = 0;
             switch (i) {
@@ -549,6 +1025,12 @@ namespace Deep.Net {
         public const int SizeOfHalfVector3 = SizeOfHalf * 3;
 
         public static void WriteHalf(Vector3 value, ArraySegment<byte> destination, ref int index) {
+            WriteHalf(value.x, destination, ref index);
+            WriteHalf(value.y, destination, ref index);
+            WriteHalf(value.z, destination, ref index);
+        }
+
+        public static void WriteHalf(Vector3 value, ArraySegment<byte> destination, int index) {
             WriteHalf(value.x, destination, ref index);
             WriteHalf(value.y, destination, ref index);
             WriteHalf(value.z, destination, ref index);
@@ -618,6 +1100,147 @@ namespace Deep.Net {
                     WriteHalf(-value.x, destination, ref index);
                     WriteHalf(-value.y, destination, ref index);
                     WriteHalf(-value.z, destination, ref index);
+                }
+                break;
+            }
+        }
+
+        public static void WriteHalf(Quaternion value, ArraySegment<byte> destination, int index) {
+            value = value.normalized;
+
+            float largest = value.x;
+            byte i = 0;
+            if (value.y > largest) {
+                largest = value.y;
+                i = 1;
+            }
+            if (value.z > largest) {
+                largest = value.z;
+                i = 2;
+            }
+            if (value.w > largest) {
+                largest = value.w;
+                i = 3;
+            }
+
+            WriteBytes(i, destination, ref index);
+            switch (i) {
+            case 0:
+                if (value.x >= 0) {
+                    WriteHalf(value.y, destination, ref index);
+                    WriteHalf(value.z, destination, ref index);
+                    WriteHalf(value.w, destination, ref index);
+                } else {
+                    WriteHalf(-value.y, destination, ref index);
+                    WriteHalf(-value.z, destination, ref index);
+                    WriteHalf(-value.w, destination, ref index);
+                }
+                break;
+            case 1:
+                if (value.y >= 0) {
+                    WriteHalf(value.x, destination, ref index);
+                    WriteHalf(value.z, destination, ref index);
+                    WriteHalf(value.w, destination, ref index);
+                } else {
+                    WriteHalf(-value.x, destination, ref index);
+                    WriteHalf(-value.z, destination, ref index);
+                    WriteHalf(-value.w, destination, ref index);
+                }
+                break;
+            case 2:
+                if (value.z >= 0) {
+                    WriteHalf(value.x, destination, ref index);
+                    WriteHalf(value.y, destination, ref index);
+                    WriteHalf(value.w, destination, ref index);
+                } else {
+                    WriteHalf(-value.x, destination, ref index);
+                    WriteHalf(-value.y, destination, ref index);
+                    WriteHalf(-value.w, destination, ref index);
+                }
+                break;
+            case 3:
+                if (value.w >= 0) {
+                    WriteHalf(value.x, destination, ref index);
+                    WriteHalf(value.y, destination, ref index);
+                    WriteHalf(value.z, destination, ref index);
+                } else {
+                    WriteHalf(-value.x, destination, ref index);
+                    WriteHalf(-value.y, destination, ref index);
+                    WriteHalf(-value.z, destination, ref index);
+                }
+                break;
+            }
+        }
+
+        public static void WriteHalf(Vector3 value, ByteBuffer buffer) {
+            WriteHalf(value.x, buffer);
+            WriteHalf(value.y, buffer);
+            WriteHalf(value.z, buffer);
+        }
+
+        // TODO:: This is using a byte + 3 16-Float, but I should use 3 bits + 3 15-Float
+        public static void WriteHalf(Quaternion value, ByteBuffer buffer) {
+            value = value.normalized;
+
+            float largest = value.x;
+            byte i = 0;
+            if (value.y > largest) {
+                largest = value.y;
+                i = 1;
+            }
+            if (value.z > largest) {
+                largest = value.z;
+                i = 2;
+            }
+            if (value.w > largest) {
+                largest = value.w;
+                i = 3;
+            }
+
+            WriteBytes(i, buffer);
+            switch (i) {
+            case 0:
+                if (value.x >= 0) {
+                    WriteHalf(value.y, buffer);
+                    WriteHalf(value.z, buffer);
+                    WriteHalf(value.w, buffer);
+                } else {
+                    WriteHalf(-value.y, buffer);
+                    WriteHalf(-value.z, buffer);
+                    WriteHalf(-value.w, buffer);
+                }
+                break;
+            case 1:
+                if (value.y >= 0) {
+                    WriteHalf(value.x, buffer);
+                    WriteHalf(value.z, buffer);
+                    WriteHalf(value.w, buffer);
+                } else {
+                    WriteHalf(-value.x, buffer);
+                    WriteHalf(-value.z, buffer);
+                    WriteHalf(-value.w, buffer);
+                }
+                break;
+            case 2:
+                if (value.z >= 0) {
+                    WriteHalf(value.x, buffer);
+                    WriteHalf(value.y, buffer);
+                    WriteHalf(value.w, buffer);
+                } else {
+                    WriteHalf(-value.x, buffer);
+                    WriteHalf(-value.y, buffer);
+                    WriteHalf(-value.w, buffer);
+                }
+                break;
+            case 3:
+                if (value.w >= 0) {
+                    WriteHalf(value.x, buffer);
+                    WriteHalf(value.y, buffer);
+                    WriteHalf(value.z, buffer);
+                } else {
+                    WriteHalf(-value.x, buffer);
+                    WriteHalf(-value.y, buffer);
+                    WriteHalf(-value.z, buffer);
                 }
                 break;
             }
@@ -701,8 +1324,44 @@ namespace Deep.Net {
             return new Vector3(ReadHalf(source, ref index), ReadHalf(source, ref index), ReadHalf(source, ref index));
         }
 
+        public static Vector3 ReadHalfVector3(ArraySegment<byte> source, int index) {
+            return new Vector3(ReadHalf(source, ref index), ReadHalf(source, ref index), ReadHalf(source, ref index));
+        }
+
         // TODO:: This is using a byte + 3 16-Float, but I should use 3 bits + 3 15-Float
         public static Quaternion ReadHalfQuaternion(ArraySegment<byte> source, ref int index) {
+            byte i = ReadByte(source, ref index);
+            float x = 0, y = 0, z = 0, w = 0;
+            switch (i) {
+            case 0:
+                y = ReadHalf(source, ref index);
+                z = ReadHalf(source, ref index);
+                w = ReadHalf(source, ref index);
+                x = Mathf.Sqrt(Mathf.Clamp01(1f - y * y - z * z - w * w));
+                break;
+            case 1:
+                x = ReadHalf(source, ref index);
+                z = ReadHalf(source, ref index);
+                w = ReadHalf(source, ref index);
+                y = Mathf.Sqrt(Mathf.Clamp01(1f - x * x - z * z - w * w));
+                break;
+            case 2:
+                x = ReadHalf(source, ref index);
+                y = ReadHalf(source, ref index);
+                w = ReadHalf(source, ref index);
+                z = Mathf.Sqrt(Mathf.Clamp01(1f - x * x - y * y - w * w));
+                break;
+            case 3:
+                x = ReadHalf(source, ref index);
+                y = ReadHalf(source, ref index);
+                z = ReadHalf(source, ref index);
+                w = Mathf.Sqrt(Mathf.Clamp01(1f - x * x - y * y - z * z));
+                break;
+            }
+            return new Quaternion(x, y, z, w);
+        }
+
+        public static Quaternion ReadHalfQuaternion(ArraySegment<byte> source, int index) {
             byte i = ReadByte(source, ref index);
             float x = 0, y = 0, z = 0, w = 0;
             switch (i) {

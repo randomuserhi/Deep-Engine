@@ -25,4 +25,7 @@ inline bool sequence_greater_than( uint16_t s1, uint16_t s2 ) {
 #### 3 Net examples
 - Handmade (the above)
 - [GameNetworkingSockets](https://github.com/ValveSoftware/GameNetworkingSockets/)
+	- [Building](https://www.youtube.com/watch?v=jS9rBienEFQ)
+	- Alternatively, follow the github BUILDING readme, but make sure to not have msys2 bound in system environment variables as it fucks up the VS developer console.
+	- When linking, remember to set compile definition  for `STEAMNETWORKINGSOCKETS_STATIC_LINK` [ref](https://stackoverflow.com/questions/70714178/linking-with-gamenetworkingsockets-library-on-windows-gives-unresolved-external)
 - Steamworks API (Steam Relay)
