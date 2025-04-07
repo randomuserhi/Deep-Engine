@@ -8,18 +8,19 @@
 #include <Deep/Time.h>
 #include <Deep/Net.h>
 
-#include <steam/steamnetworkingsockets.h>
+#include <steam/steam_api.h>
 #include <steam/isteamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
 
 // https://stackoverflow.com/a/62047818/9642458
 #include <chrono>
 #include <thread>
 #include <vector>
 
+#define SERVER_STEAM_ID 76561198815023875u
+
 class Net {
 public:
-    Net(const SteamNetworkingIPAddr& serverAddr) {
+    Net(const SteamNetworkingIdentity& serverAddr, int vPort) {
         Deep_Assert(Net::instance == nullptr, "Only one instance of net should exist.");
         Net::instance = this;
 
@@ -30,8 +31,7 @@ public:
         opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
                    reinterpret_cast<void*>(SteamNetConnectionStatusChangedCallback));
 
-        // NOTE(randomuserhi): IP connection just to dev on -> can use Relay later
-        connection = interface->ConnectByIPAddress(serverAddr, 1, &opt);
+        connection = interface->ConnectP2P(serverAddr, vPort, 1, &opt);
         Deep_Assert(connection != k_HSteamNetConnection_Invalid, "Failed to start client.");
     }
 
@@ -45,6 +45,7 @@ public:
     }
 
     void Tick() {
+        SteamAPI_RunCallbacks();
         interface->RunCallbacks();
 
         // Recieve messages:
@@ -56,7 +57,7 @@ public:
             Deep::PacketReader packet(reinterpret_cast<uint8*>(messageBuffer[i]->m_pData));
 
             // TODO(randomuserhi): Handle recieved packet, parse it bla bla
-            std::cout << "Recieved " << messageBuffer[i]->m_cbSize << "bytes: [" << packet.ReadUInt16() << "] "
+            std::cout << "Recieved " << messageBuffer[i]->m_cbSize << " bytes: [" << packet.ReadUInt16() << "] "
                       << packet.head << "\n";
 
             messageBuffer[i]->Release();
@@ -125,25 +126,38 @@ static Deep_Inline void Tick(Net& net, float32 dt) {
 }
 
 static void DebugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* pszMsg) {
-    std::cout << pszMsg << "\n";
+    std::cout << eType << ": " << pszMsg << "\n";
 }
 
 int main() {
     SteamDatagramErrMsg errMsg;
-    if (!GameNetworkingSockets_Init(nullptr, errMsg)) {
+    if (SteamAPI_InitEx(&errMsg) != k_ESteamAPIInitResult_OK) {
         std::cout << "Failed to initialize steam api: " << errMsg << "\n";
         return 1;
     }
 
-    ISteamNetworkingUtils* utils;
-    utils = SteamNetworkingUtils();
+    if (SteamAPI_RestartAppIfNecessary(0)) {
+        return 1; // Need to restart as not running from steam (STEAM DRM)
+    }
+
+    ISteamNetworkingUtils* utils = SteamNetworkingUtils();
+    Deep_Assert(utils != nullptr, "Failed to get util interface.");
 
     utils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, DebugOutput);
 
-    SteamNetworkingIPAddr address;
-    // address.ParseString("127.0.0.1:25617"); // NOTE(randomuserhi): Unresolved external symbol???
-    address.SetIPv6LocalHost(25617);
-    Net net{ address };
+    utils->InitRelayNetworkAccess();
+    ESteamNetworkingAvailability eAvailable;
+    while ((eAvailable = utils->GetRelayNetworkStatus(nullptr)) != k_ESteamNetworkingAvailability_Current) {
+        SteamAPI_RunCallbacks(); // NOTE(randomuserhi): Important otherwise steam cant handle the connection ...
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << "Connected to steam relay!\n";
+
+    SteamNetworkingIdentity serverAddr;
+    serverAddr.Clear();
+    serverAddr.m_eType = k_ESteamNetworkingIdentityType_SteamID;
+    serverAddr.SetSteamID(CSteamID{ SERVER_STEAM_ID });
+    Net net{ serverAddr, 0 };
 
     // Main Tick Loop
     constexpr const int32 tickRate = 60; // Server runs at 60 ticks per second
@@ -175,7 +189,7 @@ int main() {
         }
     };
 
-    GameNetworkingSockets_Kill();
+    SteamAPI_Shutdown();
 
     return 0;
 }

@@ -44,6 +44,9 @@ internal class rSteamClient : IDisposable {
         identity.SetSteamID(new CSteamID(steamid));
 
         connection = SteamNetworkingSockets.ConnectP2P(ref identity, virtualPort, options == null ? 0 : options.Length, options);
+        if (connection == HSteamNetConnection.Invalid) {
+            Debug.LogError("Failed to start client.");
+        }
         localClients.Add(connection);
 
         cb_OnConnectionStatusChanged = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
@@ -111,7 +114,7 @@ internal class rSteamClient : IDisposable {
             // Copy back to unmanaged
             Marshal.StructureToPtr(packet, packetPtr, true);
 
-            Debug.Log($"[{debugName}] Sent packet({dequeue}): {bytesWritten}/{data.Count}");
+            // Debug.Log($"[{debugName}] Sent packet({dequeue}): {bytesWritten}/{data.Count}");
         }
 
         SteamNetworkingSockets.SendMessages(numMessages, messages, results);
@@ -138,6 +141,8 @@ internal class rSteamClient : IDisposable {
         IntPtr[] messageBuffer = new IntPtr[50];
 
         do {
+            Debug.Log($"Client: {running}");
+
             while ((numMessages = SteamNetworkingSockets.ReceiveMessagesOnConnection(connection, messageBuffer, messageBuffer.Length)) > 0) {
                 for (int i = 0; i < numMessages; ++i) {
                     SteamNetworkingMessage_t message = SteamNetworkingMessage_t.FromIntPtr(messageBuffer[i]);
@@ -169,6 +174,8 @@ internal class rSteamClient : IDisposable {
 
             await Task.Delay(16);
         } while (numMessages >= 0 && running);
+
+        Debug.Log($"[{debugName}]: Ended receive loop.");
     }
 
     private void OnConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t callbackData) {
@@ -188,6 +195,7 @@ internal class rSteamClient : IDisposable {
             onAccept?.Invoke(this);
             connected = true;
             receiveTask = ReceiveMessages();
+            receiveTask.ConfigureAwait(false);
             break;
 
         case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
@@ -201,9 +209,6 @@ internal class rSteamClient : IDisposable {
 
     public void Dispose() {
         running = false;
-        receiveTask?.Wait();
-        receiveTask?.Dispose();
-        receiveTask = null;
         onClose?.Invoke(this);
         localClients.Remove(connection);
         SteamNetworkingSockets.CloseConnection(connection, 0, "Disconnect", false);

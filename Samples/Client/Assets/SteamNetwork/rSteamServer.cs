@@ -19,7 +19,6 @@ internal class rSteamServer : IDisposable {
     public OnClose onClose = null;
 
     private HSteamListenSocket server;
-    private Task receiveTask = null;
     private Callback<SteamNetConnectionStatusChangedCallback_t> cb_OnConnectionStatusChanged;
 
     private readonly string debugName;
@@ -28,6 +27,9 @@ internal class rSteamServer : IDisposable {
         this.debugName = debugName;
 
         server = SteamNetworkingSockets.CreateListenSocketP2P(virtualPort, options == null ? 0 : options.Length, options);
+        if (server == HSteamListenSocket.Invalid) {
+            Debug.LogError("Failed to start server.");
+        }
 
         cb_OnConnectionStatusChanged = Callback<SteamNetConnectionStatusChangedCallback_t>.Create(OnConnectionStatusChanged);
     }
@@ -46,11 +48,14 @@ internal class rSteamServer : IDisposable {
 
         public string name = "Unknown";
 
+        private Task receiveTask = null;
+
         public Connection(rSteamServer server, HSteamNetConnection connection) {
             this.connection = connection;
             this.server = server;
 
-            _ = ReceiveMessages();
+            receiveTask = ReceiveMessages();
+            receiveTask.ConfigureAwait(false);
         }
 
         public void Dispose() {
@@ -63,6 +68,8 @@ internal class rSteamServer : IDisposable {
             IntPtr[] messageBuffer = new IntPtr[50];
 
             do {
+                Debug.Log($"Server client: {running}");
+
                 while ((numMessages = SteamNetworkingSockets.ReceiveMessagesOnConnection(connection, messageBuffer, messageBuffer.Length)) > 0) {
                     for (int i = 0; i < numMessages; ++i) {
                         SteamNetworkingMessage_t message = SteamNetworkingMessage_t.FromIntPtr(messageBuffer[i]);
@@ -94,6 +101,8 @@ internal class rSteamServer : IDisposable {
 
                 await Task.Delay(16);
             } while (numMessages >= 0 && running);
+
+            Debug.Log($"[{server.debugName}]({connection.m_HSteamNetConnection}): Ended receive loop.");
         }
     }
 
@@ -194,9 +203,9 @@ internal class rSteamServer : IDisposable {
             EResult acceptResult = SteamNetworkingSockets.AcceptConnection(connection);
             if (acceptResult != EResult.k_EResultOK) {
                 Debug.Log($"[{debugName}] Failed to accept connection: {acceptResult}");
-                SteamNetworkingSockets.CloseConnection(connection, 0, "Failed to accept", false);
+                SteamNetworkingSockets.CloseConnection(connection, 0, "Failed to accept.", false);
             } else {
-                Debug.Log($"[{debugName}] Allowed {steamID} to spectate your lobby.");
+                Debug.Log($"[{debugName}] Allowed {steamID} to connect.");
             }
 
             break;
@@ -222,9 +231,11 @@ internal class rSteamServer : IDisposable {
     }
 
     public void Dispose() {
-        receiveTask?.Wait();
-        receiveTask?.Dispose();
-        receiveTask = null;
+        foreach (Connection client in currentConnections.Values) {
+            client.Dispose();
+        }
+        currentConnections.Clear();
+
         cb_OnConnectionStatusChanged.Dispose();
         SteamNetworkingSockets.CloseListenSocket(server);
         onClose?.Invoke();

@@ -6,17 +6,36 @@ using UnityEngine;
 
 internal class SteamTest : MonoBehaviour {
     private rSteamClient client;
+    private rSteamServer server;
 
     private void Start() {
-        rSteamwork.Init();
+        if (!SteamManager.Initialized) {
+            Debug.LogError("No steamworks.");
+            return;
+        }
 
-        SteamNetworkingIPAddr address = new SteamNetworkingIPAddr();
-        address.Clear();
-        address.SetIPv6LocalHost(25617);
-        client = new rSteamClient(address);
+        // TODO(randomuserhi): Should move elsewhere
+        if (!GameServer.Init(0x7f000001, 0, 0, EServerMode.eServerModeNoAuthentication, "0.0.0.1")) {
+            Debug.LogError("No game server.");
+            return;
+        }
+
+        /*// Wait for relay network access
+        SteamNetworkingUtils.InitRelayNetworkAccess();
+        SteamRelayNetworkStatus_t status;
+        ESteamNetworkingAvailability eAvailable;
+        while ((eAvailable = SteamNetworkingUtils.GetRelayNetworkStatus(out status)) != ESteamNetworkingAvailability.k_ESteamNetworkingAvailability_Current) {
+            SteamAPI.RunCallbacks(); // NOTE(randomuserhi): Important otherwise steam can't manage the connection status.
+            System.Threading.Thread.Sleep(100);
+        }
+        Debug.Log("Connected to Steam Relay!");*/
+
+        server = new rSteamServer(11111);
+
+        /*client = new rSteamClient(76561198815023875, 11111);
         client.onAccept += OnAccept;
         client.onReceive += OnReceive;
-        client.onFail += OnFail;
+        client.onFail += OnFail;*/
     }
 
     private void OnFail(rSteamClient client) {
@@ -42,8 +61,16 @@ internal class SteamTest : MonoBehaviour {
         client.Send(packet.Array);
     }
 
+    // TODO(randomuserhi): Should move elsewhere
+    private void OnDestroy() {
+        GameServer.Shutdown();
+    }
+
     private void OnApplicationQuit() {
         client?.Dispose();
         client = null;
+
+        server?.Dispose();
+        server = null;
     }
 }
